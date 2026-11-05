@@ -7,12 +7,13 @@ A button triggers an action when activated. This spec is theme independent: ever
 | Aspect | Summary |
 |---|---|
 | Parts | `container`, `label`, `leading-icon`, `trailing-icon`, `spinner` |
-| Configurations | label only, leading icon + label, label + trailing icon, both icons + label, icon-only |
-| Variants | `filled`, `tonal`, `outlined`, `text`, `danger` |
-| Sizes | `xs`, `s`, `m`, `l`, `xl` |
+| Configurations | label only, leading icon + label, label + trailing icon, both icons + label, icon-only; floating: icon-only or leading icon + label (extended) |
+| Variants | `filled`, `tonal`, `outlined`, `text`, `danger`; floating: `filled`, `tonal` only |
+| Sizes | `xs`, `s`, `m`, `l`, `xl`; floating: `l`, `xl` only |
 | Interactive states | `enabled`, `hover`, `focus`, `pressed` |
 | State properties | `disabled`, `loading` |
-| Behavior options | `full-width` |
+| Behavior options | `full-width`, `floating` |
+| Elevation | `level-0`; floating: `level-3` at rest, `level-4` on hover (not a token, see Token contract) |
 | Tokens required | 20 colors, 4 typography, 1 rounded, 18 spacing (see Token contract) |
 | Contrast entries | 16 `components` entries, `backgroundColor` and `textColor` only (see Token contract) |
 
@@ -22,6 +23,7 @@ A button triggers an action when activated. This spec is theme independent: ever
 - Do not use a button to navigate to another page: use a link.
 - The variant expresses emphasis. One screen area should have at most one `filled` button.
 - Use `danger` for a destructive action (delete, remove, discard). It is not an emphasis level: it signals risk.
+- Use `floating` for the single most important constructive action of a screen, kept reachable while the content scrolls (create, compose). Do not use it for secondary or destructive actions.
 
 ## Anatomy
 
@@ -53,19 +55,38 @@ Combination rules:
 - Icon-only is a property of the same component, not a separate component: the label is visually hidden, exactly one icon is shown in the `leading-icon` slot, and the accessible name is mandatory.
 - A button with no visible label and no icon is invalid.
 
+### Floating configurations
+
+`floating` is a property of the same component, like `icon-only`: it combines with a base configuration and changes elevation, allowed variants, and allowed sizes. Tokens and states stay shared.
+
+| Configuration | Base configuration | Allowed |
+|---|---|---|
+| floating-icon-only | icon-only | yes |
+| floating-extended | leading-icon-label | yes |
+| floating-label-only | label-only | no |
+| floating-trailing-icon | label-trailing-icon or leading-icon-label-trailing-icon | no |
+
+Floating combination rules:
+
+- A floating button always shows an icon in the `leading-icon` slot: the icon keeps the action recognizable at a glance over any content.
+- `trailing-icon` is not allowed with `floating`: a trailing icon reads as a menu or navigation cue, which a floating action is not.
+- `full-width` is not allowed with `floating`: a floating button never fills its parent.
+- Only `filled` and `tonal` are allowed with `floating` (see Variants), and only sizes `l` and `xl` (see Sizes).
+
 ## Properties
 
 | Property | Values | Default | Description |
 |---|---|---|---|
 | `variant` | `filled`, `tonal`, `outlined`, `text`, `danger` | `filled` | Emphasis level, or destructive action for `danger` |
-| `size` | `xs`, `s`, `m`, `l`, `xl` | `m` | Named dimension set |
+| `size` | `xs`, `s`, `m`, `l`, `xl` | `m`; `l` when `floating` is true | Named dimension set; `l` or `xl` only when `floating` is true |
 | `label` | text | none, required | Action name; accessible name |
 | `leading-icon` | icon reference | none | Optional icon before the label |
 | `trailing-icon` | icon reference | none | Optional icon after the label; not allowed with `icon-only` |
 | `icon-only` | `true`, `false` | `false` | Hides the label visually; requires `leading-icon` |
 | `disabled` | `true`, `false` | `false` | Button cannot be activated |
 | `loading` | `true`, `false` | `false` | Action in progress; button cannot be activated |
-| `full-width` | `true`, `false` | `false` | Container fills the width of its parent |
+| `full-width` | `true`, `false` | `false` | Container fills the width of its parent; not allowed with `floating` |
+| `floating` | `true`, `false` | `false` | Button floats above the content, resting at `level-3`; requires `leading-icon`, `filled` or `tonal`, size `l` or `xl` |
 
 ## Variants
 
@@ -76,6 +97,16 @@ Combination rules:
 | `outlined` | medium | none | yes | Secondary action |
 | `text` | low | none | none | Tertiary or inline action |
 | `danger` | highest | solid fill | none | Destructive action |
+
+Variants with `floating`:
+
+| Variant | Allowed with `floating` | Reason |
+|---|---|---|
+| `filled` | yes | Default floating look: the solid fill stands out over any content |
+| `tonal` | yes | Softer floating look; its fill still covers the content behind |
+| `outlined` | no | No fill: the content behind would show through the container and break the contrast pair, which is checked against `{colors.surface}` |
+| `text` | no | Same reason as `outlined`, with no border to outline the shape |
+| `danger` | no | A floating button is the most prominent action of a screen; a destructive action must not be the one kept always at hand |
 
 ## Sizes
 
@@ -102,6 +133,23 @@ Geometry rules:
 - Icon-only: the container is square, width equals height, padding inline does not apply, the icon is centered.
 - Container radius is `{rounded.control}` for every size.
 - Icons inherit the content color of the current variant and state.
+
+Floating sizes:
+
+| Size | Allowed with `floating` |
+|---|---|
+| `xs` | no |
+| `s` | no |
+| `m` | no |
+| `l` | yes, default |
+| `xl` | yes |
+
+Floating geometry rules:
+
+- Sizes and their tokens are those of the size table: no new dimension.
+- Floating icon-only follows the icon-only rule: square container, width equals height. With `{rounded.control}` it is a circle when the corner style is pill, a rounded square otherwise.
+- Floating extended follows the size table like any labeled button, with the same radius.
+- Position (corner, distance to the viewport edge, behavior on scroll) belongs to the page layout, not to this component.
 
 ## States
 
@@ -189,6 +237,23 @@ Border width is `{spacing.border-width}`.
 | Width | `{spacing.focus-ring-width}` |
 | Offset | `{spacing.focus-ring-offset}` |
 
+### Elevation
+
+A button without `floating` is at `level-0` in every state. A floating button uses the `filled` or `tonal` color tables above, plus the elevation below. Cell vocabulary: a level name.
+
+| State | Elevation |
+|---|---|
+| `enabled` | `level-3` |
+| `hover` | `level-4` |
+| `pressed` | `level-3` |
+| `disabled` | `level-3` |
+| `loading` | `level-3` |
+
+- At rest, the floating button is at `level-3`. On hover it rises one level, to `level-4`, an interaction level.
+- `pressed` returns to `level-3`: the press reads as pushing the button back toward its resting height. `level-5` is reserved for drag.
+- `disabled` and `loading` have no hover, so they stay at the resting `level-3`: the button still floats above the scrolling content.
+- `focus` adds the focus ring and never changes elevation.
+
 ## Token contract
 
 The theme must define every token below. The questionnaire asks for them; the generator fails if one is missing.
@@ -262,7 +327,7 @@ Each state color of `primary` and `danger` points to a step of a primitive scale
 
 ### Components entries (contrast checks)
 
-The DESIGN.md contrast rule checks only the `components` key. The kit therefore declares one entry per variant and per `enabled`, `hover`, and `pressed` state, using only the standard `backgroundColor` and `textColor` properties, and never any other property. `loading` reuses the `enabled` entry because its tokens are identical. `disabled` pairs are never declared in `components`, because WCAG 1.4.3 exempts inactive components and the lint would otherwise flag them; the disabled token mapping stays described in the Token mapping section, and `colors.disabled-container` and `colors.on-disabled` remain in the Colors token contract. When the container is `none`, `backgroundColor` is `{colors.surface}`. Every pair follows the contrast pair rule of `docs/conventions.md`: the backgrounds of `enabled`, `hover`, and `pressed` stay distinct, and the content token adapts to them, never the reverse.
+The DESIGN.md contrast rule checks only the `components` key. The kit therefore declares one entry per variant and per `enabled`, `hover`, and `pressed` state, using only the standard `backgroundColor` and `textColor` properties, and never any other property. `loading` reuses the `enabled` entry because its tokens are identical. `disabled` pairs are never declared in `components`, because WCAG 1.4.3 exempts inactive components and the lint would otherwise flag them; the disabled token mapping stays described in the Token mapping section, and `colors.disabled-container` and `colors.on-disabled` remain in the Colors token contract. When the container is `none`, `backgroundColor` is `{colors.surface}`. Every pair follows the contrast pair rule of `docs/conventions.md`: the backgrounds of `enabled`, `hover`, and `pressed` stay distinct, and the content token adapts to them, never the reverse. A floating button adds no entry: its `filled` and `tonal` pairs are those of `button-filled` and `button-tonal`.
 
 | Entry | backgroundColor | textColor |
 |---|---|---|
@@ -297,6 +362,8 @@ The DESIGN.md contrast rule checks only the `components` key. The kit therefore 
 
 Icon style (for example outlined, filled, or rounded, plus the icon library) is not a token. The theme records it in a free `## Icons` Markdown section of DESIGN.md.
 
+Elevation is not a token either. A floating button uses `level-3` at rest and `level-4` on hover, from the elevation table in the `## Elevation & Depth` section of DESIGN.md (see Elevation in `docs/conventions.md`); it is not counted in the totals.
+
 ## Accessibility
 
 | Topic | Requirement |
@@ -308,7 +375,10 @@ Icon style (for example outlined, filled, or rounded, plus the icon library) is 
 | Keyboard | `Enter` and `Space` activate the button. `Tab` moves focus to and from it. |
 | Disabled | Removed from the tab order, not activatable. |
 | Loading | Stays focusable, not activatable, announced as busy; the accessible name does not change. |
-| Target size | Hit area at least 24 by 24 CSS pixels (WCAG 2.2 criterion 2.5.8). For sizes rendered smaller, extend the hit area invisibly. 44 by 44 is recommended on touch screens. |
+| Target size | Hit area at least 24 by 24 CSS pixels (WCAG 2.2 criterion 2.5.8). For sizes rendered smaller, extend the hit area invisibly. 44 by 44 is recommended on touch screens; it is required for a floating button, whose hit area is extended invisibly when its size renders smaller. |
+| Floating, accessible name | Floating icon-only: the visually hidden `label` is mandatory and names the action ("Compose"). Floating extended: the visible label is the name. A tooltip may repeat the name but never replaces it. |
+| Floating, focus order | The floating button sits in the focus order where its action belongs in the reading order of the screen, usually after the content it acts on. Its visual position never changes its place in the focus order, and it is never forced first. |
+| Floating, content not hidden | It never permanently hides essential content or controls: the layout leaves room at the end of the scroll area so the last content can scroll out from under it, and a focused element is never hidden behind it (WCAG 2.2 criterion 2.4.11). |
 | Contrast | Text and icons reach at least 4.5:1 against their container. Delegated to the DESIGN.md lint through the `components` entries of the Token contract: each variant and `enabled`, `hover`, `pressed` pair, and `{colors.focus-ring}` against the surface. `hover` and `pressed` stay visually distinct from `enabled` and from each other; contrast is reached by adjusting the content, never by merging states. `disabled` is exempt (WCAG 1.4.3). |
 
 ## Behavior
@@ -317,6 +387,7 @@ Icon style (for example outlined, filled, or rounded, plus the icon library) is 
 - Loading: the `spinner` is centered and the other visible parts are hidden, but the button keeps its width so the layout does not shift.
 - Full width: with `full-width`, the container fills its parent and the content stays centered. Height still follows the size.
 - Label: single line, no wrap. If space runs out, the label is truncated with an ellipsis; the accessible name keeps the full text.
+- Floating: at most one floating button per screen. It rests at `level-3` and rises to `level-4` on hover only; hover and pressed feedback still comes first from the color tokens, as for any button. Its position is set by the page layout.
 
 ## Do and don't
 
@@ -328,10 +399,12 @@ Icon style (for example outlined, filled, or rounded, plus the icon library) is 
 | Use `disabled` only when the reason is visible nearby | Disable without explaining why |
 | Use a link for navigation | Use a button to change page |
 | Reserve `danger` for destructive actions | Use `danger` for emphasis only |
+| Keep one floating button for the main constructive action of a screen | Stack several floating buttons, or float a destructive action |
+| Leave room under a floating button so the last content can scroll into view | Let a floating button cover content or a focused control |
 
 ## Out of scope
 
-Animations, dark mode, button groups, split buttons, and semantic color variants other than `danger` (such as success or warning) are not covered by this spec.
+Animations, dark mode, button groups, split buttons, semantic color variants other than `danger` (such as success or warning), floating button menus (speed dial), extended floating buttons that collapse to icon-only on scroll, and the placement of the floating button on the page are not covered by this spec; contrast is checked only against `{colors.surface}`, so on an image or a dark background the user retouches the floating button colors after generation.
 
 ## Rationale
 
@@ -349,3 +422,11 @@ Animations, dark mode, button groups, split buttons, and semantic color variants
 | Content adjusts to the background, also on `tonal` | The rule "the content adjusts to the background, never the reverse" applies to `tonal` as well, not only to `outlined` and `text`: `{colors.on-primary-container}` is searched in steps `700`, `800`, then `900` against the `50`, `100`, and `200` backgrounds, and the backgrounds stay fixed |
 | One shared `{colors.on-primary-subtle}` | One token is computed against the darker of the two subtle backgrounds, so it is valid for both; a token per state would add a color for no visible gain |
 | Standard-only `components` entries | The lint checks contrast only there; standard properties keep the theme valid and the kit non-intrusive |
+| Floating as a property, not a component | User decision, same approach as icon-only: variants, states, and tokens stay shared; only elevation, allowed variants, and allowed sizes change. Material 3 uses a separate FAB component |
+| Floating icon-only and extended | Material 3 offers both the FAB and the extended FAB; both map to existing configurations of the button |
+| Floating `filled` and `tonal` only | A floating button covers content, so it needs its own fill; Material 3 FAB colors are filled containers. `danger` is excluded so a destructive action is never the one always at hand |
+| Floating sizes `l` and `xl` only | A floating button is the main action and is often used on touch; Material 3 FAB is 56dp by default, larger than a standard button, and `l` and `xl` are the closest control heights |
+| Floating at `level-3` at rest, `level-4` on hover | Material 3 FAB: resting level 3, raised one level on hover; `level-3` is the highest resting level of the scale |
+| Floating `pressed` at `level-3` | Material 3 FAB pressed returns to its resting level (unverified against the current Material 3 spec); `level-5` stays reserved for drag |
+| Floating `disabled` and `loading` at `level-3` | Neither state has hover, so both keep the resting level; the button keeps floating above the content. Material 3 FAB has no disabled state, so this is a kit decision |
+| No new `components` entry for floating | The floating colors are the `filled` and `tonal` pairs, already declared |

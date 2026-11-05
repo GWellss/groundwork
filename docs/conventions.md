@@ -56,9 +56,12 @@ The background moves first, the content follows.
 |---|---|---|---|
 | `light`, enabled with fill | step `50` | step `100` | step `200` |
 | `light`, enabled without fill | `{colors.surface}` | step `50` | step `100` |
+| `light`, enabled without fill, scale of `{colors.surface}` (neutral) | `{colors.surface}` | step `100` | step `200` |
 | `solid` | State colors rule | State colors rule | State colors rule |
 
 A variant with fewer states uses the first columns of its row.
+
+Surface scale: `{colors.surface}` is step `50` of the neutral scale. When the variant without fill takes its hover and pressed backgrounds from the scale of `{colors.surface}`, step `50` would equal the enabled background, so the sequence shifts by one step: surface, `100`, `200`. It stays in the `light` family, and the three backgrounds are distinct and each darker than the previous one.
 
 2. Content. The content color is then computed for the new backgrounds, with the search below. It may change from one state to the next; the background never does the adjusting.
 
@@ -91,6 +94,10 @@ A component with a dark background and light content (for example a tooltip) use
 - An entry that is not a variant state (for example `button-focus-ring`) is only checked for contrast.
 - Disabled-state pairs stay excluded (see below).
 
+### Known limit
+
+Contrast is checked only against `{colors.surface}`; on an image or a dark background (for example under a floating button), the user retouches the theme after generation.
+
 ## Lint and contrast
 
 - The DESIGN.md contrast rule (`contrast-ratio`) checks only the entries of the `components` key.
@@ -98,11 +105,65 @@ A component with a dark background and light content (for example a tooltip) use
 - Disabled-state pairs are never declared in `components`, because WCAG 1.4.3 exempts inactive components and the lint would otherwise flag them. The disabled token mapping stays described in the component spec, and the `on-disabled` and `disabled-container` tokens stay in the colors token contract.
 - Theme validation criterion: 0 errors and 0 `contrast-ratio` warnings. `orphaned-tokens` warnings on unused primitive palette steps are expected and tolerated; no other warning is.
 
+## Elevation
+
+Elevation (shadow) is not a token, like the icon style. The scale lives in the `## Elevation & Depth` Markdown section of DESIGN.md, as a table. Component specs designate a level by its name; they never hold a shadow value.
+
+### Levels
+
+The scale follows the Material 3 model: six levels, named after their relative distance above the surface. The level names are stable: they never change from one theme to another, and a theme never adds, removes, or renames a level.
+
+| Level | Role | Typical use |
+|---|---|---|
+| `level-0` | At rest, in the page flow, flat on the surface, no shadow | Every component that declares no level |
+| `level-1` | At rest, slightly raised, still in the page flow | Raised containers (no kit component yet) |
+| `level-2` | At rest, overlay tied to a trigger, shown for a short time | Tooltip; later menu, popover |
+| `level-3` | At rest, floating above the content while it scrolls | Floating button |
+| `level-4` | Interaction only, one step above a resting level | Hover of the floating button |
+| `level-5` | Interaction only, highest | Dragged element (no kit component yet) |
+
+- Resting state: a component at rest (no user interaction, for example `enabled`, `open`, `disabled`, `loading`) uses `level-0` to `level-3`.
+- Interaction states: `level-4` and `level-5` are reserved for user interaction states, such as hover and drag. A spec states which state uses which level; a state may also keep its resting level.
+- Each level reads as higher than the previous one. Only `level-0` has no shadow.
+- A level is a visual depth cue, not a stacking order. Which element is drawn on top (for example a tooltip over a floating button) belongs to the page layout.
+- Elevation never carries state feedback alone. Hover and pressed keep their color tokens, so a component stays fully usable without its shadow.
+- Future rule (dark mode is out of scope): in dark mode there is no shadow; depth is carried another way, for example by the surface tint.
+
+### Table in `## Elevation & Depth`
+
+The section may open with one short sentence, followed by exactly this table. The theme script generates this table automatically with default values for the six levels; the user may retouch the values afterwards. The script then reads the table and generates one CSS shadow variable per level from it; it is the only source of shadow values.
+
+| Column | Content |
+|---|---|
+| `Level` | The level name in backticks: `level-0` to `level-5` |
+| `Role` | The role of the level, short text |
+| `Shadow` | One complete CSS `box-shadow` value in backticks, or `none` |
+
+- One row per level, all six rows, in the order `level-0`, `level-1`, `level-2`, `level-3`, `level-4`, `level-5`. No other row.
+- The `level-0` row is always `none`.
+- One cell holds one complete value: no token reference, no partial value, no "same as above".
+- A retouched value still follows the rules above: each level reads as higher than the previous one.
+- The default values are given by `theme/questionnaire.md`, never by this file or by a component spec. No question is asked about shadows.
+
+### Forbidden
+
+- An `elevation`, `shadow`, or similar key in the YAML front matter. The CLI tolerates a custom key but ignores it in every export.
+- A reference such as `{elevation.level-2}`, in the theme or in a spec. The lint reports it as a broken reference.
+- Any shadow property in a `components` entry. The lint warns, which breaks the validation criterion; `components` entries stay `backgroundColor` and `textColor` only.
+
+### Reference from a spec
+
+- A spec designates a level by its name in backticks, for example `level-2`. Never a shadow value, never a token reference.
+- In Token mapping, elevation has its own short table, one row per state, when the level changes with the state; otherwise one line stating the level.
+- In Token contract, elevation is listed under "Non-token requirement", next to the icon style. It is not counted in the token totals.
+- A spec that declares no level is at `level-0` in every state.
+
 ## CLI facts (`@google/design.md` 0.4.0)
 
 - Free token names are accepted in `spacing` and `rounded` (for example `control-xs`, `icon-sm`, `border-width`, `rounded.control`).
 - The `css-vars` export exists, with an optional `--prefix`, but it does not export `typography`. The kit generates the typography variables itself.
 - Icon style is not a token. It lives in a free `## Icons` Markdown section of DESIGN.md (position free, accepted without warning), stating the style and the icon library. A top-level `icons` YAML key is rejected because exports ignore it.
+- There is no shadow or elevation token type and no YAML key for it. The DESIGN.md spec defines `Elevation & Depth` as a prose section describing the required styling (spread, blur, color). A custom `elevation` key is tolerated but ignored by exports; a `{elevation.*}` reference is a broken-ref error; any shadow property in `components` triggers a warning. The kit therefore keeps the scale as a table in `## Elevation & Depth` and generates the shadow CSS variables itself (see Elevation).
 
 ## Sizes
 
@@ -126,7 +187,7 @@ The reference spec is `components/button.md`. Every component spec uses the sect
 | 6 | Variants | Each variant and its intent | Table |
 | 7 | Sizes | Decision on how sizes are expressed, then one row per size, then geometry rules | Table: size, then one column per dimension |
 | 8 | States | Interactive states, then state properties (such as `disabled`, `loading`), then precedence | Two tables, one precedence line |
-| 9 | Token mapping | One table per variant: rows are states, columns are parts or properties | Short tables, at most five columns |
+| 9 | Token mapping | One table per variant: rows are states, columns are parts or properties; elevation by level name (see Elevation) | Short tables, at most five columns |
 | 10 | Token contract | Every token the theme must define, grouped by DESIGN.md group | One table per group: token, role |
 | 11 | Accessibility | Role, accessible name, focus, keyboard, target size, contrast | Table: topic, requirement |
 | 12 | Behavior | Runtime behavior not covered by states | Short list |

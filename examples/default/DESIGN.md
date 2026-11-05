@@ -51,6 +51,11 @@ colors:
   disabled-container: "{colors.neutral-100}"
   on-disabled: "{colors.neutral-500}"
   focus-ring: "{colors.blue-600}"
+  on-surface: "{colors.neutral-700}"
+  neutral-subtle-hover: "{colors.neutral-100}"
+  neutral-subtle-pressed: "{colors.neutral-200}"
+  inverse-surface: "{colors.neutral-900}"
+  on-inverse-surface: "#FFFFFF"
 typography:
   label-sm:
     fontFamily: "system-ui"
@@ -78,6 +83,7 @@ typography:
     letterSpacing: 0px
 rounded:
   control: 4px
+  overlay: 4px
 spacing:
   control-xs: 28px
   control-sm: 32px
@@ -94,6 +100,7 @@ spacing:
   lg: 16px
   xl: 20px
   2xl: 24px
+  tooltip-max-width: 240px
   border-width: 1px
   focus-ring-width: 2px
   focus-ring-offset: 2px
@@ -146,15 +153,48 @@ components:
   button-focus-ring:
     backgroundColor: "{colors.surface}"
     textColor: "{colors.focus-ring}"
+  chip-default:
+    backgroundColor: "{colors.surface}"
+    textColor: "{colors.on-surface}"
+  chip-default-hover:
+    backgroundColor: "{colors.neutral-subtle-hover}"
+    textColor: "{colors.on-surface}"
+  chip-default-pressed:
+    backgroundColor: "{colors.neutral-subtle-pressed}"
+    textColor: "{colors.on-surface}"
+  chip-selected:
+    backgroundColor: "{colors.primary-container}"
+    textColor: "{colors.on-primary-container}"
+  chip-selected-hover:
+    backgroundColor: "{colors.primary-container-hover}"
+    textColor: "{colors.on-primary-container}"
+  chip-selected-pressed:
+    backgroundColor: "{colors.primary-container-pressed}"
+    textColor: "{colors.on-primary-container}"
+  chip-remove:
+    backgroundColor: "{colors.surface}"
+    textColor: "{colors.on-surface}"
+  chip-remove-hover:
+    backgroundColor: "{colors.neutral-subtle-hover}"
+    textColor: "{colors.on-surface}"
+  chip-remove-pressed:
+    backgroundColor: "{colors.neutral-subtle-pressed}"
+    textColor: "{colors.on-surface}"
+  chip-focus-ring:
+    backgroundColor: "{colors.surface}"
+    textColor: "{colors.focus-ring}"
+  tooltip-plain:
+    backgroundColor: "{colors.inverse-surface}"
+    textColor: "{colors.on-inverse-surface}"
 ---
 
 ## Overview
 
-Design System is a design system theme for buttons and the components built on them. It uses a blue brand color (#2563EB), a red danger color (#DC2626), neutral grays, the system-ui font, soft corners and default density. Every value lives in this file; component specs only reference tokens.
+Design System is a design system theme for buttons, chips, tooltips and the components built on them. It uses a blue brand color (#2563EB), a red danger color (#DC2626), neutral grays, the system-ui font, soft corners and default density. Every value lives in this file; component specs only reference tokens.
 
 ## Colors
 
-The theme has three primitive scales: `blue-50` to `blue-900` for the brand, `red-50` to `red-900` for destructive actions, and `neutral-50` to `neutral-900` for grays and backgrounds. State colors are semantic tokens that point to scale steps. The `default` step is the first step from 600 to 900 reaching 4.5:1 in the worse case between white and `{colors.surface}`; `hover` is `default` plus 2 steps and `pressed` is `default` plus 4 steps, stopped at 900. Here the brand `default` is `blue-600` and the danger `default` is `red-600`. Content on a filled brand or danger color (`on-primary`, `on-danger`) is always white. Tonal containers use steps 50, 100 and 200 (enabled, hover, pressed); `on-primary-container` and `on-primary-subtle` are the first step from 700 to 900 reaching 4.5:1 on every background they serve.
+The theme has three primitive scales: `blue-50` to `blue-900` for the brand, `red-50` to `red-900` for destructive actions, and `neutral-50` to `neutral-900` for grays and backgrounds. State colors are semantic tokens that point to scale steps. The `default` step is the first step from 600 to 900 reaching 4.5:1 in the worse case between white and `{colors.surface}`; `hover` is `default` plus 2 steps and `pressed` is `default` plus 4 steps, stopped at 900. Here the brand `default` is `blue-600` and the danger `default` is `red-600`. Content on a filled brand or danger color (`on-primary`, `on-danger`) is always white. Tonal containers use steps 50, 100 and 200 (enabled, hover, pressed); `on-primary-container` and `on-primary-subtle` are the first step from 700 to 900 reaching 4.5:1 on every background they serve. The neutral chip uses `surface`, `neutral-subtle-hover` and `neutral-subtle-pressed` (neutral 50, 100, 200) with `on-surface`, found by the same search on the neutral scale. The tooltip is `inverse-surface` (neutral 900) with white `on-inverse-surface`.
 
 ## Typography
 
@@ -166,11 +206,20 @@ Density is default. Control heights: xs 28px, sm 32px, md 40px, lg 48px, xl 56px
 
 ## Elevation & Depth
 
-This theme defines no shadow or elevation token.
+This theme defines no shadow token: the elevation scale is this table.
+
+| Level | Role | Shadow |
+|---|---|---|
+| `level-0` | At rest, flat on the surface | none |
+| `level-1` | At rest, slightly raised | `0 1px 2px rgba(0, 0, 0, 0.30), 0 1px 3px 1px rgba(0, 0, 0, 0.15)` |
+| `level-2` | At rest, overlay tied to a trigger | `0 1px 2px rgba(0, 0, 0, 0.30), 0 2px 6px 2px rgba(0, 0, 0, 0.15)` |
+| `level-3` | At rest, floating above scrolling content | `0 1px 3px rgba(0, 0, 0, 0.30), 0 4px 8px 3px rgba(0, 0, 0, 0.15)` |
+| `level-4` | Interaction only, one step above a resting level | `0 2px 3px rgba(0, 0, 0, 0.30), 0 6px 10px 4px rgba(0, 0, 0, 0.15)` |
+| `level-5` | Interaction only, highest | `0 4px 4px rgba(0, 0, 0, 0.30), 0 8px 12px 6px rgba(0, 0, 0, 0.15)` |
 
 ## Shapes
 
-Corners are soft: `rounded.control` is 4px.
+Corners are soft: `rounded.control` is 4px and `rounded.overlay` (tooltip) is 4px.
 
 ## Icons
 
@@ -178,7 +227,7 @@ Icon style: outlined. Icon library: Material Symbols.
 
 ## Components
 
-The `components` entries declare one `backgroundColor` and `textColor` pair per button variant and per `enabled`, `hover` and `pressed` state, plus the focus ring against the surface, so the lint checks contrast. Disabled pairs are exempt (WCAG 1.4.3) and are not declared. See the component specs in the kit, starting with `button.md`.
+The `components` entries declare one `backgroundColor` and `textColor` pair per button variant, per chip group and per `enabled`, `hover` and `pressed` state, plus the focus rings against the surface and the tooltip pair, so the lint checks contrast. Disabled pairs are exempt (WCAG 1.4.3) and are not declared. See the component specs in the kit: `button.md`, `chip.md`, `tooltip.md`.
 
 ## Do's and Don'ts
 

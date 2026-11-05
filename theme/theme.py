@@ -2,7 +2,7 @@
 """Generate a DESIGN.md theme (and a contrast report) from the 8 questionnaire answers.
 
 Python 3 standard library only, single file. Rules come from theme/questionnaire.md,
-docs/conventions.md and components/button.md.
+docs/conventions.md and the component specs in components/.
 
 Usage (terminal):
     python3 theme.py --out DESIGN.md                      # all defaults
@@ -34,13 +34,24 @@ ACCENT = ("primary", "danger", "focus-ring")
 SIZES = ("sm", "md", "lg", "xl")
 FONT_SIZE = {"compact": (12, 13, 14, 16), "default": (12, 14, 16, 18), "comfortable": (13, 15, 17, 20)}
 ROUNDED = {"sharp": "0px", "soft": "4px", "rounded": "8px", "pill": "9999px"}
+OVERLAY = {"sharp": "0px", "soft": "4px", "rounded": "8px", "pill": "8px"}  # never a stadium shape
 SPACING = {  # token: (compact, default, comfortable)
     "control-xs": (24, 28, 32), "control-sm": (28, 32, 40), "control-md": (32, 40, 48),
     "control-lg": (40, 48, 56), "control-xl": (48, 56, 64),
     "icon-sm": (14, 16, 20), "icon-md": (16, 20, 24), "icon-lg": (20, 24, 28), "icon-xl": (24, 28, 32),
     "xs": (2, 4, 6), "sm": (6, 8, 10), "md": (8, 12, 16), "lg": (12, 16, 20), "xl": (16, 20, 24), "2xl": (20, 24, 32),
+    "tooltip-max-width": (200, 240, 280),
 }
 DENSITIES = ("compact", "default", "comfortable")
+
+ELEVATION = (  # level, role, box-shadow (questionnaire.md, "Elevation")
+    ("level-0", "At rest, flat on the surface", "none"),
+    ("level-1", "At rest, slightly raised", "0 1px 2px rgba(0, 0, 0, 0.30), 0 1px 3px 1px rgba(0, 0, 0, 0.15)"),
+    ("level-2", "At rest, overlay tied to a trigger", "0 1px 2px rgba(0, 0, 0, 0.30), 0 2px 6px 2px rgba(0, 0, 0, 0.15)"),
+    ("level-3", "At rest, floating above scrolling content", "0 1px 3px rgba(0, 0, 0, 0.30), 0 4px 8px 3px rgba(0, 0, 0, 0.15)"),
+    ("level-4", "Interaction only, one step above a resting level", "0 2px 3px rgba(0, 0, 0, 0.30), 0 6px 10px 4px rgba(0, 0, 0, 0.15)"),
+    ("level-5", "Interaction only, highest", "0 4px 4px rgba(0, 0, 0, 0.30), 0 8px 12px 6px rgba(0, 0, 0, 0.15)"),
+)
 
 # Hue ranges in OKLCH degrees: (upper bound exclusive, name). Hues >= 336 or < 12 are pink.
 HUE_NAMES = ((12, "pink"), (37, "red"), (52, "orange"), (70, "amber"), (110, "yellow"), (165, "green"),
@@ -213,12 +224,14 @@ def derive(a):
         "danger-hover": ref(d, dd + 2), "danger-pressed": ref(d, dd + 4),
         "outline": "{colors.neutral-500}", "disabled-container": "{colors.neutral-100}",
         "on-disabled": "{colors.neutral-500}", "focus-ring": ref(b, bd),
+        "on-surface": None, "neutral-subtle-hover": "{colors.neutral-100}", "neutral-subtle-pressed": "{colors.neutral-200}",
+        "inverse-surface": "{colors.neutral-900}", "on-inverse-surface": WHITE,
     }
-    assert len(sem) == 20
+    assert len(sem) == 25
     flat.update(sem)
-    for tok in ("on-primary-container", "on-primary-subtle"):  # darkest background of the token decides
-        bgs = [resolve(flat, "{colors.%s}" % bg) for _, bg, fg in components() if fg == tok]
-        flat[tok] = ref(b, content_index(colors[b], bgs) or 9)  # 900 failing is reported by check()
+    for tok, sc in (("on-primary-container", b), ("on-primary-subtle", b), ("on-surface", "neutral")):
+        bgs = [resolve(flat, "{colors.%s}" % bg) for _, bg, fg in components() if fg == tok]  # darkest decides
+        flat[tok] = ref(sc, content_index(colors[sc], bgs) or 9)  # 900 failing is reported by check()
     return flat, info
 
 
@@ -234,6 +247,14 @@ def components():
             out.append(("button-%s%s" % (v, "-" + st if st else ""), b, "on-primary-subtle" if st and not bg else fg))
     out.append(("button-focus-ring", "surface", "focus-ring"))
     assert len(out) == 16
+    for v, bgs, fg in (("default", ("surface", "neutral-subtle-hover", "neutral-subtle-pressed"), "on-surface"),
+                       ("selected", ("primary-container", "primary-container-hover", "primary-container-pressed"), "on-primary-container"),
+                       ("remove", ("surface", "neutral-subtle-hover", "neutral-subtle-pressed"), "on-surface")):
+        for st, bg in zip(("", "hover", "pressed"), bgs):
+            out.append(("chip-%s%s" % (v, "-" + st if st else ""), bg, fg))
+    out.append(("chip-focus-ring", "surface", "focus-ring"))
+    out.append(("tooltip-plain", "inverse-surface", "on-inverse-surface"))
+    assert len(out) == 27
     return out
 
 
@@ -301,7 +322,7 @@ def design_md(a, colors, info, comps):
     for s, px in zip(SIZES, sizes):
         y += ["  label-" + s + ":", "    fontFamily: " + q(a.font), "    fontSize: %dpx" % px, "    fontWeight: 500",
               "    lineHeight: %dpx" % math.floor(px * 1.25 + 0.5), "    letterSpacing: 0px"]
-    y += ["rounded:", "  control: " + ROUNDED[a.corners], "spacing:"]
+    y += ["rounded:", "  control: " + ROUNDED[a.corners], "  overlay: " + OVERLAY[a.corners], "spacing:"]
     y += ["  %s: %dpx" % (k, v[di]) for k, v in SPACING.items()]
     y += ["  border-width: 1px", "  focus-ring-width: 2px", "  focus-ring-offset: 2px", "components:"]
     for n, bg, fg in comps:
@@ -310,14 +331,15 @@ def design_md(a, colors, info, comps):
     sc = lambda k: "`%s-50` to `%s-900`" % ((ni.get(k, k),) * 2)
     ctl = ", ".join("%s %dpx" % (k[8:], v[di]) for k, v in SPACING.items() if k.startswith("control"))
     sp = ", ".join("%s %dpx" % (k, v[di]) for k, v in SPACING.items() if k in ("xs", "sm", "md", "lg", "xl", "2xl"))
+    elev = "\n".join("| `%s` | %s | %s |" % (l, r, "`%s`" % s if s != "none" else s) for l, r, s in ELEVATION)
     body = f"""
 ## Overview
 
-{a.name} is a design system theme for buttons and the components built on them. It uses a {ni['brand']} brand color ({a.brand}), a {ni['danger']} danger color ({a.danger}), {a.neutral} grays, the {a.font} font, {a.corners} corners and {a.density} density. Every value lives in this file; component specs only reference tokens.
+{a.name} is a design system theme for buttons, chips, tooltips and the components built on them. It uses a {ni['brand']} brand color ({a.brand}), a {ni['danger']} danger color ({a.danger}), {a.neutral} grays, the {a.font} font, {a.corners} corners and {a.density} density. Every value lives in this file; component specs only reference tokens.
 
 ## Colors
 
-The theme has three primitive scales: {sc('brand')} for the brand, {sc('danger')} for destructive actions, and {sc('neutral')} for grays and backgrounds. State colors are semantic tokens that point to scale steps. The `default` step is the first step from 600 to 900 reaching 4.5:1 in the worse case between white and `{{colors.surface}}`; `hover` is `default` plus 2 steps and `pressed` is `default` plus 4 steps, stopped at 900. Here the brand `default` is `{ni['brand']}-{STEPS[ix['brand']]}` and the danger `default` is `{ni['danger']}-{STEPS[ix['danger']]}`. Content on a filled brand or danger color (`on-primary`, `on-danger`) is always white. Tonal containers use steps 50, 100 and 200 (enabled, hover, pressed); `on-primary-container` and `on-primary-subtle` are the first step from 700 to 900 reaching 4.5:1 on every background they serve.
+The theme has three primitive scales: {sc('brand')} for the brand, {sc('danger')} for destructive actions, and {sc('neutral')} for grays and backgrounds. State colors are semantic tokens that point to scale steps. The `default` step is the first step from 600 to 900 reaching 4.5:1 in the worse case between white and `{{colors.surface}}`; `hover` is `default` plus 2 steps and `pressed` is `default` plus 4 steps, stopped at 900. Here the brand `default` is `{ni['brand']}-{STEPS[ix['brand']]}` and the danger `default` is `{ni['danger']}-{STEPS[ix['danger']]}`. Content on a filled brand or danger color (`on-primary`, `on-danger`) is always white. Tonal containers use steps 50, 100 and 200 (enabled, hover, pressed); `on-primary-container` and `on-primary-subtle` are the first step from 700 to 900 reaching 4.5:1 on every background they serve. The neutral chip uses `surface`, `neutral-subtle-hover` and `neutral-subtle-pressed` (neutral 50, 100, 200) with `on-surface`, found by the same search on the neutral scale. The tooltip is `inverse-surface` (neutral 900) with white `on-inverse-surface`.
 
 ## Typography
 
@@ -329,11 +351,15 @@ Density is {a.density}. Control heights: {ctl}. Spacing scale: {sp}. Borders are
 
 ## Elevation & Depth
 
-This theme defines no shadow or elevation token.
+This theme defines no shadow token: the elevation scale is this table.
+
+| Level | Role | Shadow |
+|---|---|---|
+{elev}
 
 ## Shapes
 
-Corners are {a.corners}: `rounded.control` is {ROUNDED[a.corners]}.
+Corners are {a.corners}: `rounded.control` is {ROUNDED[a.corners]} and `rounded.overlay` (tooltip) is {OVERLAY[a.corners]}.
 
 ## Icons
 
@@ -341,7 +367,7 @@ Icon style: {style}. Icon library: {lib}.
 
 ## Components
 
-The `components` entries declare one `backgroundColor` and `textColor` pair per button variant and per `enabled`, `hover` and `pressed` state, plus the focus ring against the surface, so the lint checks contrast. Disabled pairs are exempt (WCAG 1.4.3) and are not declared. See the component specs in the kit, starting with `button.md`.
+The `components` entries declare one `backgroundColor` and `textColor` pair per button variant, per chip group and per `enabled`, `hover` and `pressed` state, plus the focus rings against the surface and the tooltip pair, so the lint checks contrast. Disabled pairs are exempt (WCAG 1.4.3) and are not declared. See the component specs in the kit: `button.md`, `chip.md`, `tooltip.md`.
 
 ## Do's and Don'ts
 
@@ -408,6 +434,14 @@ def selftest():
     assert report(bad, components())[1] == 2
     bad = dict(colors, **{"on-primary-subtle": "{colors.blue-600}"})  # step 600 on a light background: must fail
     assert report(bad, components())[1] == 4
+    assert len(colors) - 30 == 25 and len(components()) == 27, "25 semantic colors, 27 components entries"
+    assert colors["on-surface"].startswith("{colors.neutral-") and colors["inverse-surface"] == "{colors.neutral-900}"
+    text = design_md(a, colors, info, components())
+    front = text.split("---")[1]
+    assert not re.search(r"shadow|elevation", front, re.I), "no shadow key in the front matter or in components"
+    rows = re.findall(r"^\| `(level-\d)` \|.*\| (.+) \|$", text, re.M)
+    assert [r[0] for r in rows] == ["level-%d" % i for i in range(6)] and rows[0][1] == "none", rows
+    assert "  overlay: 4px" in front and "  tooltip-max-width: 240px" in front
     print("selftest ok")
 
 

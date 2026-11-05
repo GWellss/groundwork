@@ -1,6 +1,6 @@
 # Theme questionnaire
 
-This file is for an AI agent. Follow it to produce a valid DESIGN.md theme from the fewest possible answers from the user. Token names come from the Token contract of `components/button.md`; conventions come from `docs/conventions.md`. Both take precedence over this file if they differ. The contrast rule is defined once, in the "State colors" and "Contrast pairs" sections of `docs/conventions.md`; this file applies it and does not restate it.
+This file is for an AI agent. Follow it to produce a valid DESIGN.md theme from the fewest possible answers from the user. Token names come from the Token contract of every component spec in `components/` (`button.md`, `chip.md`, `tooltip.md`); conventions come from `docs/conventions.md`. Both take precedence over this file if they differ. The contrast rule is defined once, in the "State colors" and "Contrast pairs" sections of `docs/conventions.md`; this file applies it and does not restate it.
 
 ## Step 0: identify your level
 
@@ -29,8 +29,9 @@ Before asking anything, find out which tools you have. Pick the highest level th
 ### Level 3: no tools
 
 - Never compute a color, a contrast ratio, or a scale yourself, even approximately. Every color value comes from `theme/palettes.md`.
-- You do: ask the questions. Replace the `brand` and `danger` questions with "Choose the range closest to your brand color" among the 14 ranges of `theme/palettes.md`. If the user gives a hex code, propose the closest range and say that the match is approximate. For the `neutral` question, map the answer to a range of `theme/palettes.md`: neutral → `gray`, warm → `warm-gray`, cool → `cool-gray`. Do not offer the "tinted with the brand color" option at this level, because no precomputed range exists for it: propose only the other three, and if the user wants a tinted gray, say that it requires Level 1 or Level 2. Take density, corners, and typography from the default tables below. Copy the precomputed steps (`default`, `hover`, `pressed`, and the other steps of the range) into the DESIGN.md.
-- You delegate: the final check, to the user, with an online contrast checker such as WebAIM Contrast Checker (https://webaim.org/resources/contrastchecker/). List the key pairs to check, each with its two hex values: every `components` entry that pairs a background with a text color, and at least the `primary` on `surface` pair.
+- You do: ask the questions. Replace the `brand` and `danger` questions with "Choose the range closest to your brand color" among the 14 ranges of `theme/palettes.md`. If the user gives a hex code, propose the closest range and say that the match is approximate. For the `neutral` question, map the answer to a range of `theme/palettes.md`: neutral → `gray`, warm → `warm-gray`, cool → `cool-gray`. Do not offer the "tinted with the brand color" option at this level, because no precomputed range exists for it: propose only the other three, and if the user wants a tinted gray, say that it requires Level 1 or Level 2. Take density, corners, and typography from the default tables below. Copy the precomputed steps (`default`, `hover`, `pressed`, and the other steps of the range) into the DESIGN.md. For the neutral-derived colors, use the range chosen for `neutral` (`gray`, `warm-gray`, or `cool-gray`): `on-surface` is the `on-container` row of that range (step `700`, searched against steps `50`, `100`, `200`, which are `surface`, `neutral-subtle-hover`, and `neutral-subtle-pressed`); `neutral-subtle-hover` is step `100`, `neutral-subtle-pressed` is step `200`, `inverse-surface` is step `900`, and `on-inverse-surface` is white. Name the copied scale `neutral` in the DESIGN.md. If a value needed here is missing from `theme/palettes.md`, say so to the user instead of computing it.
+- Elevation: copy the default table of "Elevation" below; it needs no computation.
+- You delegate: the final check, to the user, with an online contrast checker such as WebAIM Contrast Checker (https://webaim.org/resources/contrastchecker/). List the key pairs to check, each with its two hex values: every `components` entry that pairs a background with a text color (including the 10 `chip-*` entries and `tooltip-plain`), and at least the `primary` on `surface` pair. Neutral-derived values (`on-surface`, `neutral-subtle-hover`, `neutral-subtle-pressed`, `inverse-surface`) come from the range chosen for `neutral`, as described in "Semantic color tokens".
 - Done when: the DESIGN.md is delivered, the list of pairs to check is given, and you have said that the contrast was copied from precomputed values and not verified in this conversation.
 
 ## Principle
@@ -60,10 +61,10 @@ Before asking anything, find out which tools you have. Pick the highest level th
 | `name` | product name, else "Design System" | DESIGN.md `name`, Overview section |
 | `brand` | `#2563EB` | primary scale and every `primary-*` and `on-primary*` color; `focus-ring` |
 | `danger` | `#DC2626` | danger scale; `danger`, `on-danger`, `danger-hover`, `danger-pressed` |
-| `neutral` | neutral | neutral scale; `surface`, `outline`, `disabled-container`, `on-disabled` |
+| `neutral` | neutral | neutral scale; `surface`, `on-surface`, `neutral-subtle-hover`, `neutral-subtle-pressed`, `inverse-surface`, `outline`, `disabled-container`, `on-disabled` |
 | `font` | system UI font | `fontFamily` of the 4 typography tokens |
-| `corners` | soft | `rounded.control` |
-| `density` | default | `spacing` sizes (control, icon, gaps, paddings), `fontSize` of the 4 typography tokens |
+| `corners` | soft | `rounded.control`, `rounded.overlay` |
+| `density` | default | `spacing` sizes (control, icon, gaps, paddings, `tooltip-max-width`), `fontSize` of the 4 typography tokens |
 | `icons` | outlined, Material Symbols | `## Icons` section (no token) |
 
 ## Derivation rules
@@ -103,12 +104,13 @@ For the neutral scale, set `neutral-50` to lightness 0.99, so that the surface i
 
 ### Content colors
 
-`on-primary` and `on-danger` are white (`#FFFFFF`). The other two content colors depend on the light backgrounds they serve:
+`on-primary`, `on-danger`, and `on-inverse-surface` are white (`#FFFFFF`). The other three content colors depend on the light backgrounds they serve:
 
-- `on-primary-container`: content of the `tonal` variant, on the backgrounds `primary-container`, `primary-container-hover`, and `primary-container-pressed` (brand steps `50`, `100`, `200`).
+- `on-primary-container`: content of the `tonal` variant and of the `selected` chip, on the backgrounds `primary-container`, `primary-container-hover`, and `primary-container-pressed` (brand steps `50`, `100`, `200`).
 - `on-primary-subtle`: content of the `outlined` and `text` variants on hover and pressed, on the backgrounds `primary-subtle-hover` and `primary-subtle-pressed` (brand steps `50` and `100`).
+- `on-surface`: content of the `default` chip and of the chip remove button, on the backgrounds `surface`, `neutral-subtle-hover`, and `neutral-subtle-pressed` (neutral steps `50`, `100`, `200`: the "Surface scale" sequence of `docs/conventions.md`).
 
-For each of them, apply the content step search of `docs/conventions.md`: test brand steps `700`, `800`, then `900`, and keep the first one that reaches 4.5:1 against every background it serves. Never change a background to make a content color pass.
+For each of them, apply the content step search of `docs/conventions.md`: test steps `700`, `800`, then `900` of the scale of its backgrounds (brand scale for the first two, neutral scale for `on-surface`), and keep the first one that reaches 4.5:1 against every background it serves. Never change a background to make a content color pass. If no step passes for `on-surface`, report the pair to the user instead of forcing it.
 
 ### State colors
 
@@ -116,7 +118,7 @@ Apply the State colors rule of `docs/conventions.md` to the brand scale and to t
 
 ### Semantic color tokens
 
-Write the 20 colors of the button token contract as references to scale steps. `<brand>` and `<danger>` are the scale names; `d` is the `default` step of the corresponding scale; `c` is the step found by the content step search above.
+Write the 25 colors of the token contracts of the button (20), the chip (3 new), and the tooltip (2 new) as references to scale steps. `<brand>` and `<danger>` are the scale names; `d` is the `default` step of the corresponding scale; `c` is the step found by the content step search above; `n` is the step found by the same search on the neutral scale for `on-surface`.
 
 | Token | Value |
 |---|---|
@@ -140,6 +142,11 @@ Write the 20 colors of the button token contract as references to scale steps. `
 | `disabled-container` | `{colors.neutral-100}` |
 | `on-disabled` | `{colors.neutral-500}` |
 | `focus-ring` | same step as `primary` |
+| `on-surface` | `{colors.neutral-n}`, searched against `surface`, `neutral-100`, `neutral-200` |
+| `neutral-subtle-hover` | `{colors.neutral-100}` |
+| `neutral-subtle-pressed` | `{colors.neutral-200}` |
+| `inverse-surface` | `{colors.neutral-900}` |
+| `on-inverse-surface` | `#FFFFFF` |
 
 If a pair fails, never make two states identical, never move a background back to an earlier step, and never lower the 4.5:1 threshold (see "Contrast pairs" in `docs/conventions.md`). Only the content step can change, within its search. If no step passes, report the pair to the user instead of forcing it, following "When a color cannot reach AA".
 
@@ -155,18 +162,18 @@ Write 4 tokens: `label-sm`, `label-md`, `label-lg`, `label-xl`. Each carries `fo
 
 ### Rounded
 
-One token, `rounded.control`.
+Two tokens, `rounded.control` and `rounded.overlay`. The overlay radius is moderate in every corner style, so that a multi-line overlay (the tooltip) never turns into a stadium shape.
 
-| Answer to `corners` | `rounded.control` |
-|---|---|
-| sharp | 0px |
-| soft | 4px |
-| rounded | 8px |
-| pill | 9999px |
+| Answer to `corners` | `rounded.control` | `rounded.overlay` |
+|---|---|---|
+| sharp | 0px | 0px |
+| soft | 4px | 4px |
+| rounded | 8px | 8px |
+| pill | 9999px | 8px |
 
 ### Spacing
 
-The 18 spacing tokens come from the density table. Values are in px: this file is the defaults file of the theme, not a component spec. The three constant tokens do not depend on density.
+The 19 spacing tokens come from the density table (16 rows) and the constant table (3 rows). Values are in px: this file is the defaults file of the theme, not a component spec. The three constant tokens do not depend on density.
 
 | Token | compact | default | comfortable |
 |---|---|---|---|
@@ -185,6 +192,7 @@ The 18 spacing tokens come from the density table. Values are in px: this file i
 | `lg` | 12px | 16px | 20px |
 | `xl` | 16px | 20px | 24px |
 | `2xl` | 20px | 24px | 32px |
+| `tooltip-max-width` | 200px | 240px | 280px |
 
 | Constant token | Value |
 |---|---|
@@ -194,7 +202,28 @@ The 18 spacing tokens come from the density table. Values are in px: this file i
 
 ### Components entries
 
-Write every `components` entry listed in the Token contract of `components/button.md` (`button-filled` through `button-focus-ring`), with only `backgroundColor` and `textColor`. Never add another property, and never declare a disabled pair.
+Write every `components` entry listed in the Token contract of each component spec, with only `backgroundColor` and `textColor`. Never add another property (a shadow property included), and never declare a disabled pair. 27 entries in total:
+
+| Spec | Entries | Count |
+|---|---|---|
+| `components/button.md` | `button-filled` through `button-focus-ring` | 16 |
+| `components/chip.md` | `chip-default` through `chip-focus-ring` | 10 |
+| `components/tooltip.md` | `tooltip-plain` | 1 |
+
+### Elevation
+
+No question is asked about elevation. The six levels are generated with the default values below. The user may edit them after generation; each level must stay visually higher than the previous one. The values are two layers (a key shadow and an ambient shadow), black at low opacity, inspired by the Material 3 elevation shadows.
+
+| Level | Role | Shadow |
+|---|---|---|
+| `level-0` | At rest, flat on the surface | `none` |
+| `level-1` | At rest, slightly raised | `0 1px 2px rgba(0, 0, 0, 0.30), 0 1px 3px 1px rgba(0, 0, 0, 0.15)` |
+| `level-2` | At rest, overlay tied to a trigger | `0 1px 2px rgba(0, 0, 0, 0.30), 0 2px 6px 2px rgba(0, 0, 0, 0.15)` |
+| `level-3` | At rest, floating above scrolling content | `0 1px 3px rgba(0, 0, 0, 0.30), 0 4px 8px 3px rgba(0, 0, 0, 0.15)` |
+| `level-4` | Interaction only, one step above a resting level | `0 2px 3px rgba(0, 0, 0, 0.30), 0 6px 10px 4px rgba(0, 0, 0, 0.15)` |
+| `level-5` | Interaction only, highest | `0 4px 4px rgba(0, 0, 0, 0.30), 0 8px 12px 6px rgba(0, 0, 0, 0.15)` |
+
+Elevation is never a YAML key and never a `components` property (see "Elevation" in `docs/conventions.md`).
 
 ### Icons
 
@@ -212,7 +241,7 @@ Write a `## Icons` section stating the icon style and the icon library from the 
 | 2 | Colors | The three scales, how state colors are derived, the `on-*` rule |
 | 3 | Typography | Font choice and the four label sizes |
 | 4 | Layout | Density, control heights, spacing scale |
-| 5 | Elevation & Depth | One sentence: the theme defines no shadow or elevation token |
+| 5 | Elevation & Depth | One short sentence (the theme defines no shadow token; the scale is this table), then the table `Level` / `Role` / `Shadow` with the six rows of "Elevation" above |
 | 6 | Shapes | Corner style and its radius |
 | 7 | Components | The contrast entries and a pointer to the component specs |
 | 8 | Do's and Don'ts | Short list: use semantic tokens, never raw hex; keep the state rule; do not add non-standard properties to `components` |
@@ -238,6 +267,9 @@ Summary template:
 | Corners | the style |
 | Density | the density |
 | Icons | style and library |
+| Chip | neutral outlined chip, brand-tinted when selected |
+| Tooltip | dark neutral background, white text, maximum width |
+| Elevation | six levels generated by default, editable afterwards |
 
 Add one line on the validation: Level 1, the lint passed (0 errors, 0 contrast warnings); Level 2, the script report passed and the lint was not run; Level 3, the contrast was not verified and the pairs to check are listed.
 
