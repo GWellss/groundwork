@@ -14,14 +14,14 @@ Before asking anything, find out which tools you have. Pick the highest level th
 
 ### Level 1: terminal
 
-- You do: ask the questions, run `python3 theme/theme.py` with one option per answer (for example `python3 theme/theme.py --name Acme --brand "#7C3AED" --corners pill --out DESIGN.md`; run it with `--help` to list the options), read the contrast report, run the lint, and fix what they report.
+- You do: ask the questions, run `python3 theme/theme.py` with one option per answer (for example `python3 theme/theme.py --name Acme --brand "#7C3AED" --corners pill --out DESIGN.md`; run it with `--help` to list the options), read the contrast report, run the lint, and fix what they report. The script also writes `tokens.css` next to DESIGN.md; `--css <path>` chooses another path.
 - You delegate: the color math and the contrast checks, to the script. Do not compute colors by hand.
 - Script exit codes: `0` all pairs pass; `1` at least one pair fails; `2` a color is unusable and the script proposes an alternative (follow "When a color cannot reach AA").
 - Done when: exit code `0`, and the lint reports 0 errors and 0 `contrast-ratio` warnings (see the Output procedure).
 
 ### Level 2: code execution
 
-- You do: ask the questions, paste the content of `theme/theme.py` into the sandbox, call its `main([...])` function with the same options as Level 1, read the contrast report, and give the resulting DESIGN.md to the user.
+- You do: ask the questions, paste the content of `theme/theme.py` into the sandbox, call its `main([...])` function with the same options as Level 1, read the contrast report, and give the resulting DESIGN.md and `tokens.css` to the user.
 - You delegate: the color math and the contrast checks, to the script. The lint CLI is not available, so the script report is the validation.
 - Same exit codes as Level 1.
 - Done when: exit code `0` and the report shows every pair passing. Tell the user that the lint was not run, and that they can run it later with a terminal.
@@ -31,6 +31,7 @@ Before asking anything, find out which tools you have. Pick the highest level th
 - Never compute a color, a contrast ratio, or a scale yourself, even approximately. Every color value comes from `theme/palettes.md`.
 - You do: ask the questions. Replace the `brand` and `danger` questions with "Choose the range closest to your brand color" among the 14 ranges of `theme/palettes.md`. If the user gives a hex code, propose the closest range and say that the match is approximate. For the `neutral` question, map the answer to a range of `theme/palettes.md`: neutral → `gray`, warm → `warm-gray`, cool → `cool-gray`. Do not offer the "tinted with the brand color" option at this level, because no precomputed range exists for it: propose only the other three, and if the user wants a tinted gray, say that it requires Level 1 or Level 2. Take density, corners, and typography from the default tables below. Copy the precomputed steps (`default`, `hover`, `pressed`, and the other steps of the range) into the DESIGN.md. For the neutral-derived colors, use the range chosen for `neutral` (`gray`, `warm-gray`, or `cool-gray`): `on-surface` is the `on-container` row of that range (step `700`, searched against steps `50`, `100`, `200`, which are `surface`, `neutral-subtle-hover`, and `neutral-subtle-pressed`); `neutral-subtle-hover` is step `100`, `neutral-subtle-pressed` is step `200`, `inverse-surface` is step `900`, and `on-inverse-surface` is white. Name the copied scale `neutral` in the DESIGN.md. If a value needed here is missing from `theme/palettes.md`, say so to the user instead of computing it.
 - Elevation: copy the default table of "Elevation" below; it needs no computation.
+- `tokens.css`: no script writes it at this level. If code is to be generated, write it by copying the values of the DESIGN.md under the variable names of `docs/implementation.md`, semantic colors resolved to the hex of their step, and the font family followed by the fallback stack of "Typography" below. Copy only; never compute.
 - You delegate: the final check, to the user, with an online contrast checker such as WebAIM Contrast Checker (https://webaim.org/resources/contrastchecker/). List the key pairs to check, each with its two hex values: every `components` entry that pairs a background with a text color (including the 10 `chip-*` entries and `tooltip-plain`), and at least the `primary` on `surface` pair. Neutral-derived values (`on-surface`, `neutral-subtle-hover`, `neutral-subtle-pressed`, `inverse-surface`) come from the range chosen for `neutral`, as described in "Semantic color tokens".
 - Done when: the DESIGN.md is delivered, the list of pairs to check is given, and you have said that the contrast was copied from precomputed values and not verified in this conversation.
 
@@ -154,6 +155,8 @@ If a pair fails, never make two states identical, never move a background back t
 
 Write 4 tokens: `label-sm`, `label-md`, `label-lg`, `label-xl`. Each carries `fontFamily` (the answer to `font`; for the system UI font, use `system-ui`), `fontSize`, `fontWeight` 500, `lineHeight`, and `letterSpacing` 0px. Line height is 1.25 times the font size, rounded to the nearest whole pixel and written in px. Font size follows density.
 
+Fallback stack: in `tokens.css`, the font family is followed by generic fallbacks, `system-ui` then `sans-serif` (a generic family is not repeated). DESIGN.md keeps the entered font alone. The kit does not load fonts: if the chosen font is not installed on the target devices, tell the user that the project must load it, otherwise the fallback is shown.
+
 | Density | label-sm | label-md | label-lg | label-xl |
 |---|---|---|---|---|
 | compact | 12px | 13px | 14px | 16px |
@@ -254,6 +257,7 @@ The `## Icons` section may sit anywhere; place it right after Shapes.
    - Level 3: give the user the list of pairs to check with an online contrast checker (see Level 3).
 5. Fix every error and every failed pair, then validate again. Repeat until the criterion is met: Level 1, 0 lint errors and 0 `contrast-ratio` warnings; Level 2, script exit code `0`; Level 3, no iteration possible, deliver and state that the check is left to the user. `orphaned-tokens` warnings on unused palette steps are tolerated; any other warning must be fixed. Fixes follow the contrast rule of `docs/conventions.md`. After 5 runs without success, stop and give the user the remaining findings as they are.
 6. Reply to the user with a short summary of the choices, as in the template below. Mention any deviation from the defaults and any color you adjusted.
+7. Button color different from the entered color: when the `default` step of the brand or danger scale is not the exact entered color, tell the user in plain words, with both hex codes. For example (illustrative values): "Your blue #3B82F6 stays in the palette, but buttons use the darker #2563EB so that white text stays readable." At Levels 1 and 2, the script prints a `Warning:` line for this case; relay it, never drop it. At Level 3, compare the entered hex with the `default` step of the chosen range.
 
 Summary template:
 

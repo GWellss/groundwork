@@ -134,6 +134,18 @@ Geometry rules:
 - Container radius is `{rounded.control}` for every size.
 - Icons inherit the content color of the current variant and state.
 
+Spinner:
+
+| Dimension | Value |
+|---|---|
+| `spinner-size` | Icon size of the button size (size table above) |
+| `spinner-stroke` | `{spacing.focus-ring-width}` |
+| `spinner-color` | Content color of the current variant and state |
+| `spinner-shape` | An open circular arc (a ring with a gap), inside a square of `spinner-size` |
+
+- The spinner is drawn by the implementation; it is not an icon of the `## Icons` library.
+- It is centered in the container, in every configuration, icon-only included.
+
 Floating sizes:
 
 | Size | Allowed with `floating` |
@@ -317,12 +329,12 @@ Each state color of `primary` and `danger` points to a step of a primitive scale
 | `spacing.control-md` | Height for `m` |
 | `spacing.control-lg` | Height for `l` |
 | `spacing.control-xl` | Height for `xl` |
-| `spacing.icon-sm` | Icon size for `xs` and `s` |
-| `spacing.icon-md` | Icon size for `m` |
-| `spacing.icon-lg` | Icon size for `l` |
-| `spacing.icon-xl` | Icon size for `xl` |
-| `spacing.border-width` | `outlined` border width |
-| `spacing.focus-ring-width` | Focus ring width |
+| `spacing.icon-sm` | Icon and spinner size for `xs` and `s` |
+| `spacing.icon-md` | Icon and spinner size for `m` |
+| `spacing.icon-lg` | Icon and spinner size for `l` |
+| `spacing.icon-xl` | Icon and spinner size for `xl` |
+| `spacing.border-width` | `outlined` border width; reserved, transparent, on the other variants (see `docs/implementation.md`) |
+| `spacing.focus-ring-width` | Focus ring width; spinner stroke |
 | `spacing.focus-ring-offset` | Gap between container and focus ring |
 
 ### Components entries (contrast checks)
@@ -374,7 +386,8 @@ Elevation is not a token either. A floating button uses `level-3` at rest and `l
 | Focus visible | The focus ring appears on keyboard focus. It must never be removed. |
 | Keyboard | `Enter` and `Space` activate the button. `Tab` moves focus to and from it. |
 | Disabled | Removed from the tab order, not activatable. |
-| Loading | Stays focusable, not activatable, announced as busy; the accessible name does not change. |
+| Loading | Stays focusable, not activatable, announced as busy (`aria-busy`); not native disabled, which would remove focus. The accessible name does not change and stays exposed. |
+| Loading, hidden parts | The label and icons are hidden visually only: they keep their space and stay in the accessibility tree. A method that removes the label from the accessibility tree is not allowed. The spinner is decorative and hidden from assistive technologies. |
 | Target size | Hit area at least 24 by 24 CSS pixels (WCAG 2.2 criterion 2.5.8). For sizes rendered smaller, extend the hit area invisibly. 44 by 44 is recommended on touch screens; it is required for a floating button, whose hit area is extended invisibly when its size renders smaller. |
 | Floating, accessible name | Floating icon-only: the visually hidden `label` is mandatory and names the action ("Compose"). Floating extended: the visible label is the name. A tooltip may repeat the name but never replaces it. |
 | Floating, focus order | The floating button sits in the focus order where its action belongs in the reading order of the screen, usually after the content it acts on. Its visual position never changes its place in the focus order, and it is never forced first. |
@@ -385,6 +398,12 @@ Elevation is not a token either. A floating button uses `level-3` at rest and `l
 
 - Activation: fires once per press. While `loading` is true, activation is ignored.
 - Loading: the `spinner` is centered and the other visible parts are hidden, but the button keeps its width so the layout does not shift.
+- Spinner motion: the spinner rotates continuously, one full turn per `spinner-turn` (behavior constant below), at constant speed, for as long as `loading` is true.
+- Reduced motion: when the user asks the platform for reduced motion, the rotation stops and the arc stays visible, static. The busy state still announces the loading.
+
+| Constant | Value | Meaning |
+|---|---|---|
+| `spinner-turn` | 1000 ms | Duration of one full turn of the spinner; invariant, not a theme token |
 - Full width: with `full-width`, the container fills its parent and the content stays centered. Height still follows the size.
 - Label: single line, no wrap. If space runs out, the label is truncated with an ellipsis; the accessible name keeps the full text.
 - Floating: at most one floating button per screen. It rests at `level-3` and rises to `level-4` on hover only; hover and pressed feedback still comes first from the color tokens, as for any button. Its position is set by the page layout.
@@ -404,7 +423,7 @@ Elevation is not a token either. A floating button uses `level-3` at rest and `l
 
 ## Out of scope
 
-Animations, dark mode, button groups, split buttons, semantic color variants other than `danger` (such as success or warning), floating button menus (speed dial), extended floating buttons that collapse to icon-only on scroll, and the placement of the floating button on the page are not covered by this spec; contrast is checked only against `{colors.surface}`, so on an image or a dark background the user retouches the floating button colors after generation.
+Animations other than the spinner rotation, dark mode, button groups, split buttons, semantic color variants other than `danger` (such as success or warning), floating button menus (speed dial), extended floating buttons that collapse to icon-only on scroll, and the placement of the floating button on the page are not covered by this spec; contrast is checked only against `{colors.surface}`, so on an image or a dark background the user retouches the floating button colors after generation.
 
 ## Rationale
 
@@ -430,3 +449,7 @@ Animations, dark mode, button groups, split buttons, semantic color variants oth
 | Floating `pressed` at `level-3` | Material 3 FAB pressed returns to its resting level (unverified against the current Material 3 spec); `level-5` stays reserved for drag |
 | Floating `disabled` and `loading` at `level-3` | Neither state has hover, so both keep the resting level; the button keeps floating above the content. Material 3 FAB has no disabled state, so this is a kit decision |
 | No new `components` entry for floating | The floating colors are the `filled` and `tonal` pairs, already declared |
+| Spinner size and stroke from existing tokens | The icon size keeps the spinner in proportion with the content it replaces; `{spacing.focus-ring-width}` gives a visible stroke at icon sizes, where `{spacing.border-width}` is too thin, without a new token |
+| Spinner stops under reduced motion | Continuous rotation is motion the user asked to avoid; the busy state and the visible arc still convey loading |
+| `spinner-turn` as a behavior constant | Same reason as the tooltip delays: DESIGN.md has no duration token type, and the speed serves usability, not brand identity |
+| `aria-busy` instead of native disabled for `loading` | Native disabled removes focus, which the Loading requirement keeps; the style reads the same attribute, so there is one source of truth |

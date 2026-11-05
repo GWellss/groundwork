@@ -173,13 +173,41 @@ Border width is `{spacing.border-width}`. In `removable` mode the body only uses
 
 `remove-button` sits on the `default` body, whose container is `none`: its pairs are checked against `{colors.surface}`. On a `selected` chip no `remove-button` exists (`selectable` and `removable` are exclusive).
 
-### Focus ring (chip and `remove-button`)
+### `avatar`
+
+The avatar exists only in the `default` group (`action` and `removable` modes). Its fill does not follow the chip interactive states. Initials take the avatar content color; an image covers the fill.
+
+| State | Fill | Initials |
+|---|---|---|
+| `enabled` | `{colors.neutral-subtle-pressed}` | `{colors.on-surface}` |
+| `hover` | `{colors.neutral-subtle-pressed}` | `{colors.on-surface}` |
+| `pressed` | `{colors.neutral-subtle-pressed}` | `{colors.on-surface}` |
+| `disabled` | `{colors.disabled-container}` | `{colors.on-disabled}` |
+
+- The initials pair is the `chip-default-pressed` pair, already checked: no new `components` entry.
+- On `pressed` in `action` mode, the avatar fill equals the chip container. The avatar is decorative and its edge carries no information, so this is accepted.
+- Disabled image avatar: the image is shown unchanged; the disabled state is carried by the label and the border. No filter or opacity is defined by the kit.
+
+### Focus ring (chip)
 
 | Property | Token |
 |---|---|
 | Color | `{colors.focus-ring}` |
 | Width | `{spacing.focus-ring-width}` |
 | Offset | `{spacing.focus-ring-offset}` |
+
+### Focus ring (`remove-button`)
+
+| Property | Token |
+|---|---|
+| Color | `{colors.focus-ring}` |
+| Width | `{spacing.focus-ring-width}` |
+| Offset | `none` |
+
+- The ring follows the circular shape of `remove-button` and touches its edge (no offset), so that it stays inside the gap next to the label.
+- The ring never covers the label. Theme requirement: the gap of each size is at least `{spacing.focus-ring-width}`; it holds with the default values of `theme/questionnaire.md` at every density.
+- If a retouched theme breaks this requirement, draw the ring inside `remove-button` (inset) and report it to the user.
+- The ring may overlap the chip border on the trailing side; it never overlaps the label or a neighbor chip.
 
 ## Token contract
 
@@ -194,16 +222,16 @@ The backgrounds follow the "Surface scale" case of the Contrast pairs rule of `d
 | Token | Role |
 |---|---|
 | `colors.surface` | Background of the `default` and `remove` contrast checks, where the container is `none` |
-| `colors.on-surface` | New. `default` content and `remove-button` icon on every state. Neutral step `700`, `800`, or `900`, chosen by the Content step search; one shared token because the darkest background (pressed) decides |
+| `colors.on-surface` | New. `default` content, `remove-button` icon, and avatar initials on every state. Neutral step `700`, `800`, or `900`, chosen by the Content step search; one shared token because the darkest background (pressed) decides |
 | `colors.neutral-subtle-hover` | New. `default` container and `remove-button` fill on hover. Default: neutral step `100` |
-| `colors.neutral-subtle-pressed` | New. `default` container and `remove-button` fill on pressed. Default: neutral step `200` |
+| `colors.neutral-subtle-pressed` | New. `default` container and `remove-button` fill on pressed; avatar fill. Default: neutral step `200` |
 | `colors.primary-container` | `selected` container |
 | `colors.primary-container-hover` | `selected` container on hover |
 | `colors.primary-container-pressed` | `selected` container on pressed |
 | `colors.on-primary-container` | `selected` content on every state |
 | `colors.outline` | `default` border |
-| `colors.disabled-container` | Disabled `selected` container; disabled `default` border |
-| `colors.on-disabled` | Disabled content |
+| `colors.disabled-container` | Disabled `selected` container; disabled `default` border; disabled avatar fill |
+| `colors.on-disabled` | Disabled content, avatar initials included |
 | `colors.focus-ring` | Focus ring |
 
 ### Typography
@@ -232,8 +260,8 @@ The backgrounds follow the "Surface scale" case of the Contrast pairs rule of `d
 | `spacing.sm` | Padding inline for `s`; padding next to an element and gap for `m` |
 | `spacing.md` | Padding inline for `m` |
 | `spacing.border-width` | `default` border width |
-| `spacing.focus-ring-width` | Focus ring width |
-| `spacing.focus-ring-offset` | Gap between the focused element and the focus ring |
+| `spacing.focus-ring-width` | Focus ring width; minimum gap next to `remove-button` |
+| `spacing.focus-ring-offset` | Gap between the chip and its focus ring; not used by `remove-button` |
 
 ### Components entries (contrast checks)
 
@@ -324,3 +352,6 @@ Animations, dark mode, single-choice chip sets, arrow-key navigation inside a ch
 | `selected` reuses the tonal tokens | Steps 50, 100, 200 are the only `light` triple; steps 300 and above are `intermediate` and carry no text |
 | Own `components` entries despite equal pairs | The contrast report names the chip, and each spec lists its own entries, so a theme stays valid whatever components it includes |
 | Radius `{rounded.control}` | Chips match buttons, and a chip is always a single line, so every corner style, pill included, keeps a regular shape |
+| Avatar fill `{colors.neutral-subtle-pressed}`, initials `{colors.on-surface}` | Reuses existing tokens: the pair is already checked as `chip-default-pressed`, and step `200` stays visible on the surface and on the hover container. Without a defined fill, generated code invented a color |
+| Avatar fill constant across interactive states | The avatar identifies an entity; changing its fill on hover adds no feedback the container does not already give |
+| `remove-button` ring without offset | With the shared offset, the ring would reach into the gap and could cover the label at small sizes or compact density |

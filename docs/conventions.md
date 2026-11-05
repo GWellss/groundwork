@@ -12,6 +12,7 @@ The theme follows DESIGN.md as checked by `@google/design.md` pinned to 0.4.0. U
 
 - Reference tokens by path, in DESIGN.md format: `{colors.primary}`.
 - Never copy a token value into a component file. A value lives in the theme only.
+- In code, a token reference becomes a variable of the generated `tokens.css` (for example `{colors.primary}` becomes `--color-primary`). See `docs/implementation.md`.
 
 ## State colors
 
@@ -131,7 +132,7 @@ The scale follows the Material 3 model: six levels, named after their relative d
 
 ### Table in `## Elevation & Depth`
 
-The section may open with one short sentence, followed by exactly this table. The theme script generates this table automatically with default values for the six levels; the user may retouch the values afterwards. The script then reads the table and generates one CSS shadow variable per level from it; it is the only source of shadow values.
+The section may open with one short sentence, followed by exactly this table. The theme script generates this table automatically with default values for the six levels; the user may retouch the values afterwards. The script then writes one shadow variable per level in `tokens.css` (`--elevation-level-0` to `--elevation-level-5`, see `docs/implementation.md`); this table is the only source of shadow values.
 
 | Column | Content |
 |---|---|
@@ -161,9 +162,9 @@ The section may open with one short sentence, followed by exactly this table. Th
 ## CLI facts (`@google/design.md` 0.4.0)
 
 - Free token names are accepted in `spacing` and `rounded` (for example `control-xs`, `icon-sm`, `border-width`, `rounded.control`).
-- The `css-vars` export exists, with an optional `--prefix`, but it does not export `typography`. The kit generates the typography variables itself.
+- The `css-vars` export exists, with an optional `--prefix`, but it does not export `typography`. The kit does not use it: the theme script generates `tokens.css`, with every group (colors, spacing, rounded, typography, elevation) under fixed variable names. The name contract and its use by component code are in `docs/implementation.md`.
 - Icon style is not a token. It lives in a free `## Icons` Markdown section of DESIGN.md (position free, accepted without warning), stating the style and the icon library. A top-level `icons` YAML key is rejected because exports ignore it.
-- There is no shadow or elevation token type and no YAML key for it. The DESIGN.md spec defines `Elevation & Depth` as a prose section describing the required styling (spread, blur, color). A custom `elevation` key is tolerated but ignored by exports; a `{elevation.*}` reference is a broken-ref error; any shadow property in `components` triggers a warning. The kit therefore keeps the scale as a table in `## Elevation & Depth` and generates the shadow CSS variables itself (see Elevation).
+- There is no shadow or elevation token type and no YAML key for it. The DESIGN.md spec defines `Elevation & Depth` as a prose section describing the required styling (spread, blur, color). A custom `elevation` key is tolerated but ignored by exports; a `{elevation.*}` reference is a broken-ref error; any shadow property in `components` triggers a warning. The kit therefore keeps the scale as a table in `## Elevation & Depth`, and the theme script writes the shadow variables in `tokens.css` (see Elevation).
 
 ## Sizes
 

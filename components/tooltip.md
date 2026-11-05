@@ -130,7 +130,11 @@ Cell vocabulary: a token reference, or `none` (no fill, no border).
 
 ### Elevation
 
-The tooltip is at `level-2` when `open`; `closed` is not rendered. `open` is a resting level: the tooltip is never interactive, so it never uses `level-4` or `level-5`. The shadow applies to the container and the arrow as one shape.
+The tooltip is at `level-2` when `open`; `closed` is not rendered. `open` is a resting level: the tooltip is never interactive, so it never uses `level-4` or `level-5`.
+
+- With `arrow`, the shadow follows the combined outline of container and arrow when the platform can cast a shadow from a shape.
+- Otherwise, the shadow on the container alone is accepted, and the arrow has no shadow.
+- In both cases, no shadow is drawn between the arrow and the container: they read as one fill, without a visible seam.
 
 ## Token contract
 
@@ -249,6 +253,7 @@ Rich tooltips (title, body, actions), animations, dark mode, touch-specific trig
 | Padding and offset reuse `{spacing.sm}` and `{spacing.xs}` | Spectrum uses an offset of 4 and a container padding of 8; the theme's small spacing steps match without new tokens |
 | Elevation `level-2` | The tooltip is an overlay tied to a trigger and shown briefly, the role of `level-2`; Material 3 menus use level 2. `level-3` is kept for elements that stay above content while it scrolls. `level-4` and `level-5` are interaction levels, and the tooltip is never interactive |
 | Arrow optional, off by default | Radix makes the arrow optional; Material 3 plain tooltips have none |
+| Shadow on the outline when possible, on the container otherwise | A single shape shadow is not available on every platform; the arrow is small, so a shadow on the container alone keeps the depth cue, while a seam between arrow and container would break the shape |
 | Default placement `top`, aligned center, flip when space runs out | Radix and Spectrum default to `top`; Radix aligns center by default |
 | Delays are behavior constants in the spec | DESIGN.md has no duration token type, and adding a non-standard key breaks the kit's rule of standard-only tokens. Delays serve accessibility and usability, not brand identity, so they are invariant |
 | Open delay 700 ms, skip delay 300 ms | Radix defaults (`delayDuration`, `skipDelayDuration`) |
