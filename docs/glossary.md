@@ -18,6 +18,8 @@
 
 **Semantic token**: a token named by its role, usually pointing to a primitive. Example: `colors.primary`.
 
+**Palette scale**: an ordered set of primitive color steps from lightest to darkest. Example: `blue-50` to `blue-900`.
+
 **Token reference**: a pointer to a token by path, written `{colors.primary}`.
 
 **Theme**: the DESIGN.md file holding the token values of one design system: colors, typography, rounded, spacing.

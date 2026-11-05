@@ -15,10 +15,13 @@ This kit captures the invariants as detailed component specifications, and isola
 This kit complements [Google's DESIGN.md](https://github.com/google-labs-code/design.md) (alpha format, Apache-2.0). It is an independent project and is not affiliated with or endorsed by Google.
 
 - The theme is a valid DESIGN.md file: YAML tokens (`colors`, `typography`, `rounded`, `spacing`), checked with its lint, contrast included.
-- The kit never duplicates DESIGN.md and never extends its `components` key.
+- The kit never duplicates DESIGN.md. It never adds non-standard properties to `components`; it only declares standard `backgroundColor` and `textColor` entries so the DESIGN.md lint checks contrast.
 - The kit adds what DESIGN.md does not cover: component specs (anatomy, sizes, variant by state matrix, accessibility, behavior), a questionnaire to fill the theme, and web code generation.
 - The pinned DESIGN.md CLI version is `@google/design.md` 0.4.0.
 - W3C DTCG 2025.10 JSON is only an optional export format.
+- Icon style is recorded in a free `## Icons` section of DESIGN.md, not as a token.
+- The `css-vars` export does not cover `typography`: the kit generates the typography variables itself.
+- Theme validation: 0 errors and 0 `contrast-ratio` warnings; `orphaned-tokens` warnings on unused palette steps are tolerated.
 
 ## How an agent uses the kit
 
