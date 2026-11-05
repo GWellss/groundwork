@@ -25,7 +25,7 @@ This kit complements [Google's DESIGN.md](https://github.com/google-labs-code/de
 
 ## How an agent uses the kit
 
-1. Ask the user the questionnaire to collect theme choices.
+1. Ask the user the questionnaire to collect theme choices. The questionnaire first asks the agent to identify its level (terminal, code execution, or no tools), which decides how colors are derived and checked.
 2. Write the theme as a DESIGN.md file.
 3. Run the DESIGN.md lint and fix any error.
 4. Read the component specs.

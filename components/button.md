@@ -13,7 +13,7 @@ A button triggers an action when activated. This spec is theme independent: ever
 | Interactive states | `enabled`, `hover`, `focus`, `pressed` |
 | State properties | `disabled`, `loading` |
 | Behavior options | `full-width` |
-| Tokens required | 19 colors, 4 typography, 1 rounded, 18 spacing (see Token contract) |
+| Tokens required | 20 colors, 4 typography, 1 rounded, 18 spacing (see Token contract) |
 | Contrast entries | 16 `components` entries, `backgroundColor` and `textColor` only (see Token contract) |
 
 ## Purpose
@@ -110,9 +110,9 @@ Geometry rules:
 | State | Trigger | Visual effect |
 |---|---|---|
 | `enabled` | Default, no interaction | Base tokens |
-| `hover` | Pointer over the button | Hover container token |
+| `hover` | Pointer over the button | Hover container token; content token of the state |
 | `focus` | Keyboard focus (focus visible) | Adds the focus ring; never changes container, content, or border |
-| `pressed` | Pointer down or key held | Pressed container token |
+| `pressed` | Pointer down or key held | Pressed container token; content token of the state |
 
 `focus` combines with `hover` or `pressed`: the ring is drawn on top of their tokens.
 
@@ -154,8 +154,8 @@ Cell vocabulary: a token reference, or `none` (no fill, no border). Content cove
 | State | Container | Content | Border |
 |---|---|---|---|
 | `enabled` | `none` | `{colors.primary}` | `{colors.outline}` |
-| `hover` | `{colors.primary-subtle-hover}` | `{colors.primary}` | `{colors.outline}` |
-| `pressed` | `{colors.primary-subtle-pressed}` | `{colors.primary}` | `{colors.outline}` |
+| `hover` | `{colors.primary-subtle-hover}` | `{colors.on-primary-subtle}` | `{colors.outline}` |
+| `pressed` | `{colors.primary-subtle-pressed}` | `{colors.on-primary-subtle}` | `{colors.outline}` |
 | `disabled` | `none` | `{colors.on-disabled}` | `{colors.disabled-container}` |
 | `loading` | `none` | `{colors.primary}` | `{colors.outline}` |
 
@@ -166,8 +166,8 @@ Border width is `{spacing.border-width}`.
 | State | Container | Content | Border |
 |---|---|---|---|
 | `enabled` | `none` | `{colors.primary}` | `none` |
-| `hover` | `{colors.primary-subtle-hover}` | `{colors.primary}` | `none` |
-| `pressed` | `{colors.primary-subtle-pressed}` | `{colors.primary}` | `none` |
+| `hover` | `{colors.primary-subtle-hover}` | `{colors.on-primary-subtle}` | `none` |
+| `pressed` | `{colors.primary-subtle-pressed}` | `{colors.on-primary-subtle}` | `none` |
 | `disabled` | `none` | `{colors.on-disabled}` | `none` |
 | `loading` | `none` | `{colors.primary}` | `none` |
 
@@ -195,23 +195,24 @@ The theme must define every token below. The questionnaire asks for them; the ge
 
 ### Palette scales
 
-Each state color of `primary` and `danger` points to a step of a primitive scale in `colors` (for example a blue scale and a red scale, from lightest to darkest). The scales and the derivation of default, hover, and pressed steps are defined in `docs/conventions.md`. Scale steps are primitives: they are not counted in the totals below, and unused steps are tolerated.
+Each state color of `primary` and `danger` points to a step of a primitive scale in `colors` (for example a blue scale and a red scale, from lightest to darkest). The scales, the derivation of default, hover, and pressed steps, and the contrast pair rule (background families, state changes, content step search) are defined in `docs/conventions.md`. Scale steps are primitives: they are not counted in the totals below, and unused steps are tolerated.
 
 ### Colors
 
 | Token | Role |
 |---|---|
 | `colors.surface` | Surface behind the button; background of contrast checks when the container is `none` |
-| `colors.primary` | `filled` container; `outlined` and `text` content |
+| `colors.primary` | `filled` container; `outlined` and `text` content on `enabled` and `loading` |
 | `colors.on-primary` | Content on `colors.primary` |
 | `colors.primary-hover` | `filled` container on hover |
 | `colors.primary-pressed` | `filled` container on pressed |
 | `colors.primary-container` | `tonal` container |
-| `colors.on-primary-container` | Content on `colors.primary-container` |
+| `colors.on-primary-container` | `tonal` content on every state; shared by the enabled, hover, and pressed containers |
 | `colors.primary-container-hover` | `tonal` container on hover |
 | `colors.primary-container-pressed` | `tonal` container on pressed |
 | `colors.primary-subtle-hover` | `outlined` and `text` container on hover |
 | `colors.primary-subtle-pressed` | `outlined` and `text` container on pressed |
+| `colors.on-primary-subtle` | `outlined` and `text` content on hover and pressed; shared by both subtle containers |
 | `colors.danger` | `danger` container |
 | `colors.on-danger` | Content on `colors.danger` |
 | `colors.danger-hover` | `danger` container on hover |
@@ -261,7 +262,7 @@ Each state color of `primary` and `danger` points to a step of a primitive scale
 
 ### Components entries (contrast checks)
 
-The DESIGN.md contrast rule checks only the `components` key. The kit therefore declares one entry per variant and per `enabled`, `hover`, and `pressed` state, using only the standard `backgroundColor` and `textColor` properties, and never any other property. `loading` reuses the `enabled` entry because its tokens are identical. `disabled` pairs are never declared in `components`, because WCAG 1.4.3 exempts inactive components and the lint would otherwise flag them; the disabled token mapping stays described in the Token mapping section, and `colors.disabled-container` and `colors.on-disabled` remain in the Colors token contract. When the container is `none`, `backgroundColor` is `{colors.surface}`.
+The DESIGN.md contrast rule checks only the `components` key. The kit therefore declares one entry per variant and per `enabled`, `hover`, and `pressed` state, using only the standard `backgroundColor` and `textColor` properties, and never any other property. `loading` reuses the `enabled` entry because its tokens are identical. `disabled` pairs are never declared in `components`, because WCAG 1.4.3 exempts inactive components and the lint would otherwise flag them; the disabled token mapping stays described in the Token mapping section, and `colors.disabled-container` and `colors.on-disabled` remain in the Colors token contract. When the container is `none`, `backgroundColor` is `{colors.surface}`. Every pair follows the contrast pair rule of `docs/conventions.md`: the backgrounds of `enabled`, `hover`, and `pressed` stay distinct, and the content token adapts to them, never the reverse.
 
 | Entry | backgroundColor | textColor |
 |---|---|---|
@@ -272,11 +273,11 @@ The DESIGN.md contrast rule checks only the `components` key. The kit therefore 
 | `button-tonal-hover` | `{colors.primary-container-hover}` | `{colors.on-primary-container}` |
 | `button-tonal-pressed` | `{colors.primary-container-pressed}` | `{colors.on-primary-container}` |
 | `button-outlined` | `{colors.surface}` | `{colors.primary}` |
-| `button-outlined-hover` | `{colors.primary-subtle-hover}` | `{colors.primary}` |
-| `button-outlined-pressed` | `{colors.primary-subtle-pressed}` | `{colors.primary}` |
+| `button-outlined-hover` | `{colors.primary-subtle-hover}` | `{colors.on-primary-subtle}` |
+| `button-outlined-pressed` | `{colors.primary-subtle-pressed}` | `{colors.on-primary-subtle}` |
 | `button-text` | `{colors.surface}` | `{colors.primary}` |
-| `button-text-hover` | `{colors.primary-subtle-hover}` | `{colors.primary}` |
-| `button-text-pressed` | `{colors.primary-subtle-pressed}` | `{colors.primary}` |
+| `button-text-hover` | `{colors.primary-subtle-hover}` | `{colors.on-primary-subtle}` |
+| `button-text-pressed` | `{colors.primary-subtle-pressed}` | `{colors.on-primary-subtle}` |
 | `button-danger` | `{colors.danger}` | `{colors.on-danger}` |
 | `button-danger-hover` | `{colors.danger-hover}` | `{colors.on-danger}` |
 | `button-danger-pressed` | `{colors.danger-pressed}` | `{colors.on-danger}` |
@@ -286,7 +287,7 @@ The DESIGN.md contrast rule checks only the `components` key. The kit therefore 
 
 | Category | Count |
 |---|---|
-| Colors | 19 |
+| Colors | 20 |
 | Typography | 4 |
 | Rounded | 1 |
 | Spacing | 18 |
@@ -308,7 +309,7 @@ Icon style (for example outlined, filled, or rounded, plus the icon library) is 
 | Disabled | Removed from the tab order, not activatable. |
 | Loading | Stays focusable, not activatable, announced as busy; the accessible name does not change. |
 | Target size | Hit area at least 24 by 24 CSS pixels (WCAG 2.2 criterion 2.5.8). For sizes rendered smaller, extend the hit area invisibly. 44 by 44 is recommended on touch screens. |
-| Contrast | Text and icons reach at least 4.5:1 against their container. Delegated to the DESIGN.md lint through the `components` entries of the Token contract: each variant and `enabled`, `hover`, `pressed` pair, and `{colors.focus-ring}` against the surface. `disabled` is exempt (WCAG 1.4.3). |
+| Contrast | Text and icons reach at least 4.5:1 against their container. Delegated to the DESIGN.md lint through the `components` entries of the Token contract: each variant and `enabled`, `hover`, `pressed` pair, and `{colors.focus-ring}` against the surface. `hover` and `pressed` stay visually distinct from `enabled` and from each other; contrast is reached by adjusting the content, never by merging states. `disabled` is exempt (WCAG 1.4.3). |
 
 ## Behavior
 
@@ -344,4 +345,7 @@ Animations, dark mode, button groups, split buttons, and semantic color variants
 | Explicit state color tokens | Every cell is a real color the lint can check, no opacity rule hidden in the kit |
 | `danger` variant | Destructive actions need a distinct, recognizable signal; it has its own tokens and matrix |
 | State colors from palette scales | Hover and pressed come from a rule on a primitive scale, so the user only gives a base color |
+| Content darkens on `outlined` and `text` hover and pressed | The tinted hover and pressed backgrounds are `light` steps, which carry only steps `700` to `900`; keeping `{colors.primary}` would fail 4.5:1 or force the pressed background back to the hover one, hiding the press feedback |
+| Content adjusts to the background, also on `tonal` | The rule "the content adjusts to the background, never the reverse" applies to `tonal` as well, not only to `outlined` and `text`: `{colors.on-primary-container}` is searched in steps `700`, `800`, then `900` against the `50`, `100`, and `200` backgrounds, and the backgrounds stay fixed |
+| One shared `{colors.on-primary-subtle}` | One token is computed against the darker of the two subtle backgrounds, so it is valid for both; a token per state would add a color for no visible gain |
 | Standard-only `components` entries | The lint checks contrast only there; standard properties keep the theme valid and the kit non-intrusive |
