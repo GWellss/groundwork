@@ -2,20 +2,6 @@
 
 How an agent turns the theme and the component specs into code. These conventions are technology independent: the target project may use plain HTML and CSS, React, Vue, Svelte, or another stack. The stack is a user decision; this file never imposes one.
 
-## At a glance
-
-| Topic | Rule | Level |
-|---|---|---|
-| Tokens | Consume the variables of the generated `tokens.css`, never a raw value | required |
-| Component API | Property names and values of the spec | required; syntax free |
-| States | Native mechanisms for interaction; accessibility attributes for state properties | required |
-| Box | Border included in the spec dimensions; every variant reserves the border width | required |
-| Target size | 24 by 24 minimum, 44 by 44 for a floating button | required; technique free |
-| Icons | Library and style of `## Icons` in DESIGN.md | required; delivery free |
-| Scripted behavior | Spec requirements; listed as not implemented when the output is static | required |
-| Files and class names | One file per component, BEM in plain CSS | recommended |
-| Verification | No raw value in component code; checklist at the end | required |
-
 Precedence: the component specs and `docs/conventions.md` take precedence over this file if they differ.
 
 ## Inputs
@@ -32,7 +18,7 @@ Never edit `tokens.css` by hand: change the theme and generate it again.
 
 ### Variable names
 
-`tokens.css` holds one CSS custom property per token, with resolved values. The names are a fixed contract.
+`tokens.css` holds one CSS custom property per token, with resolved values. The names are a fixed contract: component code uses only names of this contract (local aliases excepted, see Consumption rules).
 
 | Spec reference | Variable |
 |---|---|
@@ -59,15 +45,19 @@ The font family variable holds a fallback stack: the font entered by the user fi
 ### Consumption rules
 
 - Component code reads every visual value through these variables: color, dimension, radius, typography, shadow.
-- Never a raw value in component code: no hex, no theme pixel length, no shadow value, no font name.
+- Never a raw THEME value in component code: no hex, no theme pixel length, no shadow value, no font name of the text typography.
+- Allowed as literals, because they are not theme values:
+  - accessibility constants (24 by 24, 44 by 44 target sizes);
+  - behavior constants fixed by the specs (for example 700 ms, 300 ms, 1000 ms);
+  - the name of the icon font, which is data of the `## Icons` section of DESIGN.md.
+- Name these literals as local aliases with a comment that cites their source (for example `--target-size-min: 24px; /* WCAG 2.5.8 */`). The aliases hold no theme value.
 - Never a new variable that copies a token value. A local alias that points to a generated variable is allowed (for example a component-level variable set to `--color-primary`), as long as no value is duplicated.
 - Primitive scale steps (for example `--color-blue-600`) exist in `tokens.css` but component code uses semantic tokens only, as the Token mapping of each spec does.
 - Framework: use the same CSS variables. If the technology cannot read CSS variables (for example a native or canvas renderer), generate a token object from `tokens.css` with a 1:1 mapping (one entry per variable, same name, same value) and document the mapping in the project. Never retype values by hand.
 
 ## Component API
 
-- Property names are the names of the Properties table of the spec: `variant`, `size`, `label`, `leading-icon`, `trailing-icon`, `icon-only`, `disabled`, `loading`, `full-width`, `floating`, `selectable`, `selected`, `removable`, `remove-label`, `placement`, `arrow`.
-- Values are those of the spec, unchanged: `filled`, `tonal`, `m`, `top`, and so on. No synonym, no extra value.
+- Property names and values are those of each spec's Properties table, unchanged. No synonym, no extra value.
 - Defaults and forbidden combinations are those of the spec (for example `floating` requires `leading-icon`, `filled` or `tonal`, size `l` or `xl`). An invalid combination is refused or reported, never rendered silently.
 - Syntax is free: an attribute, a prop, a class modifier. A framework that requires another case (for example camelCase props) applies it mechanically to the same name (`icon-only` becomes `iconOnly`) and documents it.
 
@@ -101,7 +91,8 @@ Optional. A demo page may force a state (for example to show `hover` statically)
 
 ## Box
 
-- The dimensions of a spec are outer dimensions: the border is included. A height of `{spacing.control-md}` is the full height, border included.
+- The dimensions of a spec are outer dimensions: the border is included. A height of `{spacing.control-md}` is the full height, border included. This is the `box-sizing: border-box` model: height and width include the border.
+- The padding of a spec is measured inside the border: the border sits outside the padding and is part of the total height and width.
 - Every variant reserves the border width `{spacing.border-width}`, transparent when the variant has no border. All variants of one size therefore share the same outer geometry, and a state change never moves the content.
 - The focus ring is drawn outside the box at `{spacing.focus-ring-offset}` and never changes the layout. Exception: the chip `remove-button` (see `components/chip.md`).
 
@@ -117,22 +108,30 @@ Optional. A demo page may force a state (for example to show `hover` statically)
 - Library and style: exactly those named in the `## Icons` section of DESIGN.md (for example Material Symbols, outlined). Never another style of the same library (filled instead of outlined), never another library.
 - Glyphs: those named by the spec (`check-icon`: the library checkmark; `remove-button`: the library close icon).
 - Size: the `--spacing-icon-*` variable given by the size table of the spec.
+- Defaults when `## Icons` does not state them: weight 400, no fill (fill 0), and optical size aligned with the icon size if the library supports an optical size axis. `## Icons` wins when it states a value.
+- License: if the library carries a license (for example Material Symbols, Apache-2.0), respect its terms.
 - Color: the current content color of the part (inherited, for example `currentColor`), never a fixed color.
-- Delivery: free (icon font, inline SVG, package, sprite), as long as the glyphs come from the named library and style.
+- Delivery: free (icon font, inline SVG, package, sprite), as long as the glyphs come from the named library and style. The icon font name is an allowed literal (see Consumption rules), and loading the icon font is the project's responsibility (see Fonts).
 - Library not available (no network, no package, no license): tell the user, name the missing glyphs, and wait for a decision. Never substitute another library or style silently, and never draw an approximation presented as the library icon.
 - The button `spinner` is not a library icon: it is defined in `components/button.md`.
+
+## Fonts
+
+- Loading the fonts (text and icons) is the responsibility of the project. The kit loads nothing: `tokens.css` only names the font families.
+- The agent tells the user which fonts to load: the family of each typography token in use, and the icon font of `## Icons`, with the weights and styles the specs use. It does not add a font file, a CDN link, or a package on its own.
+- Until the fonts are loaded, the fallback stack of the font family variable applies.
+
+## Target browsers
+
+Recent evergreen browsers. Modern selectors such as `:has()` are allowed. If the project targets older browsers, the agent adapts the code and tells the user.
 
 ## Scripted behavior
 
 Some behaviors of the specs need script. They are requirements, not options.
 
-| Spec | Behavior |
-|---|---|
-| `button.md` | Ignore activation while `loading` |
-| `chip.md` | Toggle `selected`; remove the chip; move focus after removal; announce the removal; `Delete` and `Backspace` on `remove-button` |
-| `tooltip.md` | Open and skip delays; `Escape` dismissal; hoverable gap; single open tooltip; flip and shift to stay in the viewport; `aria-describedby` while open |
+Every Behavior requirement of a spec that is not implemented must be listed in the agent's report, by spec and by behavior (keyboard and dismissal requirements of its Accessibility section included, for example `Delete` and `Backspace` on the chip `remove-button`, or `Escape` on the tooltip). This applies in particular when the requested output is static (for example HTML and CSS without script). Never omit one silently.
 
-When the requested output is static (for example HTML and CSS without script), the agent lists every behavior of this table that it did not implement in its report, by spec and by behavior. Never omit one silently.
+Static output also drops the attributes that depend on the open state. For example, without script the tooltip is never open, so the trigger has no `aria-describedby`. Such attributes are omitted and listed as not implemented, with the behaviors above.
 
 ## Files and class names
 
@@ -142,19 +141,3 @@ Recommendations only; the project conventions win.
 - Plain CSS: BEM class names derived from the spec names: block = component, element = part, modifier = variant or size (for example `chip`, `chip__remove-button`, `button--tonal`, `button--size-m`).
 - Framework: one component per spec, named after it (Button, Chip, Tooltip).
 - Demo pages stay apart from component files.
-
-## Verification
-
-Checklist before delivering:
-
-| Check | Expected |
-|---|---|
-| Raw values | No hex, no theme pixel length, no shadow value, no font name in component code |
-| Variable names | Only names of the contract above |
-| API | Property names and values identical to the spec |
-| States | Native interactive states; state properties on their accessibility attribute; style reads the same attribute |
-| Box | Border included; transparent border reserved on every variant |
-| Target size | 24 by 24 minimum, 44 by 44 floating |
-| Icons | Library and style of `## Icons`; size from `--spacing-icon-*`; inherited color |
-| Scripted behavior | Implemented, or listed as not implemented in the report |
-| Report | Missing glyphs, layout conflicts, and unimplemented behaviors stated |

@@ -29,7 +29,7 @@ This kit complements [Google's DESIGN.md](https://github.com/google-labs-code/de
 2. Write the theme as a DESIGN.md file.
 3. Run the DESIGN.md lint and fix any error.
 4. Read the component specs and `docs/implementation.md`.
-5. Generate the component code in the stack chosen by the user, reading every value from `tokens.css`. The theme script writes `tokens.css` next to DESIGN.md in step 2; without the script (Level 3 of the questionnaire), the agent copies it from DESIGN.md.
+5. Generate the component code in the stack chosen by the user, reading every value from `tokens.css`. The theme script writes `tokens.css` next to DESIGN.md in step 2; without the script (Level 3 of the questionnaire), the agent copies it from DESIGN.md. The script's `--css <path>` option chooses another path for `tokens.css` (see `theme/questionnaire.md`).
 
 ## Structure
 
@@ -37,6 +37,7 @@ This kit complements [Google's DESIGN.md](https://github.com/google-labs-code/de
 theme/        questionnaire, theme script (DESIGN.md and tokens.css), palettes
 components/   one spec per component: button, chip, tooltip
 docs/         glossary, conventions, implementation
+docs/rationale/  explanations of the decisions, for human contributors; not needed by agents
 examples/     generated themes and code samples
 ```
 

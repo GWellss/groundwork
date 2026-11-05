@@ -13,8 +13,6 @@ A chip is a compact element that represents an action, a choice to toggle, or a 
 | Sizes | `s`, `m` |
 | Interactive states | `enabled`, `hover`, `focus`, `pressed` |
 | State properties | `selected`, `disabled` |
-| Tokens required | 12 colors, 2 typography, 1 rounded, 11 spacing; 3 new colors, the rest reused from the button (see Token contract) |
-| Contrast entries | 10 `components` entries, `backgroundColor` and `textColor` only (see Token contract) |
 
 ## Purpose
 
@@ -90,7 +88,7 @@ The chip has no emphasis variants: a chip is always low emphasis. Its colors com
 
 ### Decision
 
-Two sizes, `s` and `m`, declared in an explicit table like the button. Material 3 has a single chip height and no size range; a second, smaller size covers dense contexts such as tables and toolbars. The `xs` to `xl` range of the button is not imposed (each component declares its own sizes). Every dimension reuses an existing spacing token of the theme, so density applies to chips without new tokens.
+Two sizes, `s` and `m`; the smaller one covers dense contexts such as tables and toolbars. Every dimension reuses an existing spacing token of the theme, so density applies to chips without new tokens.
 
 ### Size table
 
@@ -111,6 +109,7 @@ Geometry rules:
 - Gap separates the leading element from the label, and the label from `remove-button`.
 - Icon size applies to `leading-icon`, `check-icon`, and the icon inside `remove-button`.
 - `avatar` is always clipped to a circle; this is a fixed geometry, not a theme value.
+- Avatar initials use `{typography.label-sm}` at both sizes (no new token). Show up to two initials; when two letters do not fit in the avatar at this typography, show only the first. By default: one initial at size `s`, two at size `m`.
 - `remove-button` is a square of the "remove button size", with its icon centered. Its hover and pressed fill is a circle of the same size.
 - Container radius is `{rounded.control}` for every size.
 - The selected chip keeps the same outer height: its missing border does not change the size of the container.
@@ -135,6 +134,8 @@ Geometry rules:
 |---|---|---|
 | `selected` | None; the chip stays interactive | `selected` group tokens; `check-icon` shown |
 | `disabled` | No hover, no pressed, not focusable, not activatable; `remove-button` included | Disabled tokens; a selected chip keeps `check-icon` |
+
+In `removable` mode the body is static text and has no native `disabled` attribute. Its disabled appearance follows the disabled state of `remove-button`, which carries the native attribute. Technique is free (for example the `:has()` selector on the container).
 
 Precedence: `disabled` overrides `selected`, which overrides the `default` group; interactive states apply on top of the resulting group.
 
@@ -211,11 +212,11 @@ The avatar exists only in the `default` group (`action` and `removable` modes). 
 
 ## Token contract
 
-The theme must define every token below. Nine colors already exist in the button token contract; the chip adds three colors (`on-surface`, `neutral-subtle-hover`, `neutral-subtle-pressed`). The existing `colors.outline` suits the neutral border and is reused. The brand tokens `primary`, `primary-subtle-hover`, `primary-subtle-pressed`, and `on-primary-subtle` are no longer used by the chip.
+The theme must define every token below. The colors that the button token contract already defines are reused; the chip adds three colors (`on-surface`, `neutral-subtle-hover`, `neutral-subtle-pressed`). The existing `colors.outline` suits the neutral border and is reused. The brand tokens `primary`, `primary-subtle-hover`, `primary-subtle-pressed`, and `on-primary-subtle` are no longer used by the chip.
 
 ### Palette scales
 
-The backgrounds follow the "Surface scale" case of the Contrast pairs rule of `docs/conventions.md`: surface, neutral step `100`, neutral step `200`. The content follows the Content step search of the same rule (neutral step `700`, `800`, or `900`). Scale steps are primitives: they are not counted in the totals below.
+The backgrounds follow the "Surface scale" case of the Contrast pairs rule of `docs/conventions.md`: surface, neutral step `100`, neutral step `200`. The content follows the Content step search of the same rule (neutral step `700`, `800`, or `900`). Scale steps are primitives.
 
 ### Colors
 
@@ -280,16 +281,6 @@ One entry per group and per `enabled`, `hover`, and `pressed` state, plus the fo
 | `chip-remove-pressed` | `{colors.neutral-subtle-pressed}` | `{colors.on-surface}` |
 | `chip-focus-ring` | `{colors.surface}` | `{colors.focus-ring}` |
 
-### Totals
-
-| Category | Count | Reused from the button | New |
-|---|---|---|---|
-| Colors | 12 | 9 | 3 |
-| Typography | 2 | 2 | 0 |
-| Rounded | 1 | 1 | 0 |
-| Spacing | 11 | 11 | 0 |
-| Components entries | 10 | 0 | 10 |
-
 ### Non-token requirement
 
 Icon style and library come from the `## Icons` section of DESIGN.md, as for the button. `check-icon` uses the library's checkmark and `remove-button` its close icon.
@@ -332,26 +323,3 @@ Icon style and library come from the `## Icons` section of DESIGN.md, as for the
 ## Out of scope
 
 Animations, dark mode, single-choice chip sets, arrow-key navigation inside a chip group, editable chips, chips that are both selectable and removable, read-only display tags, and semantic color variants (success, warning, danger) are not covered by this spec.
-
-## Rationale
-
-| Decision | Reason |
-|---|---|
-| Two booleans instead of four types | Material 3 has four types (assist, filter, input, suggestion), but assist and suggestion differ only in intent, not in anatomy or behavior. `selectable` and `removable` cover filter and input; their absence covers assist and suggestion. Spectrum also models its Tag with booleans (`isRemovable`, `isDisabled`) |
-| `selectable` and `removable` exclusive | Two competing targets on a small control; Material 3 shows the remove icon only on input chips, not on filter chips |
-| Remove button as a separate focusable control | It has its own action and its own accessible name; merging it with the body would hide the removal from keyboard and screen reader users |
-| Removable body not interactive | Keeps a single target per chip; editing an input chip is out of scope |
-| Toggle semantics for `selectable` | A filter chip is an on and off control; a pressed state is the standard way to expose it |
-| `check-icon` mandatory when selected | WCAG 1.4.1 forbids conveying selection by color alone; Material 3 filter chips show a leading checkmark |
-| No avatar on `selectable` | The leading slot is needed for `check-icon`; an avatar swapped for a checkmark would lose the identity it shows |
-| Sizes `s` and `m` only | Material 3 has a single height (32dp minimum); `m` maps to the second control height of the theme, `s` adds a dense option. A five-size range has no use for chips |
-| Neutral `default` group | A chip that is off must not look like a chip that is on: the brand color is reserved for `selected`, which also removes any confusion between hover and selected |
-| New `neutral-subtle-hover` and `neutral-subtle-pressed` | No existing token is a neutral fill for hover and pressed; the brand subtle tokens would tint the off state. Surface is neutral step 50, so the "Surface scale" case of the Contrast pairs rule gives surface, step 100, step 200 |
-| New `on-surface` | No existing token is a dark neutral content color for text on the surface; `{colors.on-disabled}` is for disabled only. One token serves all states, as the Contrast pairs rule prefers |
-| `colors.outline` reused | It is already the neutral border of the outlined button |
-| `selected` reuses the tonal tokens | Steps 50, 100, 200 are the only `light` triple; steps 300 and above are `intermediate` and carry no text |
-| Own `components` entries despite equal pairs | The contrast report names the chip, and each spec lists its own entries, so a theme stays valid whatever components it includes |
-| Radius `{rounded.control}` | Chips match buttons, and a chip is always a single line, so every corner style, pill included, keeps a regular shape |
-| Avatar fill `{colors.neutral-subtle-pressed}`, initials `{colors.on-surface}` | Reuses existing tokens: the pair is already checked as `chip-default-pressed`, and step `200` stays visible on the surface and on the hover container. Without a defined fill, generated code invented a color |
-| Avatar fill constant across interactive states | The avatar identifies an entity; changing its fill on hover adds no feedback the container does not already give |
-| `remove-button` ring without offset | With the shared offset, the ring would reach into the gap and could cover the label at small sizes or compact density |

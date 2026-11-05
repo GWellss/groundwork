@@ -37,7 +37,7 @@ ACCENT = ("primary", "danger", "focus-ring")
 SIZES = ("sm", "md", "lg", "xl")
 FONT_SIZE = {"compact": (12, 13, 14, 16), "default": (12, 14, 16, 18), "comfortable": (13, 15, 17, 20)}
 ROUNDED = {"sharp": "0px", "soft": "4px", "rounded": "8px", "pill": "9999px"}
-OVERLAY = {"sharp": "0px", "soft": "4px", "rounded": "8px", "pill": "8px"}  # never a stadium shape
+OVERLAY = {**ROUNDED, "pill": "8px"}  # never a stadium shape
 SPACING = {  # token: (compact, default, comfortable)
     "control-xs": (24, 28, 32), "control-sm": (28, 32, 40), "control-md": (32, 40, 48),
     "control-lg": (40, 48, 56), "control-xl": (48, 56, 64),
@@ -150,7 +150,7 @@ def make_scale(lights, chromas, hue, base=None):
 
 def color_scale(base):
     _, c, h = to_oklch(base)
-    return make_scale(LIGHT, [c * s for s in SHARE], h, base), c, h
+    return make_scale(LIGHT, [c * s for s in SHARE], h, base), c
 
 
 def neutral_scale(kind, brand_hue):
@@ -180,7 +180,7 @@ def issues(scale, d, base_chroma):
 
 
 def proposal(hx):
-    _, c, h = to_oklch(hx)
+    h = to_oklch(hx)[2]
     return to_hex(0.54, 0.4, h)  # to_hex reduces the chroma to the highest value that fits sRGB
 
 
@@ -195,7 +195,7 @@ def derive(a):
     info = {"names": {}, "idx": {}}
     colors = {}
     for key, name, base in (("brand", bname, a.brand), ("danger", dname, a.danger)):
-        scale, c, _ = color_scale(base)
+        scale, c = color_scale(base)
         d = default_index(scale, surface)
         problems = issues(scale, d, c)
         if problems:
@@ -425,8 +425,10 @@ def palettes_md():
     gray = neutral_scale("neutral", 0)
     surface = gray[0]
     tints = (("gray", gray), ("cool-gray", neutral_scale("cool", 0)), ("warm-gray", neutral_scale("warm", 0)))
-    named = [(n, make_scale(LIGHT, [c * s for s in SHARE], h, b), c) for n, b in PALETTE_BASES
-             for _, c, h in [to_oklch(b)]]
+    named = []
+    for n, b in PALETTE_BASES:
+        _, c, h = to_oklch(b)
+        named.append((n, make_scale(LIGHT, [c * s for s in SHARE], h, b), c))
     out = ["# Palettes", "",
            "Ready-made 10-step scales for agents that cannot run code. Pick the hue closest to the user's color and copy its steps (approximations: the exact color is not in the scale).",
            "Each step shows its contrast ratio against white and against neutral-50 (the surface, %s). The default step is the first step reaching 4.5:1 against both." % surface,

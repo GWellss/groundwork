@@ -13,6 +13,9 @@ The theme follows DESIGN.md as checked by `@google/design.md` pinned to 0.4.0. U
 - Reference tokens by path, in DESIGN.md format: `{colors.primary}`.
 - Never copy a token value into a component file. A value lives in the theme only.
 - In code, a token reference becomes a variable of the generated `tokens.css` (for example `{colors.primary}` becomes `--color-primary`). See `docs/implementation.md`.
+- Free token names are accepted in `spacing` and `rounded` (for example `control-xs`, `icon-sm`, `border-width`, `rounded.control`).
+- The `css-vars` export of `@google/design.md` 0.4.0 exists, with an optional `--prefix`, but it does not export `typography`. The kit does not use it: the theme script generates `tokens.css`, with every group (colors, spacing, rounded, typography, elevation) under fixed variable names.
+- Icon style is not a token. It lives in a free `## Icons` Markdown section of DESIGN.md (position free, accepted without warning), stating the style and the icon library. A top-level `icons` YAML key is rejected because exports ignore it.
 
 ## State colors
 
@@ -108,7 +111,7 @@ Contrast is checked only against `{colors.surface}`; on an image or a dark backg
 
 ## Elevation
 
-Elevation (shadow) is not a token, like the icon style. The scale lives in the `## Elevation & Depth` Markdown section of DESIGN.md, as a table. Component specs designate a level by its name; they never hold a shadow value.
+Elevation (shadow) is not a token, like the icon style. DESIGN.md has no shadow or elevation token type and no YAML key for it: it defines `Elevation & Depth` as a prose section describing the required styling (spread, blur, color). The scale lives in the `## Elevation & Depth` Markdown section of DESIGN.md, as a table. Component specs designate a level by its name; they never hold a shadow value.
 
 ### Levels
 
@@ -156,19 +159,16 @@ The section may open with one short sentence, followed by exactly this table. Th
 
 - A spec designates a level by its name in backticks, for example `level-2`. Never a shadow value, never a token reference.
 - In Token mapping, elevation has its own short table, one row per state, when the level changes with the state; otherwise one line stating the level.
-- In Token contract, elevation is listed under "Non-token requirement", next to the icon style. It is not counted in the token totals.
+- In Token contract, elevation is listed under "Non-token requirement", next to the icon style.
 - A spec that declares no level is at `level-0` in every state.
-
-## CLI facts (`@google/design.md` 0.4.0)
-
-- Free token names are accepted in `spacing` and `rounded` (for example `control-xs`, `icon-sm`, `border-width`, `rounded.control`).
-- The `css-vars` export exists, with an optional `--prefix`, but it does not export `typography`. The kit does not use it: the theme script generates `tokens.css`, with every group (colors, spacing, rounded, typography, elevation) under fixed variable names. The name contract and its use by component code are in `docs/implementation.md`.
-- Icon style is not a token. It lives in a free `## Icons` Markdown section of DESIGN.md (position free, accepted without warning), stating the style and the icon library. A top-level `icons` YAML key is rejected because exports ignore it.
-- There is no shadow or elevation token type and no YAML key for it. The DESIGN.md spec defines `Elevation & Depth` as a prose section describing the required styling (spread, blur, color). A custom `elevation` key is tolerated but ignored by exports; a `{elevation.*}` reference is a broken-ref error; any shadow property in `components` triggers a warning. The kit therefore keeps the scale as a table in `## Elevation & Depth`, and the theme script writes the shadow variables in `tokens.css` (see Elevation).
 
 ## Sizes
 
 Each component declares its own sizes. There is no shared scale imposed on all components.
+
+Sizes are declared in an explicit table, one row per size, and each cell is one token reference. A computed rule (base unit times a coefficient) is not used: real systems do not scale linearly, and an explicit table is readable by a human and convertible by an agent without arithmetic.
+
+Structural dimensions (height, padding, gap, icon size) live in the theme, not in the spec: density is a theme choice, and keeping the values in the theme keeps every value in one file, as the token reference convention requires. A spec holds only what is specific to its component.
 
 ## Naming
 
@@ -181,12 +181,12 @@ The reference spec is `components/button.md`. Every component spec uses the sect
 | Order | Section | Content | Form |
 |---|---|---|---|
 | 1 | Title and intro | Component name, one sentence on what it does | Prose |
-| 2 | At a glance | Summary of parts, configurations, variants, sizes, states, token count | Table: aspect, summary |
+| 2 | At a glance | Summary of parts, configurations, variants, sizes, states | Table: aspect, summary |
 | 3 | Purpose | When to use it, when not to | Short list |
 | 4 | Anatomy | Parts, then allowed and forbidden configurations, then combination rules | Tables: part, role, required, notes; configuration by part, allowed |
 | 5 | Properties | Every input of the component | Table: property, values, default, description |
 | 6 | Variants | Each variant and its intent | Table |
-| 7 | Sizes | Decision on how sizes are expressed, then one row per size, then geometry rules | Table: size, then one column per dimension |
+| 7 | Sizes | Optional short note on what is specific to this component's sizes, then one row per size, then geometry rules | Table: size, then one column per dimension |
 | 8 | States | Interactive states, then state properties (such as `disabled`, `loading`), then precedence | Two tables, one precedence line |
 | 9 | Token mapping | One table per variant: rows are states, columns are parts or properties; elevation by level name (see Elevation) | Short tables, at most five columns |
 | 10 | Token contract | Every token the theme must define, grouped by DESIGN.md group | One table per group: token, role |
@@ -194,7 +194,8 @@ The reference spec is `components/button.md`. Every component spec uses the sect
 | 12 | Behavior | Runtime behavior not covered by states | Short list |
 | 13 | Do and don't | Usage guidance | Table: do, don't |
 | 14 | Out of scope | What the spec deliberately ignores | One line |
-| 15 | Rationale | Main decisions and their reasons | Table: decision, reason |
+
+The justification of a spec's decisions is not part of the spec: it goes in `docs/rationale/<component>.md`, for human contributors.
 
 Table rules, so that a machine-readable block can be derived without ambiguity:
 

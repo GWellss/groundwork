@@ -32,7 +32,7 @@ Before asking anything, find out which tools you have. Pick the highest level th
 - You do: ask the questions. Replace the `brand` and `danger` questions with "Choose the range closest to your brand color" among the 14 ranges of `theme/palettes.md`. If the user gives a hex code, propose the closest range and say that the match is approximate. For the `neutral` question, map the answer to a range of `theme/palettes.md`: neutral → `gray`, warm → `warm-gray`, cool → `cool-gray`. Do not offer the "tinted with the brand color" option at this level, because no precomputed range exists for it: propose only the other three, and if the user wants a tinted gray, say that it requires Level 1 or Level 2. Take density, corners, and typography from the default tables below. Copy the precomputed steps (`default`, `hover`, `pressed`, and the other steps of the range) into the DESIGN.md. For the neutral-derived colors, use the range chosen for `neutral` (`gray`, `warm-gray`, or `cool-gray`): `on-surface` is the `on-container` row of that range (step `700`, searched against steps `50`, `100`, `200`, which are `surface`, `neutral-subtle-hover`, and `neutral-subtle-pressed`); `neutral-subtle-hover` is step `100`, `neutral-subtle-pressed` is step `200`, `inverse-surface` is step `900`, and `on-inverse-surface` is white. Name the copied scale `neutral` in the DESIGN.md. If a value needed here is missing from `theme/palettes.md`, say so to the user instead of computing it.
 - Elevation: copy the default table of "Elevation" below; it needs no computation.
 - `tokens.css`: no script writes it at this level. If code is to be generated, write it by copying the values of the DESIGN.md under the variable names of `docs/implementation.md`, semantic colors resolved to the hex of their step, and the font family followed by the fallback stack of "Typography" below. Copy only; never compute.
-- You delegate: the final check, to the user, with an online contrast checker such as WebAIM Contrast Checker (https://webaim.org/resources/contrastchecker/). List the key pairs to check, each with its two hex values: every `components` entry that pairs a background with a text color (including the 10 `chip-*` entries and `tooltip-plain`), and at least the `primary` on `surface` pair. Neutral-derived values (`on-surface`, `neutral-subtle-hover`, `neutral-subtle-pressed`, `inverse-surface`) come from the range chosen for `neutral`, as described in "Semantic color tokens".
+- You delegate: the final check, to the user, with an online contrast checker such as WebAIM Contrast Checker (https://webaim.org/resources/contrastchecker/). List the key pairs to check, each with its two hex values: every `components` entry that pairs a background with a text color (including the `chip-*` entries and `tooltip-plain`), and at least the `primary` on `surface` pair. Neutral-derived values (`on-surface`, `neutral-subtle-hover`, `neutral-subtle-pressed`, `inverse-surface`) come from the range chosen for `neutral`, as described in "Semantic color tokens".
 - Done when: the DESIGN.md is delivered, the list of pairs to check is given, and you have said that the contrast was copied from precomputed values and not verified in this conversation.
 
 ## Principle
@@ -63,9 +63,9 @@ Before asking anything, find out which tools you have. Pick the highest level th
 | `brand` | `#2563EB` | primary scale and every `primary-*` and `on-primary*` color; `focus-ring` |
 | `danger` | `#DC2626` | danger scale; `danger`, `on-danger`, `danger-hover`, `danger-pressed` |
 | `neutral` | neutral | neutral scale; `surface`, `on-surface`, `neutral-subtle-hover`, `neutral-subtle-pressed`, `inverse-surface`, `outline`, `disabled-container`, `on-disabled` |
-| `font` | system UI font | `fontFamily` of the 4 typography tokens |
+| `font` | system UI font | `fontFamily` of the typography tokens |
 | `corners` | soft | `rounded.control`, `rounded.overlay` |
-| `density` | default | `spacing` sizes (control, icon, gaps, paddings, `tooltip-max-width`), `fontSize` of the 4 typography tokens |
+| `density` | default | `spacing` sizes (control, icon, gaps, paddings, `tooltip-max-width`), `fontSize` of the typography tokens |
 | `icons` | outlined, Material Symbols | `## Icons` section (no token) |
 
 ## Derivation rules
@@ -119,7 +119,7 @@ Apply the State colors rule of `docs/conventions.md` to the brand scale and to t
 
 ### Semantic color tokens
 
-Write the 25 colors of the token contracts of the button (20), the chip (3 new), and the tooltip (2 new) as references to scale steps. `<brand>` and `<danger>` are the scale names; `d` is the `default` step of the corresponding scale; `c` is the step found by the content step search above; `n` is the step found by the same search on the neutral scale for `on-surface`.
+Write the colors of the token contracts of the button, the chip (new colors), and the tooltip (new colors) as references to scale steps. `<brand>` and `<danger>` are the scale names; `d` is the `default` step of the corresponding scale; `c` is the step found by the content step search above; `n` is the step found by the same search on the neutral scale for `on-surface`.
 
 | Token | Value |
 |---|---|
@@ -153,7 +153,7 @@ If a pair fails, never make two states identical, never move a background back t
 
 ### Typography
 
-Write 4 tokens: `label-sm`, `label-md`, `label-lg`, `label-xl`. Each carries `fontFamily` (the answer to `font`; for the system UI font, use `system-ui`), `fontSize`, `fontWeight` 500, `lineHeight`, and `letterSpacing` 0px. Line height is 1.25 times the font size, rounded to the nearest whole pixel and written in px. Font size follows density.
+Write the tokens `label-sm`, `label-md`, `label-lg`, `label-xl`. Each carries `fontFamily` (the answer to `font`; for the system UI font, use `system-ui`), `fontSize`, `fontWeight` 500, `lineHeight`, and `letterSpacing` 0px. Line height is 1.25 times the font size, rounded to the nearest whole pixel and written in px. Font size follows density.
 
 Fallback stack: in `tokens.css`, the font family is followed by generic fallbacks, `system-ui` then `sans-serif` (a generic family is not repeated). DESIGN.md keeps the entered font alone. The kit does not load fonts: if the chosen font is not installed on the target devices, tell the user that the project must load it, otherwise the fallback is shown.
 
@@ -165,7 +165,7 @@ Fallback stack: in `tokens.css`, the font family is followed by generic fallback
 
 ### Rounded
 
-Two tokens, `rounded.control` and `rounded.overlay`. The overlay radius is moderate in every corner style, so that a multi-line overlay (the tooltip) never turns into a stadium shape.
+Write `rounded.control` and `rounded.overlay`. The overlay radius is moderate in every corner style, so that a multi-line overlay (the tooltip) never turns into a stadium shape.
 
 | Answer to `corners` | `rounded.control` | `rounded.overlay` |
 |---|---|---|
@@ -176,7 +176,7 @@ Two tokens, `rounded.control` and `rounded.overlay`. The overlay radius is moder
 
 ### Spacing
 
-The 19 spacing tokens come from the density table (16 rows) and the constant table (3 rows). Values are in px: this file is the defaults file of the theme, not a component spec. The three constant tokens do not depend on density.
+The spacing tokens come from the density table and the constant table. Values are in px: this file is the defaults file of the theme, not a component spec. The three constant tokens do not depend on density.
 
 | Token | compact | default | comfortable |
 |---|---|---|---|
@@ -205,13 +205,13 @@ The 19 spacing tokens come from the density table (16 rows) and the constant tab
 
 ### Components entries
 
-Write every `components` entry listed in the Token contract of each component spec, with only `backgroundColor` and `textColor`. Never add another property (a shadow property included), and never declare a disabled pair. 27 entries in total:
+Write every `components` entry listed in the Token contract of each component spec, with only `backgroundColor` and `textColor`. Never add another property (a shadow property included), and never declare a disabled pair. Entries by spec:
 
-| Spec | Entries | Count |
-|---|---|---|
-| `components/button.md` | `button-filled` through `button-focus-ring` | 16 |
-| `components/chip.md` | `chip-default` through `chip-focus-ring` | 10 |
-| `components/tooltip.md` | `tooltip-plain` | 1 |
+| Spec | Entries |
+|---|---|
+| `components/button.md` | `button-filled` through `button-focus-ring` |
+| `components/chip.md` | `chip-default` through `chip-focus-ring` |
+| `components/tooltip.md` | `tooltip-plain` |
 
 ### Elevation
 

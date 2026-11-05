@@ -14,8 +14,6 @@ A button triggers an action when activated. This spec is theme independent: ever
 | State properties | `disabled`, `loading` |
 | Behavior options | `full-width`, `floating` |
 | Elevation | `level-0`; floating: `level-3` at rest, `level-4` on hover (not a token, see Token contract) |
-| Tokens required | 20 colors, 4 typography, 1 rounded, 18 spacing (see Token contract) |
-| Contrast entries | 16 `components` entries, `backgroundColor` and `textColor` only (see Token contract) |
 
 ## Purpose
 
@@ -109,12 +107,6 @@ Variants with `floating`:
 | `danger` | no | A floating button is the most prominent action of a screen; a destructive action must not be the one kept always at hand |
 
 ## Sizes
-
-### Decision
-
-Sizes are declared in an explicit table, one row per size, and each cell is a token reference. A computed rule (base unit times a coefficient) was rejected: real systems do not scale linearly from xs to xl, and an explicit table is readable by a human and convertible by an agent without arithmetic.
-
-Structural dimensions (height, padding, gap, icon size) belong to the theme, not to the invariant kit. Density is a theme choice, as heights differ from one design system to another. Keeping them in the theme also keeps every value in one file, as required by the token reference convention.
 
 ### Size table
 
@@ -272,7 +264,7 @@ The theme must define every token below. The questionnaire asks for them; the ge
 
 ### Palette scales
 
-Each state color of `primary` and `danger` points to a step of a primitive scale in `colors` (for example a blue scale and a red scale, from lightest to darkest). The scales, the derivation of default, hover, and pressed steps, and the contrast pair rule (background families, state changes, content step search) are defined in `docs/conventions.md`. Scale steps are primitives: they are not counted in the totals below, and unused steps are tolerated.
+Each state color of `primary` and `danger` points to a step of a primitive scale in `colors` (for example a blue scale and a red scale, from lightest to darkest). The scales, the derivation of default, hover, and pressed steps, and the contrast pair rule (background families, state changes, content step search) are defined in `docs/conventions.md`. Scale steps are primitives, and unused steps are tolerated.
 
 ### Colors
 
@@ -360,21 +352,11 @@ The DESIGN.md contrast rule checks only the `components` key. The kit therefore 
 | `button-danger-pressed` | `{colors.danger-pressed}` | `{colors.on-danger}` |
 | `button-focus-ring` | `{colors.surface}` | `{colors.focus-ring}` |
 
-### Totals
-
-| Category | Count |
-|---|---|
-| Colors | 20 |
-| Typography | 4 |
-| Rounded | 1 |
-| Spacing | 18 |
-| Components entries | 16 |
-
 ### Non-token requirement
 
 Icon style (for example outlined, filled, or rounded, plus the icon library) is not a token. The theme records it in a free `## Icons` Markdown section of DESIGN.md.
 
-Elevation is not a token either. A floating button uses `level-3` at rest and `level-4` on hover, from the elevation table in the `## Elevation & Depth` section of DESIGN.md (see Elevation in `docs/conventions.md`); it is not counted in the totals.
+Elevation is not a token either. A floating button uses `level-3` at rest and `level-4` on hover, from the elevation table in the `## Elevation & Depth` section of DESIGN.md (see Elevation in `docs/conventions.md`).
 
 ## Accessibility
 
@@ -424,32 +406,3 @@ Elevation is not a token either. A floating button uses `level-3` at rest and `l
 ## Out of scope
 
 Animations other than the spinner rotation, dark mode, button groups, split buttons, semantic color variants other than `danger` (such as success or warning), floating button menus (speed dial), extended floating buttons that collapse to icon-only on scroll, and the placement of the floating button on the page are not covered by this spec; contrast is checked only against `{colors.surface}`, so on an image or a dark background the user retouches the floating button colors after generation.
-
-## Rationale
-
-| Decision | Reason |
-|---|---|
-| Five sizes `xs` to `xl` | Matches Material 3; Spectrum and Radix use four |
-| Two optional icons | Explicit need; Spectrum only offers a leading icon |
-| Icon-only as a property | Same approach as Spectrum `isLabelHidden`: variants, states, and tokens stay shared; only geometry changes. Material 3 and Radix use a separate component |
-| `loading` as a state property | Present in Spectrum (pending) and Radix (loading) |
-| Emphasis variants | Material 3 naming (filled, tonal, outlined, text); Radix uses solid, soft, outline, ghost |
-| Explicit state color tokens | Every cell is a real color the lint can check, no opacity rule hidden in the kit |
-| `danger` variant | Destructive actions need a distinct, recognizable signal; it has its own tokens and matrix |
-| State colors from palette scales | Hover and pressed come from a rule on a primitive scale, so the user only gives a base color |
-| Content darkens on `outlined` and `text` hover and pressed | The tinted hover and pressed backgrounds are `light` steps, which carry only steps `700` to `900`; keeping `{colors.primary}` would fail 4.5:1 or force the pressed background back to the hover one, hiding the press feedback |
-| Content adjusts to the background, also on `tonal` | The rule "the content adjusts to the background, never the reverse" applies to `tonal` as well, not only to `outlined` and `text`: `{colors.on-primary-container}` is searched in steps `700`, `800`, then `900` against the `50`, `100`, and `200` backgrounds, and the backgrounds stay fixed |
-| One shared `{colors.on-primary-subtle}` | One token is computed against the darker of the two subtle backgrounds, so it is valid for both; a token per state would add a color for no visible gain |
-| Standard-only `components` entries | The lint checks contrast only there; standard properties keep the theme valid and the kit non-intrusive |
-| Floating as a property, not a component | User decision, same approach as icon-only: variants, states, and tokens stay shared; only elevation, allowed variants, and allowed sizes change. Material 3 uses a separate FAB component |
-| Floating icon-only and extended | Material 3 offers both the FAB and the extended FAB; both map to existing configurations of the button |
-| Floating `filled` and `tonal` only | A floating button covers content, so it needs its own fill; Material 3 FAB colors are filled containers. `danger` is excluded so a destructive action is never the one always at hand |
-| Floating sizes `l` and `xl` only | A floating button is the main action and is often used on touch; Material 3 FAB is 56dp by default, larger than a standard button, and `l` and `xl` are the closest control heights |
-| Floating at `level-3` at rest, `level-4` on hover | Material 3 FAB: resting level 3, raised one level on hover; `level-3` is the highest resting level of the scale |
-| Floating `pressed` at `level-3` | Material 3 FAB pressed returns to its resting level (unverified against the current Material 3 spec); `level-5` stays reserved for drag |
-| Floating `disabled` and `loading` at `level-3` | Neither state has hover, so both keep the resting level; the button keeps floating above the content. Material 3 FAB has no disabled state, so this is a kit decision |
-| No new `components` entry for floating | The floating colors are the `filled` and `tonal` pairs, already declared |
-| Spinner size and stroke from existing tokens | The icon size keeps the spinner in proportion with the content it replaces; `{spacing.focus-ring-width}` gives a visible stroke at icon sizes, where `{spacing.border-width}` is too thin, without a new token |
-| Spinner stops under reduced motion | Continuous rotation is motion the user asked to avoid; the busy state and the visible arc still convey loading |
-| `spinner-turn` as a behavior constant | Same reason as the tooltip delays: DESIGN.md has no duration token type, and the speed serves usability, not brand identity |
-| `aria-busy` instead of native disabled for `loading` | Native disabled removes focus, which the Loading requirement keeps; the style reads the same attribute, so there is one source of truth |
