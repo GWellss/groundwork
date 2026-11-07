@@ -21,7 +21,7 @@ A chip is a compact element that represents an action, a choice to toggle, or a 
 - Use a `removable` chip to show a value the user entered or picked (a tag, a recipient, an applied filter) and let them remove it.
 - Do not use a chip as the main action of an area: use a `filled` button.
 - Do not use a chip for a single choice among exclusive options: use radio buttons or a segmented control.
-- Do not use a chip to display a static status: use a badge (not covered by this kit yet).
+- Do not use a chip for a count or a dot attached to another element: use a badge. A static text status has no component in this kit yet.
 
 ## Anatomy
 

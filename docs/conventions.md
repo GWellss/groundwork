@@ -46,7 +46,7 @@ Steps are those of a 10-step scale, `50` (lightest) to `900` (darkest). The fami
 | Family | Background steps | Allowed content |
 |---|---|---|
 | `light` | `50`, `100`, `200` | Step `700`, `800`, or `900` of the same scale |
-| `light`, surface only | `{colors.surface}` | Same as `light`, or an accent token whose step comes from the State colors rule (`primary`, `danger`, `focus-ring`) |
+| `light`, surface only | `{colors.surface}` | Same as `light`, or an accent token whose step comes from the State colors rule (`primary`, `primary-hover`, `primary-pressed`, `danger`, `focus-ring`) |
 | `intermediate` | `300`, `400`, `500` | none: never a background behind text or icons |
 | `solid` | `600` to `900` | An `on-*` token: white by default; a theme may choose step `50` of the same scale instead |
 
@@ -64,6 +64,8 @@ The background moves first, the content follows.
 | `solid` | State colors rule | State colors rule | State colors rule |
 
 A variant with fewer states uses the first columns of its row.
+
+Fill-less exception: a component with no fill at all (the link) keeps `{colors.surface}` as the background of every state. Its content color moves instead, each state darker than the previous one (State colors rule: `primary`, `primary-hover`, `primary-pressed`), and the script checks the content order for these entries.
 
 Surface scale: `{colors.surface}` is step `50` of the neutral scale. When the variant without fill takes its hover and pressed backgrounds from the scale of `{colors.surface}`, step `50` would equal the enabled background, so the sequence shifts by one step: surface, `100`, `200`. It stays in the `light` family, and the three backgrounds are distinct and each darker than the previous one.
 

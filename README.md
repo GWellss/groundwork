@@ -35,7 +35,7 @@ This kit complements [Google's DESIGN.md](https://github.com/google-labs-code/de
 
 ```
 theme/        questionnaire, theme script (DESIGN.md and tokens.css), palettes
-components/   one spec per component: button, chip, tooltip
+components/   one spec per component: button, chip, tooltip, divider, link, badge, avatar, progress
 docs/         glossary, conventions, implementation
 docs/rationale/  explanations of the decisions, for human contributors; not needed by agents
 examples/     generated themes and code samples

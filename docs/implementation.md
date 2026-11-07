@@ -48,7 +48,7 @@ The font family variable holds a fallback stack: the font entered by the user fi
 - Never a raw THEME value in component code: no hex, no theme pixel length, no shadow value, no font name of the text typography.
 - Allowed as literals, because they are not theme values:
   - accessibility constants (24 by 24, 44 by 44 target sizes);
-  - behavior constants fixed by the specs (for example 700 ms, 300 ms, 1000 ms);
+  - behavior constants fixed by the specs (for example 700 ms, 300 ms, 1000 ms, 2000 ms);
   - the name of the icon font, which is data of the `## Icons` section of DESIGN.md.
 - Name these literals as local aliases with a comment that cites their source (for example `--target-size-min: 24px; /* WCAG 2.5.8 */`). The aliases hold no theme value.
 - Never a new variable that copies a token value. A local alias that points to a generated variable is allowed (for example a component-level variable set to `--color-primary`), as long as no value is duplicated.
@@ -82,6 +82,8 @@ A state property that accessibility can expose is exposed there, and the style r
 | `disabled` | Native disabled where the element supports it | Removed from the tab order by the platform |
 | `selected` (chip) | `aria-pressed` | Toggle button semantics |
 | `loading` (button) | `aria-busy` | Not native disabled: the button stays focusable; activation is ignored by script |
+| `visited` (link) | Native `:visited`, color only | Not exposed to assistive technologies; the platform may not provide it |
+| `value` (progress) | `aria-valuenow`, absent when indeterminate | `role="progressbar"`, see `components/progress.md` |
 | `open` (tooltip) | Rendered or not rendered | `role="tooltip"`; trigger references it with `aria-describedby` while open, as in the spec |
 | `variant`, `size`, other options | Free (attribute, prop, modifier) | No accessibility attribute exists for them |
 
@@ -113,7 +115,7 @@ Optional. A demo page may force a state (for example to show `hover` statically)
 - Color: the current content color of the part (inherited, for example `currentColor`), never a fixed color.
 - Delivery: free (icon font, inline SVG, package, sprite), as long as the glyphs come from the named library and style. The icon font name is an allowed literal (see Consumption rules), and loading the icon font is the project's responsibility (see Fonts).
 - Library not available (no network, no package, no license): tell the user, name the missing glyphs, and wait for a decision. Never substitute another library or style silently, and never draw an approximation presented as the library icon.
-- The button `spinner` is not a library icon: it is defined in `components/button.md`.
+- The button `spinner` is not a library icon: it is defined in `components/button.md`. The circular `progress` is not one either: it is defined in `components/progress.md`.
 
 ## Fonts
 
@@ -139,5 +141,5 @@ Recommendations only; the project conventions win.
 
 - One file per component, plus `tokens.css` kept as generated.
 - Plain CSS: BEM class names derived from the spec names: block = component, element = part, modifier = variant or size (for example `chip`, `chip__remove-button`, `button--tonal`, `button--size-m`).
-- Framework: one component per spec, named after it (Button, Chip, Tooltip).
+- Framework: one component per spec, named after it (Button, Chip, Tooltip, Divider, Link, Badge, Avatar, Progress).
 - Demo pages stay apart from component files.

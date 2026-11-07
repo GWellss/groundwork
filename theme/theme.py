@@ -32,7 +32,7 @@ LIGHT = (0.97, 0.93, 0.87, 0.79, 0.70, 0.62, 0.54, 0.46, 0.38, 0.30)
 SHARE = (0.15, 0.30, 0.50, 0.75, 0.90, 1.0, 1.0, 1.0, 0.90, 0.75)
 NEUTRAL_TINT = {"neutral": (0.0, 0), "warm": (0.010, 70), "cool": (0.010, 250)}
 WHITE = "#FFFFFF"
-ACCENT = ("primary", "danger", "focus-ring")
+ACCENT = ("primary", "primary-hover", "primary-pressed", "danger", "focus-ring")
 
 SIZES = ("sm", "md", "lg", "xl")
 FONT_SIZE = {"compact": (12, 13, 14, 16), "default": (12, 14, 16, 18), "comfortable": (13, 15, 17, 20)}
@@ -257,7 +257,13 @@ def components():
             out.append(("chip-%s%s" % (v, "-" + st if st else ""), bg, fg))
     out.append(("chip-focus-ring", "surface", "focus-ring"))
     out.append(("tooltip-plain", "inverse-surface", "on-inverse-surface"))
-    assert len(out) == 27
+    for n, fg in (("link", "primary"), ("link-hover", "primary-hover"), ("link-pressed", "primary-pressed"),
+                  ("link-visited", "on-surface"), ("link-focus-ring", "focus-ring")):
+        out.append((n, "surface", fg))  # no fill: the content color moves, not the background
+    out += [("badge-primary", "primary", "on-primary"), ("badge-danger", "danger", "on-danger"),
+            ("badge-neutral", "neutral-subtle-pressed", "on-surface"), ("avatar-default", "neutral-subtle-pressed", "on-surface"),
+            ("progress-primary", "surface", "primary"), ("progress-danger", "surface", "danger")]
+    assert len(out) == 38
     return out
 
 
@@ -294,9 +300,14 @@ def check(colors, comps):
         elif sb and not (b == WHITE or (sf and sf[0] == sb[0] and sf[1] == 50)):
             why.append("content on solid is not white or step 50")
         group = re.sub(r"-(hover|pressed)$", "", name)
-        if group in prev and lum(a) >= lum(prev[group]):
-            why.append("background not darker than the previous state")
-        prev[group] = a
+        if group in prev:
+            pa, pb, pbg = prev[group]
+            if bg == pbg == "surface":  # fill-less component (link): the content moves, each state darker
+                if lum(b) >= lum(pb):
+                    why.append("content not darker than the previous state")
+            elif lum(a) >= lum(pa):
+                why.append("background not darker than the previous state")
+        prev[group] = (a, b, bg)
         rows.append((name, sb, sf, r, why))
     return rows
 
@@ -338,11 +349,11 @@ def design_md(a, colors, info, comps):
     body = f"""
 ## Overview
 
-{a.name} is a design system theme for buttons, chips, tooltips and the components built on them. It uses a {ni['brand']} brand color ({a.brand}), a {ni['danger']} danger color ({a.danger}), {a.neutral} grays, the {a.font} font, {a.corners} corners and {a.density} density. Every value lives in this file; component specs only reference tokens.
+{a.name} is a design system theme for buttons, chips, tooltips, dividers, links, badges, avatars, progress indicators and the components built on them. It uses a {ni['brand']} brand color ({a.brand}), a {ni['danger']} danger color ({a.danger}), {a.neutral} grays, the {a.font} font, {a.corners} corners and {a.density} density. Every value lives in this file; component specs only reference tokens.
 
 ## Colors
 
-The theme has three primitive scales: {sc('brand')} for the brand, {sc('danger')} for destructive actions, and {sc('neutral')} for grays and backgrounds. State colors are semantic tokens that point to scale steps. The `default` step is the first step from 600 to 900 reaching 4.5:1 in the worse case between white and `{{colors.surface}}`; `hover` is `default` plus 2 steps and `pressed` is `default` plus 4 steps, stopped at 900. Here the brand `default` is `{ni['brand']}-{STEPS[ix['brand']]}` and the danger `default` is `{ni['danger']}-{STEPS[ix['danger']]}`. Content on a filled brand or danger color (`on-primary`, `on-danger`) is always white. Tonal containers use steps 50, 100 and 200 (enabled, hover, pressed); `on-primary-container` and `on-primary-subtle` are the first step from 700 to 900 reaching 4.5:1 on every background they serve. The neutral chip uses `surface`, `neutral-subtle-hover` and `neutral-subtle-pressed` (neutral 50, 100, 200) with `on-surface`, found by the same search on the neutral scale. The tooltip is `inverse-surface` (neutral 900) with white `on-inverse-surface`.
+The theme has three primitive scales: {sc('brand')} for the brand, {sc('danger')} for destructive actions, and {sc('neutral')} for grays and backgrounds. State colors are semantic tokens that point to scale steps. The `default` step is the first step from 600 to 900 reaching 4.5:1 in the worse case between white and `{{colors.surface}}`; `hover` is `default` plus 2 steps and `pressed` is `default` plus 4 steps, stopped at 900. Here the brand `default` is `{ni['brand']}-{STEPS[ix['brand']]}` and the danger `default` is `{ni['danger']}-{STEPS[ix['danger']]}`. Content on a filled brand or danger color (`on-primary`, `on-danger`) is always white. Tonal containers use steps 50, 100 and 200 (enabled, hover, pressed); `on-primary-container` and `on-primary-subtle` are the first step from 700 to 900 reaching 4.5:1 on every background they serve. The neutral chip uses `surface`, `neutral-subtle-hover` and `neutral-subtle-pressed` (neutral 50, 100, 200) with `on-surface`, found by the same search on the neutral scale. The tooltip is `inverse-surface` (neutral 900) with white `on-inverse-surface`. Links, badges, avatars and progress indicators reuse these tokens: the link moves its content color (`primary`, `primary-hover`, `primary-pressed`, `on-surface` when visited) on the surface, the avatar and the neutral badge use `neutral-subtle-pressed` with `on-surface`, and the progress indicator is `primary` or `danger` on the surface. The divider has no text and declares no pair.
 
 ## Typography
 
@@ -370,7 +381,7 @@ Icon style: {style}. Icon library: {lib}.
 
 ## Components
 
-The `components` entries declare one `backgroundColor` and `textColor` pair per button variant, per chip group and per `enabled`, `hover` and `pressed` state, plus the focus rings against the surface and the tooltip pair, so the lint checks contrast. Disabled pairs are exempt (WCAG 1.4.3) and are not declared. See the component specs in the kit: `button.md`, `chip.md`, `tooltip.md`.
+The `components` entries declare one `backgroundColor` and `textColor` pair per button variant, per chip group and per `enabled`, `hover` and `pressed` state, plus the focus rings against the surface, the tooltip pair, the link states against the surface, the badge variants, the avatar and the progress indicators, so the lint checks contrast. Disabled pairs are exempt (WCAG 1.4.3) and are not declared. See the component specs in the kit: `button.md`, `chip.md`, `tooltip.md`, `divider.md`, `link.md`, `badge.md`, `avatar.md`, `progress.md`.
 
 ## Do's and Don'ts
 
@@ -476,7 +487,9 @@ def selftest():
     assert report(bad, components())[1] == 2
     bad = dict(colors, **{"on-primary-subtle": "{colors.blue-600}"})  # step 600 on a light background: must fail
     assert report(bad, components())[1] == 4
-    assert len(colors) - 30 == 25 and len(components()) == 27, "25 semantic colors, 27 components entries"
+    bad = dict(colors, **{"primary-hover": "{colors.blue-600}"})  # link hover equal to enabled: must fail
+    assert any(w for n, _, _, _, w in check(bad, components()) if n == "link-hover")
+    assert len(colors) - 30 == 25 and len(components()) == 38, "25 semantic colors, 38 components entries"
     assert colors["on-surface"].startswith("{colors.neutral-") and colors["inverse-surface"] == "{colors.neutral-900}"
     text = design_md(a, colors, info, components())
     front = text.split("---")[1]
