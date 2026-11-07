@@ -7,7 +7,7 @@ A card is a container that groups the content of one subject: an optional image,
 | Aspect | Summary |
 |---|---|
 | Parts | `container`, `media`, `header`, `body`, `actions` |
-| Configurations | any non-empty mix of `media`, `header`, `body`; `actions` on a static card only |
+| Configurations | any non-empty mix of `media`, `header`, `body`; `actions` on a static card (on a clickable card: avoid, see Combination rules) |
 | Variants | `outlined`, `elevated` |
 | Types | static (default), clickable (`interactive` is `link` or `button`) |
 | Sizes | none; the width comes from the parent, padding and gaps from spacing tokens |
@@ -22,7 +22,7 @@ A card is a container that groups the content of one subject: an optional image,
 - Do not use a card to wrap a whole page or a form, or to style a section: use spacing and a divider (see `components/divider.md`). A card around everything groups nothing.
 - Do not use a card for a list of rows or a table: use a list or a table.
 - Do not use a card for a message (see `components/alert.md`), nor for a panel that floats (see `components/popover.md` and `components/dialog.md`).
-- Do not make a card clickable and give it buttons too: see the rule below.
+- Avoid making a card clickable and giving it buttons or links too: prefer a static card, see the rule below.
 
 ## Anatomy
 
@@ -45,15 +45,21 @@ At least one of `media`, `header`, `body` is present.
 | content | any non-empty mix of `media`, `header`, `body` | yes |
 | with-actions | `actions`, static card | yes |
 | clickable | any content, `interactive` is `link` or `button` | yes |
-| clickable-with-actions | a clickable card with `actions` | no |
-| clickable-with-controls | a clickable card holding a link, a button, or a field | no |
+| clickable-with-actions | a clickable card with `actions` | avoid; only in the form of the rule below |
+| clickable-with-controls | a clickable card holding a link or a button | avoid; only in the form of the rule below |
+| clickable-with-field | a clickable card holding a text field or any input | no |
 | empty | none of `media`, `header`, `body` | no |
 | text-over-media | text drawn over `media` | no |
 
 Combination rules:
 
-- One card, one way to act. A clickable card holds no other interactive element: a link or a button inside a link or a button is invalid, and two hit areas on one surface cannot be told apart by keyboard or touch. Several actions, or a secondary action next to the main one, make a static card with `actions`.
-- To give a clickable card a second action elsewhere, put it outside the card, next to it.
+- One card, one way to act is the rule to prefer. Avoid a clickable card that also holds other links or buttons: a link or a button inside a link or a button is invalid HTML, and two hit areas on one surface are easy to confuse by keyboard, touch and screen reader. Several actions, or a secondary action next to the main one, are better served by a static card with `actions`, or by placing the second action outside the card, next to it.
+- If the project still wants a whole-card click with other controls, do it in this form only:
+  1. The main link is the link inside `header` (the heading), stretched by layout to cover the whole card. The `container` is not itself a link or a button, so no interactive element is nested in another.
+  2. The other buttons and links are siblings of that link, stacked above the stretched area, each with its own distinct hit area, reached by `Tab` after the heading link, in reading order. Keep them apart by at least `{spacing.sm}`.
+  3. Each target is at least 24 by 24 CSS pixels (WCAG 2.2 criterion 2.5.8), and has its own accessible name; the card is named by the heading link.
+  4. The hover fill shows only when the pointer is over the main area, not over a secondary control; the focus ring of the main link is drawn around the card, and the secondary controls draw their own.
+  5. Never put a text field or any input in it, and never more than one stretched link.
 - A static card whose main action is a link may make its `header` a link; the card itself is then still static.
 - `media` is always first. It fills the width of the card with no padding and follows the card radius.
 - `actions` holds at most two buttons: the main one at the end, the secondary one before it. More choices belong in a menu.
@@ -255,7 +261,7 @@ Elevation is not a token. The `elevated` card uses `level-1` and `level-4` of th
 | Topic | Requirement |
 |---|---|
 | Role, static | No role of its own. A card that is one item of a list or a grid is an `article` or a list item, so that the group is announced. |
-| Role, clickable | The whole container is one native link (`interactive` is `link`) or one native button (`button`). Nothing interactive is inside it. |
+| Role, clickable | The whole container is one native link (`interactive` is `link`) or one native button (`button`). Nothing interactive is inside it. In the discouraged form (Combination rules), the heading link is the one control that covers the card, and the other controls are its siblings, never nested. |
 | Accessible name | Static: `header` is the heading, at `heading-level`. Clickable: `header` names the control (`aria-labelledby`), `body` describes it (`aria-describedby`); with no `header`, `label` names it. The heading stays inside the link or button, so the card remains in the outline. |
 | Media | `media` of a clickable card is decorative (empty alternative text). In a static card it has an alternative text when it carries information. |
 | Focus | Only a clickable card is focusable; the ring is drawn around the container. A static card is not in the tab order: only the buttons inside it are. |
@@ -277,8 +283,8 @@ Elevation is not a token. The `elevated` card uses `level-1` and `level-4` of th
 | Do | Don't |
 |---|---|
 | Give the card a heading that names the subject | Leave a card with only decoration |
-| Make the card clickable only when it has one destination or one action | Put buttons or links inside a clickable card |
-| Use a static card with `actions` when there are several actions | Stack a clickable card and a hidden button on it |
+| Make the card clickable only when it has one destination or one action | Nest a button or a link inside the link or button of a clickable card |
+| Use a static card with `actions` when there are several actions | Stack a clickable card and a hidden button on it; if you need both, follow the stretched heading link form |
 | Keep `media` first, edge to edge, with no text over it | Write text over an image: contrast is not controlled |
 | Use `outlined` by default, `elevated` for one that stands out | Mix both variants in one row |
 | Use `on-surface` for all text of a clickable card | Use `on-surface-muted` in a clickable card |

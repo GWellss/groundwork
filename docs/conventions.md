@@ -54,7 +54,7 @@ One extension covers the destructive menu item (see `components/menu.md`): `dang
 
 Tonal containers exist for every status role, not only for the brand: `primary-container`, `danger-container`, `success-container` and `warning-container` are steps `50`, `100` and `200` of their scale (enabled, hover, pressed), with a content token (`on-primary-container`, `on-danger-container`, and so on) found by the content step search below. This is the plain `light` family rule, with no exception: the content is step `700` to `900` of the same scale as its background. The `success` accent on the surface is the only addition to the accent list above; it serves the status icon of the toast (see `components/toast.md`).
 
-One component draws its focus ring in another color than `focus-ring`: the controls inside the alert (`action`, `close-button`) use the content color of their tonal container. `focus-ring` is checked only on the surface, the neutral fills and the brand container, and the tonal fills of the other roles would need twelve more checks; the content color already reaches 4.5:1 on each of them, so the ring reaches at least 3:1 with no extra check (see `components/alert.md`).
+Every focus ring is `focus-ring`, with no exception. The script checks it at 3:1 (WCAG 1.4.11) on every fill it can meet: the surface, the neutral hover and pressed fills, and the container, hover and pressed fills of the brand, danger, success and warning tonal containers (the controls of the alert). If the brand step fails on one of them, the script takes a darker brand step: the adjustment is global, never a color per component.
 
 ### State changes
 
@@ -227,7 +227,7 @@ An overlay panel is a panel that floats above the page and is not tied to a trig
 
 | Aspect | Rule |
 |---|---|
-| Fill | `{colors.surface}` |
+| Fill | `{colors.surface}`: the toast follows the active theme mode (light surface in light mode, dark surface in a dark mode when the kit has one) |
 | Border | `{spacing.border-width}` in `{colors.neutral-subtle-pressed}` |
 | Radius | `{rounded.overlay}` |
 | Elevation | `level-3` while open: it floats above the content, higher than a surface tied to a trigger (`level-2`); never `level-4` or `level-5` |

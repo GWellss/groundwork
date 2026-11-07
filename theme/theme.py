@@ -259,7 +259,8 @@ def derive(a):
 
 
 RING_FILLS = ("surface", "neutral-subtle-hover", "neutral-subtle-pressed",  # segments, tabs, chip remove, search clear: rest, hover, pressed
-              "primary-container", "primary-container-hover", "primary-container-pressed")  # selected segment
+              "primary-container", "primary-container-hover", "primary-container-pressed",  # selected segment, info alert controls
+              *("%s-container%s" % (k, s) for k in ROLES[1:] for s in ("", "-hover", "-pressed")))  # alert controls, other severities
 
 
 def ring_ok(flat, ring):
@@ -590,6 +591,7 @@ def selftest():
     bad = dict(colors, outline="{colors.neutral-300}")  # field border below 3:1 (non-text check): must fail
     assert report(bad, components())[1] == 1
     assert ring_ok(colors, colors["focus-ring"]) and not ring_ok(dict(colors), "{colors.neutral-300}")  # weak ring must be refused
+    assert not ring_ok(dict(colors, **{"warning-container-pressed": colors["focus-ring"]}), colors["focus-ring"])  # tonal alert fill is checked too
     bad = dict(colors, **{"focus-ring": "{colors.neutral-300}"})  # ring below 3:1 on the fills: must fail (once per fill it misses)
     assert report(bad, components())[1] >= 1
     hues = "#FFEB3B #84CC16 #22D3EE #FACC15 #4ADE80 #E11D48 #2563EB #7C3AED #F97316 #14B8A6 #EC4899 #A3E635".split()

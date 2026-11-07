@@ -180,11 +180,11 @@ Border width is `{spacing.border-width}`. The border carries no information, so 
 
 | Property | Token |
 |---|---|
-| Color | the content color of the severity, for example `{colors.on-danger-container}` |
+| Color | `{colors.focus-ring}` |
 | Width | `{spacing.focus-ring-width}` |
 | Offset | `{spacing.focus-ring-offset}` |
 
-The ring is not `{colors.focus-ring}` here: that color is checked at 3:1 on the surface and on the neutral and brand fills only. The content color reaches 4.5:1 on every fill of its severity, so the ring reaches at least 3:1 on all of them with no extra check.
+The ring is the one `{colors.focus-ring}` of the whole kit, not a color of the alert. The theme script checks it at 3:1 on the container and on the hover and pressed fills of every severity (WCAG 1.4.11), as on the surface and the neutral fills, and picks a darker brand step for the single global ring when one of them fails. The alert declares no ring color of its own.
 
 ### Elevation
 
@@ -206,6 +206,7 @@ The theme must define every token below. The alert adds the tonal containers of 
 | `colors.on-warning-container` | `warning` content, same search |
 | `colors.danger-container`, `-hover`, `-pressed` | `danger` container and control fills. Default: danger steps `50`, `100`, `200` |
 | `colors.on-danger-container` | `danger` content, same search |
+| `colors.focus-ring` | Focus ring of `action` and `close-button`, shared with the rest of the kit; the script checks it at 3:1 on the nine tonal fills above and on `primary-container*` |
 
 ### Typography
 
