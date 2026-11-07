@@ -30,17 +30,17 @@ A divider is a thin line that separates groups of content. This spec is theme in
 
 ### Configurations
 
-| Configuration | `orientation` | `inset` | Allowed |
+| Configuration | `orientation` | `inset` | Status |
 |---|---|---|---|
-| horizontal-full | `horizontal` | `false` | yes |
-| horizontal-inset | `horizontal` | `true` | yes |
-| vertical-full | `vertical` | `false` | yes |
-| vertical-inset | `vertical` | `true` | yes |
-| with-label | any | any | no |
+| horizontal-full | `horizontal` | `false` | allowed |
+| horizontal-inset | `horizontal` | `true` | allowed |
+| vertical-full | `vertical` | `false` | allowed |
+| vertical-inset | `vertical` | `true` | allowed |
+| with-label | any | any | out-of-scope |
 
 Combination rules:
 
-- A divider has no content. A divider with a label is not allowed: use a heading.
+- A divider has no content. A divider with a label is `out-of-scope`: use a heading.
 - A divider never sits alone: it separates two siblings, so it is never the first or the last child of its container.
 
 ## Properties

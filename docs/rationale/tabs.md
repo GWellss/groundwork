@@ -19,3 +19,4 @@ For human contributors: why the spec is the way it is. Agents do not need this f
 | Icon-only tabs refused | The visible label is the accessible name and the way to tell tabs apart; an icon alone fails users who do not know the icon |
 | Hidden panels keep their state | Losing a form being filled when the user peeks at another tab is the most common complaint about tabs |
 | Heights one step above the matching button | Tabs are a navigation-like target; the extra height holds the bar |
+| No selection `forbidden`, fewer than two tabs `avoid` | With no selected tab there is no tab stop, so the tablist cannot be reached by keyboard. One tab is only a section: show its content directly. A status badge in a tab is `out-of-scope`: only `count` and `dot` badges are specified there |

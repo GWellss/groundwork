@@ -8,7 +8,7 @@ A radio button lets the user pick exactly one option among a short list of exclu
 |---|---|
 | Base | `components/checkbox.md`, read first; everything not stated here is unchanged |
 | Parts | those of the checkbox that apply, with `dot` replacing `check-icon`; no `indeterminate-icon` |
-| Configurations | always a group (`group`, `legend`, two or more options); never alone |
+| Configurations | always a group (`group`, `legend`, two or more options); alone: avoid |
 | Selection | `unselected`, `selected`; one `selected` option at most per group |
 | Variants | none by emphasis; two appearance groups: `unselected` and `selected`, as the checkbox |
 | Sizes | `s`, `m`, as the checkbox |
@@ -40,18 +40,21 @@ The checkbox parts `check-icon`, `indeterminate-icon`, and `required-marker` do 
 
 ### Configurations
 
-| Configuration | Elements | Allowed |
+| Configuration | Elements | Status |
 |---|---|---|
-| group | `group`, `legend`, two or more `choice`, optional group `helper-text` or `error-message` | yes |
-| single | one `choice` | no |
-| option-help | `helper-text` or `error-message` attached to one option | no |
-| no-selection | a group with no option selected | yes |
-| indeterminate | a mixed state | no |
-| error-and-disabled | `error-message` with `disabled` | no |
+| group | `group`, `legend`, two or more `choice`, optional group `helper-text` or `error-message` | allowed |
+| single | one `choice` | avoid |
+| option-help | `helper-text` or `error-message` attached to one option | avoid |
+| no-selection | a group with no option selected | allowed |
+| indeterminate | a mixed state | forbidden |
+| error-and-disabled | `error-message` with `disabled` | forbidden |
 
 Combination rules:
 
-- A radio button is never rendered alone. A group has at least two options and a `legend`.
+- Radio buttons come in a group of at least two options, with a `legend`. A single radio button is `avoid`: the user cannot deselect it, so a lone option is a checkbox (see `components/checkbox.md`).
+- A mixed state is `forbidden`: a radio button has no mixed state in ARIA.
+- Help or error on one option is `avoid`, as in the checkbox group: put it in the group's `helper-text` or `error-message`.
+- `error-message` with `disabled` is `forbidden`: a disabled group leaves the tab order, so its error cannot be reached by keyboard.
 - At most one option is selected. Selecting one deselects the others; the user cannot deselect the selected option.
 - The group may start with no selection (no default). When a safe default exists, select it.
 - Help and error belong to the group, once, as in the checkbox group.

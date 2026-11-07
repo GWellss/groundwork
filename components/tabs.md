@@ -39,23 +39,24 @@ Tabs are a row of labels that each reveal one panel of content, one panel visibl
 
 ### Configurations
 
-| Configuration | Elements of a tab | Allowed |
+| Configuration | Elements of a tab | Status |
 |---|---|---|
-| label-only | `label` | yes |
-| leading-icon-label | `leading-icon`, `label` | yes |
-| label-badge | `label`, `badge` | yes |
-| leading-icon-label-badge | `leading-icon`, `label`, `badge` | yes |
-| icon-only | `leading-icon` | no |
-| status-badge | a `status` badge | no |
-| fewer than two tabs | any | no |
-| no-selection | no tab selected | no |
+| label-only | `label` | allowed |
+| leading-icon-label | `leading-icon`, `label` | allowed |
+| label-badge | `label`, `badge` | allowed |
+| leading-icon-label-badge | `leading-icon`, `label`, `badge` | allowed |
+| icon-only | `leading-icon` | out-of-scope |
+| status-badge | a `status` badge | out-of-scope |
+| fewer-than-two | one tab | avoid |
+| no-selection | no tab selected | forbidden |
 
 Combination rules:
 
-- A tab always has a visible `label`. Icon-only tabs are not allowed: use a labeled tab, or a toolbar of icon buttons for non-tab uses.
-- Exactly one tab is selected at any time. The group always has a `value`.
+- A tab always has a visible `label`. Icon-only tabs are `out-of-scope`: use a labeled tab, or a toolbar of icon buttons for non-tab uses.
+- Exactly one tab is selected at any time. The group always has a `value`. No selection is `forbidden`: the selected tab is the only tab stop, so with none selected the `tablist` cannot be reached by keyboard.
+- Fewer than two tabs is `avoid`: one section needs no tabs, so show its content directly.
 - Every tab has exactly one `tabpanel`, and every `tabpanel` belongs to exactly one tab.
-- The `badge` is a `count` or `dot` badge: a `status` badge is a text and is not allowed in a tab.
+- The `badge` is a `count` or `dot` badge: a `status` badge is a text, and its use in a tab is `out-of-scope`.
 - The tabs share one size, and either all have a `leading-icon` or none does.
 
 ## Properties
@@ -268,4 +269,4 @@ The `indicator` and the focus ring are `{colors.primary}`, at 4.5:1 or more agai
 
 ## Out of scope
 
-Animations (a sliding indicator), dark mode, vertical tabs, closable and draggable tabs, an overflow menu or scroll buttons, tabs that stretch to fill the width, filled or pill-shaped tabs, a secondary emphasis, nested tabs, tabs that mirror the URL, and icon-only tabs are not covered by this spec.
+Animations (a sliding indicator), dark mode, vertical tabs, closable and draggable tabs, an overflow menu or scroll buttons, tabs that stretch to fill the width, filled or pill-shaped tabs, a secondary emphasis, nested tabs, tabs that mirror the URL, icon-only tabs, and a status badge in a tab are not covered by this spec.

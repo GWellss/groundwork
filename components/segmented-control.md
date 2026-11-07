@@ -39,22 +39,24 @@ A segmented control is a row of two to five connected segments where exactly one
 
 ### Configurations
 
-| Configuration | Elements of a segment | Allowed |
+| Configuration | Elements of a segment | Status |
 |---|---|---|
-| label-only | `label` | yes |
-| leading-icon-label | `leading-icon`, `label` | yes |
-| icon-only | `leading-icon` | no |
-| mixed | some segments with an icon, some without | no |
-| fewer than two or more than five segments | any | no |
-| no-selection | no segment selected | no |
-| multiple-selection | several segments selected | no |
+| label-only | `label` | allowed |
+| leading-icon-label | `leading-icon`, `label` | allowed |
+| icon-only | `leading-icon` | out-of-scope |
+| mixed | some segments with an icon, some without | avoid |
+| fewer-than-two | one segment | avoid |
+| more-than-five | six segments or more | out-of-scope |
+| no-selection | no segment selected | avoid |
+| multiple-selection | several segments selected | out-of-scope |
 
 Combination rules:
 
-- A segment always has a visible `label`. Icon-only segments are not allowed: the selected segment shows `check-icon` in place of its icon, so an icon alone would lose its meaning exactly when it is selected.
-- Either every segment has a `leading-icon` or none does, so the segments keep the same look.
-- Exactly one segment is selected at any time. The user cannot deselect it. The group always has a `value`.
-- Selecting a segment deselects the previous one. A multi-selection control is not part of this kit: use selectable chips or a checkbox group.
+- A segment always has a visible `label`. Icon-only segments are `out-of-scope`: the selected segment shows `check-icon` in place of its icon, so an icon alone would lose its meaning exactly when it is selected.
+- Either every segment has a `leading-icon` or none does, so the segments keep the same look. A mix is `avoid`: put an icon on every segment, or on none.
+- Fewer than two segments is `avoid`: there is no choice to make. More than five segments is `out-of-scope`: use a select or a menu.
+- Exactly one segment is selected at any time. The user cannot deselect it. The group always has a `value`. No selection is `avoid`: the control would not show the current view; set `value`.
+- Selecting a segment deselects the previous one. A multi-selection control is `out-of-scope`: use selectable chips or a checkbox group.
 
 ## Properties
 

@@ -8,8 +8,8 @@ A button triggers an action when activated. This spec is theme independent: ever
 |---|---|
 | Parts | `container`, `label`, `leading-icon`, `trailing-icon`, `spinner` |
 | Configurations | label only, leading icon + label, label + trailing icon, both icons + label, icon-only; floating: icon-only or leading icon + label (extended) |
-| Variants | `filled`, `tonal`, `outlined`, `text`, `danger`; floating: `filled`, `tonal` only |
-| Sizes | `xs`, `s`, `m`, `l`, `xl`; floating: `l`, `xl` only |
+| Variants | `filled`, `tonal`, `outlined`, `text`, `danger`; floating: `filled`, `tonal` (`danger` avoid, `outlined` and `text` forbidden) |
+| Sizes | `xs`, `s`, `m`, `l`, `xl`; floating: `l`, `xl` (the others avoid) |
 | Interactive states | `enabled`, `hover`, `focus`, `pressed` |
 | State properties | `disabled`, `loading` |
 | Behavior options | `full-width`, `floating` |
@@ -37,54 +37,55 @@ A button triggers an action when activated. This spec is theme independent: ever
 
 ### Configurations
 
-| Configuration | `leading-icon` | `label` visible | `trailing-icon` | Allowed |
+| Configuration | `leading-icon` | `label` visible | `trailing-icon` | Status |
 |---|---|---|---|---|
-| label-only | no | yes | no | yes |
-| leading-icon-label | yes | yes | no | yes |
-| label-trailing-icon | no | yes | yes | yes |
-| leading-icon-label-trailing-icon | yes | yes | yes | yes |
-| icon-only | yes | no | no | yes |
-| empty | no | no | no | no |
-| icon-only-two-icons | yes | no | yes | no |
+| label-only | no | yes | no | allowed |
+| leading-icon-label | yes | yes | no | allowed |
+| label-trailing-icon | no | yes | yes | allowed |
+| leading-icon-label-trailing-icon | yes | yes | yes | allowed |
+| icon-only | yes | no | no | allowed |
+| empty | no | no | no | forbidden |
+| icon-only-two-icons | yes | no | yes | out-of-scope |
 
 Combination rules:
 
 - A button always has a label, visible or not. The label is the accessible name.
 - Icon-only is a property of the same component, not a separate component: the label is visually hidden, exactly one icon is shown in the `leading-icon` slot, and the accessible name is mandatory.
-- A button with no visible label and no icon is invalid.
+- A button with no visible label and no icon is `forbidden`: nothing is shown to the user.
+- An icon-only button with two icons is `out-of-scope`: icon-only is defined with exactly one icon.
 
 ### Floating configurations
 
 `floating` is a property of the same component, like `icon-only`: it combines with a base configuration and changes elevation, allowed variants, and allowed sizes. Tokens and states stay shared.
 
-| Configuration | Base configuration | Allowed |
+| Configuration | Base configuration | Status |
 |---|---|---|
-| floating-icon-only | icon-only | yes |
-| floating-extended | leading-icon-label | yes |
-| floating-label-only | label-only | no |
-| floating-trailing-icon | label-trailing-icon or leading-icon-label-trailing-icon | no |
+| floating-icon-only | icon-only | allowed |
+| floating-extended | leading-icon-label | allowed |
+| floating-label-only | label-only | avoid |
+| floating-trailing-icon | label-trailing-icon or leading-icon-label-trailing-icon | avoid |
+| floating-full-width | any base configuration with `full-width` | forbidden: a floating button never fills its parent |
 
 Floating combination rules:
 
-- A floating button always shows an icon in the `leading-icon` slot: the icon keeps the action recognizable at a glance over any content.
-- `trailing-icon` is not allowed with `floating`: a trailing icon reads as a menu or navigation cue, which a floating action is not.
-- `full-width` is not allowed with `floating`: a floating button never fills its parent.
-- Only `filled` and `tonal` are allowed with `floating` (see Variants), and only sizes `l` and `xl` (see Sizes).
+- A floating button shows an icon in the `leading-icon` slot: the icon keeps the action recognizable at a glance over any content. A label-only floating button is `avoid`: add a `leading-icon` (floating-extended).
+- `trailing-icon` with `floating` is `avoid`: a trailing icon reads as a menu or navigation cue, which a floating action is not. Put the icon in the `leading-icon` slot instead.
+- `filled` and `tonal` are `allowed` with `floating`, `outlined` and `text` are `forbidden`, and `danger` is `avoid` (see Variants). Sizes `l` and `xl` are `allowed`, the others are `avoid` (see Sizes).
 
 ## Properties
 
 | Property | Values | Default | Description |
 |---|---|---|---|
 | `variant` | `filled`, `tonal`, `outlined`, `text`, `danger` | `filled` | Emphasis level, or destructive action for `danger` |
-| `size` | `xs`, `s`, `m`, `l`, `xl` | `m`; `l` when `floating` is true | Named dimension set; `l` or `xl` only when `floating` is true |
+| `size` | `xs`, `s`, `m`, `l`, `xl` | `m`; `l` when `floating` is true | Named dimension set; `l` or `xl` when `floating` is true (other sizes: avoid) |
 | `label` | text | none, required | Action name; accessible name |
 | `leading-icon` | icon reference | none | Optional icon before the label |
-| `trailing-icon` | icon reference | none | Optional icon after the label; not allowed with `icon-only` |
+| `trailing-icon` | icon reference | none | Optional icon after the label; `out-of-scope` with `icon-only` |
 | `icon-only` | `true`, `false` | `false` | Hides the label visually; requires `leading-icon` |
 | `disabled` | `true`, `false` | `false` | Button cannot be activated |
 | `loading` | `true`, `false` | `false` | Action in progress; button cannot be activated |
 | `full-width` | `true`, `false` | `false` | Container fills the width of its parent; not allowed with `floating` |
-| `floating` | `true`, `false` | `false` | Button floats above the content, resting at `level-3`; requires `leading-icon`, `filled` or `tonal`, size `l` or `xl` |
+| `floating` | `true`, `false` | `false` | Button floats above the content, resting at `level-3`; expects `leading-icon`, `filled` or `tonal`, size `l` or `xl` (status of the other cases: see Floating configurations, Variants, Sizes) |
 
 ## Variants
 
@@ -98,13 +99,13 @@ Floating combination rules:
 
 Variants with `floating`:
 
-| Variant | Allowed with `floating` | Reason |
+| Variant | Status with `floating` | Reason |
 |---|---|---|
-| `filled` | yes | Default floating look: the solid fill stands out over any content |
-| `tonal` | yes | Softer floating look; its fill still covers the content behind |
-| `outlined` | no | No fill: the content behind would show through the container and break the contrast pair, which is checked against `{colors.surface}` |
-| `text` | no | Same reason as `outlined`, with no border to outline the shape |
-| `danger` | no | A floating button is the most prominent action of a screen; a destructive action must not be the one kept always at hand |
+| `filled` | allowed | Default floating look: the solid fill stands out over any content |
+| `tonal` | allowed | Softer floating look; its fill still covers the content behind |
+| `outlined` | forbidden | No fill: the content behind would show through the container and break the contrast pair, which is checked against `{colors.surface}` |
+| `text` | forbidden | Same reason as `outlined`, with no border to outline the shape |
+| `danger` | avoid | A floating button is the most prominent action of a screen; a destructive action must not be the one kept always at hand. Keep it as a regular `danger` button in the content |
 
 ## Sizes
 
@@ -140,16 +141,17 @@ Spinner:
 
 Floating sizes:
 
-| Size | Allowed with `floating` |
+| Size | Status with `floating` |
 |---|---|
-| `xs` | no |
-| `s` | no |
-| `m` | no |
-| `l` | yes, default |
-| `xl` | yes |
+| `xs` | avoid |
+| `s` | avoid |
+| `m` | avoid |
+| `l` | allowed, default |
+| `xl` | allowed |
 
 Floating geometry rules:
 
+- Sizes `xs`, `s`, and `m` are `avoid` with `floating`: the floating button is the main action and is often used on touch, so use `l` or `xl`.
 - Sizes and their tokens are those of the size table: no new dimension.
 - Floating icon-only follows the icon-only rule: square container, width equals height. With `{rounded.control}` it is a circle when the corner style is pill, a rounded square otherwise.
 - Floating extended follows the size table like any labeled button, with the same radius.
@@ -405,4 +407,4 @@ Elevation is not a token either. A floating button uses `level-3` at rest and `l
 
 ## Out of scope
 
-Animations other than the spinner rotation, dark mode, button groups, split buttons, semantic color variants other than `danger` (such as success or warning), floating button menus (speed dial), extended floating buttons that collapse to icon-only on scroll, and the placement of the floating button on the page are not covered by this spec; contrast is checked only against `{colors.surface}`, so on an image or a dark background the user retouches the floating button colors after generation.
+Animations other than the spinner rotation, dark mode, button groups, split buttons, semantic color variants other than `danger` (such as success or warning), icon-only buttons with two icons, floating button menus (speed dial), extended floating buttons that collapse to icon-only on scroll, and the placement of the floating button on the page are not covered by this spec; contrast is checked only against `{colors.surface}`, so on an image or a dark background the user retouches the floating button colors after generation.

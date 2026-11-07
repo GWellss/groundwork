@@ -38,19 +38,20 @@ A slider lets the user pick one numeric value, or a minimum and a maximum (range
 
 ### Configurations
 
-| Configuration | Elements | Allowed |
+| Configuration | Elements | Status |
 |---|---|---|
-| plain | `label`, `track`, `fill`, `thumb`, `value-label` | yes |
-| no-value-label | the same without `value-label` (`show-value` false) | yes |
-| with-help | any of the above plus `helper-text` or `error-message` | yes |
-| range | `label`, `track`, `fill` between the thumbs, `thumb-min`, `thumb-max`, `value-label` showing both values | yes |
-| vertical | a vertical track | no |
-| no-label | any | no |
-| error-and-disabled | `error-message` with `disabled` | no |
+| plain | `label`, `track`, `fill`, `thumb`, `value-label` | allowed |
+| no-value-label | the same without `value-label` (`show-value` false) | allowed |
+| with-help | any of the above plus `helper-text` or `error-message` | allowed |
+| range | `label`, `track`, `fill` between the thumbs, `thumb-min`, `thumb-max`, `value-label` showing both values | allowed |
+| vertical | a vertical track | out-of-scope |
+| no-label | any | forbidden |
+| error-and-disabled | `error-message` with `disabled` | forbidden |
 
 Combination rules:
 
-- A slider always has a visible `label`.
+- A slider always has a visible `label`; one with no label is `forbidden`.
+- `error-message` with `disabled` is `forbidden`: a disabled slider leaves the tab order, so its error cannot be reached by keyboard.
 - The value is always one number: `min` less than or equal to the value, which is less than or equal to `max`, and a multiple of `step` from `min`. In the `range` variant the value is two numbers, `value-min` and `value-max`, each obeying that rule, with `value-min` at least one `min-gap` below `value-max` (see Range variant).
 - An error always shows `error-icon` and `error-message`. Color alone never says "error".
 - `error-message` replaces `helper-text` in the same slot.

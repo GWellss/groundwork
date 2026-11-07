@@ -34,24 +34,28 @@ A card is a container that groups the content of one subject: an optional image,
 | `media` | An image or an illustration | no | At the top, edge to edge; never carries text |
 | `header` | The heading of the card | no | A heading; one or two lines |
 | `body` | The text and content | no | Free content; every element follows its own spec |
-| `actions` | Row of buttons at the end of the card | no | Static card only; at most two buttons |
+| `actions` | Row of buttons at the end of the card | no | Static card (on a clickable card: avoid); at most two buttons |
 
 At least one of `media`, `header`, `body` is present.
 
 ### Configurations
 
-| Configuration | Parts | Allowed |
+| Configuration | Parts | Status |
 |---|---|---|
-| content | any non-empty mix of `media`, `header`, `body` | yes |
-| with-actions | `actions`, static card | yes |
-| clickable | any content, `interactive` is `link` or `button` | yes |
-| clickable-with-actions | a clickable card with `actions` | avoid; only in the form of the rule below |
-| clickable-with-controls | a clickable card holding a link or a button | avoid; only in the form of the rule below |
-| clickable-with-field | a clickable card holding a text field or any input | no |
-| empty | none of `media`, `header`, `body` | no |
-| text-over-media | text drawn over `media` | no |
+| content | any non-empty mix of `media`, `header`, `body` | allowed |
+| with-actions | `actions`, static card | allowed |
+| clickable | any content, `interactive` is `link` or `button` | allowed |
+| clickable-with-actions | a clickable card with `actions` | avoid |
+| clickable-with-controls | a clickable card holding a link or a button | avoid |
+| clickable-with-field | a clickable card holding a text field or any input | forbidden |
+| empty | none of `media`, `header`, `body` | avoid |
+| text-over-media | text drawn over `media` | forbidden |
 
 Combination rules:
+
+- A clickable card with `actions` or with other controls is `avoid`, and only exists in the form described below. A text field or any input in a clickable card is `forbidden`: an input inside a link or a button is invalid HTML.
+- Text drawn over `media` is `forbidden`: its contrast cannot be checked, since the kit checks contrast against the surface only.
+- An empty card is `avoid`: it groups nothing. Add a `header` or a `body`, or drop the card.
 
 - One card, one way to act is the rule to prefer. Avoid a clickable card that also holds other links or buttons: a link or a button inside a link or a button is invalid HTML, and two hit areas on one surface are easy to confuse by keyboard, touch and screen reader. Several actions, or a secondary action next to the main one, are better served by a static card with `actions`, or by placing the second action outside the card, next to it.
 - If the project still wants a whole-card click with other controls, do it in this form only:
@@ -292,4 +296,4 @@ Elevation is not a token. The `elevated` card uses `level-1` and `level-4` of th
 
 ## Out of scope
 
-Horizontal cards, expandable or collapsible cards, selectable cards (a checkbox or radio drawn as a card), draggable cards, an action menu in the header (put the trigger button in `actions`), a card with a title bar of its own, a card on an image or a tinted fill, a row or grid layout, media with text over it, a card with a `status` badge or avatar built in (the project places them in `body`), animations, and dark mode are not covered by this spec; contrast is checked only against `{colors.surface}`.
+Horizontal cards, expandable or collapsible cards, selectable cards (a checkbox or radio drawn as a card), draggable cards, an action menu in the header (put the trigger button in `actions`), a card with a title bar of its own, a card on an image or a tinted fill, a row or grid layout, a card with a `status` badge or avatar built in (the project places them in `body`), animations, and dark mode are not covered by this spec; contrast is checked only against `{colors.surface}`.

@@ -38,26 +38,26 @@ A chip is a compact element that represents an action, a choice to toggle, or a 
 
 ### Configurations
 
-| Configuration | Leading slot | Remove button | Modes | Allowed |
+| Configuration | Leading slot | Remove button | Modes | Status |
 |---|---|---|---|---|
-| label-only | none | no | `action`, `selectable` | yes |
-| leading-icon-label | `leading-icon` | no | `action`, `selectable` | yes |
-| avatar-label | `avatar` | no | `action` | yes |
-| label-remove | none | yes | `removable` | yes |
-| leading-icon-label-remove | `leading-icon` | yes | `removable` | yes |
-| avatar-label-remove | `avatar` | yes | `removable` | yes |
-| selectable-avatar | `avatar` | no | `selectable` | no |
-| selectable-removable | any | yes | `selectable` | no |
-| icon-and-avatar | `leading-icon` and `avatar` | any | any | no |
-| no-label | any | any | any | no |
+| label-only | none | no | `action`, `selectable` | allowed |
+| leading-icon-label | `leading-icon` | no | `action`, `selectable` | allowed |
+| avatar-label | `avatar` | no | `action` | allowed |
+| label-remove | none | yes | `removable` | allowed |
+| leading-icon-label-remove | `leading-icon` | yes | `removable` | allowed |
+| avatar-label-remove | `avatar` | yes | `removable` | allowed |
+| selectable-avatar | `avatar` | no | `selectable` | forbidden |
+| selectable-removable | any | yes | `selectable` | out-of-scope |
+| icon-and-avatar | `leading-icon` and `avatar` | any | any | out-of-scope |
+| no-label | any | any | any | forbidden |
 
 Combination rules:
 
-- The mode is derived from two properties: `action` when `selectable` and `removable` are both false, `selectable` when `selectable` is true, `removable` when `removable` is true. `selectable` and `removable` are never both true.
-- The leading slot holds at most one element: `leading-icon`, `avatar`, or `check-icon`.
+- The mode is derived from two properties: `action` when `selectable` and `removable` are both false, `selectable` when `selectable` is true, `removable` when `removable` is true. `selectable` and `removable` both true is `out-of-scope`.
+- The leading slot holds at most one element: `leading-icon`, `avatar`, or `check-icon`. Two leading elements are `out-of-scope`.
 - In `selectable` mode, `check-icon` replaces `leading-icon` while `selected` is true. Without `leading-icon`, `check-icon` is added before the label.
-- `avatar` is not allowed in `selectable` mode, because the leading slot must stay free for `check-icon`.
-- A chip always has a visible label. Icon-only chips are not allowed: use an icon-only button.
+- `avatar` in `selectable` mode is `forbidden`: the leading slot must stay free for `check-icon`, which shows the selection besides the fill (WCAG 1.4.1).
+- A chip always has a visible label. An icon-only chip is `forbidden`: use an icon-only button.
 
 ## Properties
 
@@ -66,10 +66,10 @@ Combination rules:
 | `label` | text | none, required | Name of the action, option, or item; accessible name |
 | `size` | `s`, `m` | `m` | Named dimension set |
 | `leading-icon` | icon reference | none | Optional icon before the label |
-| `avatar` | image or initials | none | Optional avatar before the label; not allowed with `selectable` |
+| `avatar` | image or initials | none | Optional avatar before the label; `forbidden` with `selectable` |
 | `selectable` | `true`, `false` | `false` | The chip toggles on and off |
 | `selected` | `true`, `false` | `false` | The option is on; only with `selectable` |
-| `removable` | `true`, `false` | `false` | Shows `remove-button`; not allowed with `selectable` |
+| `removable` | `true`, `false` | `false` | Shows `remove-button`; `out-of-scope` with `selectable` |
 | `remove-label` | text | "Remove" followed by `label` | Accessible name of `remove-button` |
 | `disabled` | `true`, `false` | `false` | The chip and its remove button cannot be activated |
 
@@ -322,4 +322,4 @@ Icon style and library come from the `## Icons` section of DESIGN.md, as for the
 
 ## Out of scope
 
-Animations, dark mode, single-choice chip sets, arrow-key navigation inside a chip group, editable chips, chips that are both selectable and removable, read-only display tags, and semantic color variants (success, warning, danger) are not covered by this spec.
+Animations, dark mode, single-choice chip sets, arrow-key navigation inside a chip group, editable chips, chips that are both selectable and removable, a leading icon together with an avatar, read-only display tags, and semantic color variants (success, warning, danger) are not covered by this spec.

@@ -28,14 +28,14 @@ This kit complements [Google's DESIGN.md](https://github.com/google-labs-code/de
 1. Ask the user the questionnaire to collect theme choices. The questionnaire first asks the agent to identify its level (terminal, code execution, or no tools), which decides how colors are derived and checked.
 2. Write the theme as a DESIGN.md file.
 3. Run the DESIGN.md lint and fix any error.
-4. Read the component specs and `docs/implementation.md`.
+4. Read the component specs and `docs/implementation.md`. Each configuration of a spec has a status (`allowed`, `forbidden`, `avoid`, `out-of-scope`), defined in `docs/conventions.md`; the agent handles it as `docs/implementation.md` states.
 5. Generate the component code in the stack chosen by the user, reading every value from `tokens.css`. The theme script writes `tokens.css` next to DESIGN.md in step 2; without the script (Level 3 of the questionnaire), the agent copies it from DESIGN.md. The script's `--css <path>` option chooses another path for `tokens.css` (see `theme/questionnaire.md`).
 
 ## Structure
 
 ```
 theme/        questionnaire, theme script (DESIGN.md and tokens.css), palettes
-components/   one spec per component: button, chip, tooltip, divider, link, badge, avatar, progress, text-field, search-field, checkbox, radio, switch, slider, segmented-control, tabs, accordion, menu, select, popover, dialog, alert, toast, card
+components/   one spec per component (24): button, chip, tooltip, divider, link, badge, avatar, progress, text-field, search-field, checkbox, radio, switch, slider, segmented-control, tabs, accordion, menu, select, popover, dialog, alert, toast, card
 docs/         glossary, conventions, implementation
 docs/rationale/  explanations of the decisions, for human contributors; not needed by agents
 examples/     generated themes and code samples

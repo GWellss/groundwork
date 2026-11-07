@@ -40,19 +40,20 @@ A toast is a brief message that appears over the page, outside the flow, to conf
 
 ### Configurations
 
-| Configuration | Parts | Allowed |
+| Configuration | Parts | Status |
 |---|---|---|
-| message-only | `message` | yes |
-| status | `icon`, `message` | yes, with `success` or `danger` |
-| with-action | `action` with any of the above | yes |
-| with-close | `close-button` with any of the above | yes |
-| title | a heading above `message` | no |
-| two-actions | two `action` parts | no |
-| link-in-message | a link inside `message` | no |
-| empty | no `message` | no |
+| message-only | `message` | allowed |
+| status | `icon`, `message`, variant `success` or `danger` | allowed |
+| with-action | `action` with any of the above | allowed |
+| with-close | `close-button` with any of the above | allowed |
+| title | a heading above `message` | out-of-scope |
+| two-actions | two `action` parts | out-of-scope |
+| link-in-message | a link inside `message` | out-of-scope |
+| empty | no `message` | forbidden |
 
 Combination rules:
 
+- A toast with no `message` is `forbidden`: the live region would announce nothing.
 - A `danger` toast and a toast with an `action` never disappear by themselves (see Behavior). Both always have `close-button`; any other toast may omit it.
 - `message` is short, a sentence at most, and fits on one or two lines. A longer message is an alert.
 - `action` is a verb, and a single one. An action that opens a form or a page is a link or a dialog, not a toast action.

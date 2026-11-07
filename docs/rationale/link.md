@@ -15,3 +15,4 @@ For human contributors: why the spec is the way it is. Agents do not need this f
 | Focus ring radius `{rounded.overlay}` | A text box has no radius of its own; `{rounded.control}` would give a stadium ring in the pill style, which looks wrong on a line of text |
 | Inline exempt from target size | WCAG 2.5.8 exempts targets that sit inside a sentence; `standalone` must reach 24 by 24 |
 | Own focus-ring entry | Same reason as the chip: the report names the component and the theme stays valid with any subset of components |
+| Icon in an inline link `out-of-scope`, link without label `forbidden` | The inline link has no size, so no icon size exists, and the paragraph line height must not change. A link without a visible label has no clear name: use an icon-only button |

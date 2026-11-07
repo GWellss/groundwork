@@ -34,17 +34,17 @@ An avatar is a small visual that identifies a person or an entity, with an image
 
 ### Configurations
 
-| Configuration | Content | Allowed |
+| Configuration | Content | Status |
 |---|---|---|
-| image | `image` | yes |
-| initials | `initials` | yes |
-| icon | `fallback-icon` | yes |
-| image-and-initials | `image` and `initials` shown together | no |
-| empty | none | no |
+| image | `image` | allowed |
+| initials | `initials` | allowed |
+| icon | `fallback-icon` | allowed |
+| image-and-initials | `image` and `initials` shown together | out-of-scope |
+| empty | none | out-of-scope |
 
 Combination rules:
 
-- One content is shown at a time. The fallback order is `image`, then `initials`, then `fallback-icon`.
+- One content is shown at a time. The fallback order is `image`, then `initials`, then `fallback-icon`. Several contents together, or none, are `out-of-scope`.
 - A badge may sit on the avatar; it is a separate component (see `components/badge.md`) and is not a part of the avatar.
 
 ## Properties
@@ -189,4 +189,4 @@ Icon style and library come from the `## Icons` section of DESIGN.md. `fallback-
 
 ## Out of scope
 
-Avatar groups, presence or status indicators, upload or edit overlays, colored fills chosen from the name, animations, dark mode, and avatars on colored or image backgrounds (contrast is checked only against `{colors.surface}`) are not covered by this spec.
+Avatars that show several contents together or none, avatar groups, presence or status indicators, upload or edit overlays, colored fills chosen from the name, animations, dark mode, and avatars on colored or image backgrounds (contrast is checked only against `{colors.surface}`) are not covered by this spec.

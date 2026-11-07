@@ -34,18 +34,18 @@ A progress indicator shows that something is loading or advancing, either as a l
 
 ### Configurations
 
-| Configuration | `type` | Mode | Allowed |
+| Configuration | `type` | Mode | Status |
 |---|---|---|---|
-| linear-determinate | `linear` | `determinate` | yes |
-| linear-indeterminate | `linear` | `indeterminate` | yes |
-| circular-determinate | `circular` | `determinate` | yes |
-| circular-indeterminate | `circular` | `indeterminate` | yes |
-| no-label | any | any | no |
+| linear-determinate | `linear` | `determinate` | allowed |
+| linear-indeterminate | `linear` | `indeterminate` | allowed |
+| circular-determinate | `circular` | `determinate` | allowed |
+| circular-indeterminate | `circular` | `indeterminate` | allowed |
+| no-label | any | any | forbidden |
 
 Combination rules:
 
 - The mode is derived: `determinate` when `value` is set, `indeterminate` otherwise.
-- A progress always has an accessible name (`label`). A visible text, such as a percentage or a message, is optional and belongs to the layout.
+- A progress always has an accessible name (`label`); one without is `forbidden`. A visible text, such as a percentage or a message, is optional and belongs to the layout.
 - A single progress describes a single operation.
 
 ## Properties

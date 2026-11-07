@@ -58,8 +58,17 @@ The font family variable holds a fallback stack: the font entered by the user fi
 ## Component API
 
 - Property names and values are those of each spec's Properties table, unchanged. No synonym, no extra value.
-- Defaults and forbidden combinations are those of the spec (for example `floating` requires `leading-icon`, `filled` or `tonal`, size `l` or `xl`). An invalid combination is refused or reported, never rendered silently.
+- Defaults are those of the spec.
 - Syntax is free: an attribute, a prop, a class modifier. A framework that requires another case (for example camelCase props) applies it mechanically to the same name (`icon-only` becomes `iconOnly`) and documents it.
+
+Each configuration has the status given by the Status column of its spec (see Configuration status in `docs/conventions.md`). The agent handles it so:
+
+| Status | What the agent does |
+|---|---|
+| `allowed` | Generates it as specified |
+| `forbidden` | Refuses or reports it, never renders it silently (for example a selectable chip with an avatar) |
+| `avoid` | Generates the recommended form by default (for example the floating button with a leading icon). Generates the discouraged case only if the project asks for it, and tells the user the reason given in the spec |
+| `out-of-scope` | Invents nothing (for example a submenu). Tells the user the case is not specified and waits for a decision |
 
 ## State model
 
@@ -114,7 +123,7 @@ Optional. A demo page may force a state (for example to show `hover` statically)
 - The dimensions of a spec are outer dimensions: the border is included. A height of `{spacing.control-md}` is the full height, border included. This is the `box-sizing: border-box` model: height and width include the border.
 - The padding of a spec is measured inside the border: the border sits outside the padding and is part of the total height and width.
 - Every variant reserves the border width `{spacing.border-width}`, transparent when the variant has no border. All variants of one size therefore share the same outer geometry, and a state change never moves the content.
-- The focus ring is drawn outside the box at `{spacing.focus-ring-offset}` and never changes the layout. Exceptions: the chip `remove-button` and the search `clear-button` (see `components/chip.md`, `components/search-field.md`), and the segments of the segmented control and the tabs, whose ring is drawn inside because their container clips or scrolls (see `components/segmented-control.md`, `components/tabs.md`).
+- The focus ring is drawn outside the box at `{spacing.focus-ring-offset}` and never changes the layout. Exceptions: the chip `remove-button` and the search `clear-button` (see `components/chip.md`, `components/search-field.md`), and the segments of the segmented control, the tabs, the items of the menu, and the options of the select list, whose ring is drawn inside because their container clips or scrolls (see `components/segmented-control.md`, `components/tabs.md`, `components/menu.md`, `components/select.md`).
 
 ## Target size
 
@@ -126,7 +135,7 @@ Optional. A demo page may force a state (for example to show `hover` statically)
 ## Icons
 
 - Library and style: exactly those named in the `## Icons` section of DESIGN.md (for example Material Symbols, outlined). Never another style of the same library (filled instead of outlined), never another library.
-- Glyphs: those named by the spec (`check-icon`: the library checkmark; `remove-button` and search `clear-button`: the library close icon; text field `error-icon`: the library error icon; `search-icon`: the library search icon; checkbox `check-icon`: the library checkmark; menu `check-icon` and select `check-icon`: the library checkmark; select `chevron`: the library chevron-down glyph, optionally turned up while open; popover, dialog and toast `close-button` and alert `close-button`: the library close icon; alert `icon`: the library information, check-in-circle, warning, and error glyphs by severity; toast `icon`: the library check-in-circle and error glyphs; checkbox `indeterminate-icon`: the library minus glyph; checkbox, radio group, and slider `error-icon`: the library error icon; segmented control `check-icon`: the library checkmark; accordion `chevron`: the library chevron-down glyph, turned up when expanded).
+- Glyphs: those named by the spec (`check-icon`: the library checkmark; `remove-button` and search `clear-button`: the library close icon; text field `error-icon`: the library error icon; `search-icon`: the library search icon; checkbox `check-icon`: the library checkmark; menu `check-icon` and select `check-icon`: the library checkmark; select `chevron`: the library chevron-down glyph, optionally turned up while open; popover, dialog and toast `close-button` and alert `close-button`: the library close icon; alert `icon`: the library information, check-in-circle, warning, and error glyphs by severity; toast `icon`: the library check-in-circle and error glyphs; checkbox `indeterminate-icon`: the library minus glyph; checkbox, radio group, and slider `error-icon`: the library error icon; segmented control `check-icon`: the library checkmark; accordion `chevron`: the library chevron-down glyph, turned up when expanded; avatar `fallback-icon`: the library person glyph; link `trailing-icon` for an external link: the library "open in new" glyph). The menu `dot` and the radio `dot` are plain circles, not library glyphs.
 - Size: the `--spacing-icon-*` variable given by the size table of the spec.
 - Defaults when `## Icons` does not state them: weight 400, no fill (fill 0), and optical size aligned with the icon size if the library supports an optical size axis. `## Icons` wins when it states a value.
 - License: if the library carries a license (for example Material Symbols, Apache-2.0), respect its terms.
@@ -167,5 +176,5 @@ Recommendations only; the project conventions win.
 
 - One file per component, plus `tokens.css` kept as generated.
 - Plain CSS: BEM class names derived from the spec names: block = component, element = part, modifier = variant or size (for example `chip`, `chip__remove-button`, `button--tonal`, `button--size-m`).
-- Framework: one component per spec, named after it (Button, Chip, Tooltip, Divider, Link, Badge, Avatar, Progress, TextField, SearchField, Checkbox, Radio, Switch, Slider, SegmentedControl, Tabs, Accordion, Menu, Select, Popover, Dialog, Alert, Toast, Card); the checkbox and radio groups are CheckboxGroup and RadioGroup.
+- Framework: one component per spec, named after it (24 components: Button, Chip, Tooltip, Divider, Link, Badge, Avatar, Progress, TextField, SearchField, Checkbox, Radio, Switch, Slider, SegmentedControl, Tabs, Accordion, Menu, Select, Popover, Dialog, Alert, Toast, Card); the checkbox and radio groups are CheckboxGroup and RadioGroup.
 - Demo pages stay apart from component files.

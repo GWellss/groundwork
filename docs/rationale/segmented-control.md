@@ -16,3 +16,4 @@ For human contributors: why the spec is the way it is. Agents do not need this f
 | Ring drawn inside | The group clips its content to its rounded border, so an outside ring would be cut off |
 | Border and dividers in `outline` | Already checked at 3:1 by the script; the divider reuses the existing `strong` variant, no new token |
 | Sizes of the `s` and `m` buttons | The control is often next to a button; the same heights avoid a visible mismatch |
+| Statuses of the "no" cases | A mix of icons, fewer than two segments, and no selection are `avoid`: they break the look or the meaning, not accessibility. Icon-only, more than five segments, and multiple selection are `out-of-scope`: the kit has no rule for them |

@@ -29,7 +29,7 @@ A popover is a small panel anchored to a trigger that holds free, interactive co
 
 | Part | Role | Required | Notes |
 |---|---|---|---|
-| `container` | The floating panel; carries fill, border, radius, elevation | yes | Role `dialog`, not modal |
+| `container` | The floating surface; carries fill, border, radius, elevation | yes | Role `dialog`, not modal |
 | `arrow` | Triangle pointing to the trigger | no | Same fill and border as `container`; shown only when `arrow` is true |
 | `title` | Names the popover | no | A heading; also the accessible name |
 | `body` | The content: text, links, controls | yes | Free content; every element follows its own spec |
@@ -40,23 +40,24 @@ The trigger is a button, a link, or any element the user can activate. It is not
 
 ### Configurations
 
-| Configuration | Parts | Allowed |
+| Configuration | Parts | Status |
 |---|---|---|
-| body-only | `body` | yes |
-| titled | `title`, `body` | yes |
-| with-actions | `body`, `actions`, optional `title` | yes |
-| with-close | `close-button` with any of the above | yes |
-| with-arrow | `arrow` with any of the above | yes |
-| empty | no `body` | no |
-| nested | a popover or a menu opened from inside a popover | no |
-| modal | a popover that blocks the page | no |
+| body-only | `body` | allowed |
+| titled | `title`, `body` | allowed |
+| with-actions | `body`, `actions`, optional `title` | allowed |
+| with-close | `close-button` with any of the above | allowed |
+| with-arrow | `arrow` with any of the above | allowed |
+| empty | no `body` | forbidden |
+| nested | a popover or a menu opened from inside a popover | out-of-scope |
+| modal | a popover that blocks the page | out-of-scope |
 
 Combination rules:
 
+- A popover with no `body` is `forbidden`: it would be announced empty.
 - A popover always has an accessible name: `title`, or `aria-label` when there is no title.
 - `actions` holds at most two buttons: the main one at the end, the secondary one before it. More choices are a dialog or a menu.
 - `close-button` is recommended when the popover holds controls or long text, so that the way out is visible. `Escape` and a press outside always close it.
-- The popover never holds another floating surface: a menu or a select list opened from inside would close the popover under the "one surface at a time" rule (see "Floating surface").
+- The popover never holds another floating surface: a menu or a select list opened from inside would close the popover under the "one surface at a time" rule (see "Floating surface"). Such a case is `out-of-scope`, like a popover that blocks the page.
 
 ## Properties
 

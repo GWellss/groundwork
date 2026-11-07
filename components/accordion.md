@@ -40,19 +40,19 @@ An accordion is a vertical stack of sections, each with a header that shows or h
 
 ### Configurations
 
-| Configuration | Elements | Allowed |
+| Configuration | Elements | Status |
 |---|---|---|
-| single-item | one `item` | yes, as a disclosure |
-| several items | two or more `item` | yes |
-| leading-icon | an icon before `title` | no |
-| nested | an `accordion` inside a `panel` | no |
-| header-without-title | `header` with an icon only | no |
-| expanded-by-default | one or more items with `expanded` true | yes; one at most in `single` mode |
+| single-item | one `item`, used as a disclosure | allowed |
+| several-items | two or more `item` | allowed |
+| leading-icon | an icon before `title` | out-of-scope |
+| nested | an `accordion` inside a `panel` | out-of-scope |
+| header-without-title | `header` with an icon only | forbidden |
+| expanded-by-default | one or more items with `expanded` true | allowed |
 
 Combination rules:
 
-- Every `item` has a `title`, a `header`, and a `panel`. The `header` is always the button of the `heading`.
-- In `single` mode, at most one item is expanded. The initial state may have none or one.
+- Every `item` has a `title`, a `header`, and a `panel`. The `header` is always the button of the `heading`. A `header` with no `title` is `forbidden`: the button has no accessible name.
+- In `single` mode, at most one item is expanded. The initial state may have none or one. In `multiple` mode, any number of items may start expanded.
 - The component never reorders the items.
 
 ## Properties

@@ -12,3 +12,4 @@ For human contributors: why the spec is the way it is. Agents do not need this f
 | Circle and dot are fixed geometry | A radio button is a circle by definition; using the theme radius would turn it into a square in a sharp theme |
 | Dot size `spacing.sm` for both sizes | An existing token that gives 40 to 50 percent of the circle at the default density; no new token |
 | Same fills as the checkbox | Selected in primary with a white dot, unselected as an empty circle: the two controls read as a family |
+| A single radio button is `avoid`, a mixed state `forbidden` | The user cannot deselect a radio button, so a lone one cannot be undone and a checkbox is the right control. ARIA has no mixed state for a radio button |

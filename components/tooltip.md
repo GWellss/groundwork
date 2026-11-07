@@ -38,18 +38,18 @@ The trigger is the element the tooltip describes. It is not a part of the toolti
 
 ### Configurations
 
-| Configuration | `text` | `arrow` | Allowed |
+| Configuration | `text` | `arrow` | Status |
 |---|---|---|---|
-| text-only | yes | no | yes |
-| text-arrow | yes | yes | yes |
-| arrow-only | no | yes | no |
-| empty | no | no | no |
-| interactive-content | links or controls | any | no |
+| text-only | yes | no | allowed |
+| text-arrow | yes | yes | allowed |
+| arrow-only | no | yes | forbidden |
+| empty | no | no | forbidden |
+| interactive-content | links or controls | any | forbidden |
 
 Combination rules:
 
-- A tooltip always has text. An empty tooltip is never rendered.
-- `text` is plain text only: no link, no button, no input, no image.
+- A tooltip always has text. An empty tooltip is `forbidden` and never rendered.
+- `text` is plain text only: no link, no button, no input, no image. Interactive content is `forbidden`: a tooltip is not focusable (use a popover).
 - One trigger has at most one tooltip, and at most one tooltip is open on the page at a time.
 
 ## Properties

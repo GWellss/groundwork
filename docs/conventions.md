@@ -115,7 +115,14 @@ A component with a dark background and light content (for example a tooltip) use
 
 ### Known limit
 
-Contrast is checked only against `{colors.surface}`; on an image or a dark background (for example under a floating button), the user retouches the theme after generation.
+The script checks each `components` entry against its own declared background (for example `chip-default-hover` on a gray fill), and accent or content colors without an entry only against `{colors.surface}`; on an image or a dark background (for example under a floating button), the user retouches the theme after generation.
+
+Point of vigilance. Two treatments sit outside the surface, and each is handled by a dedicated rule, not by a general check:
+
+- `on-surface-muted` is forbidden on a grayed fill (see Muted text). A part on a grayed fill takes `on-surface`.
+- The destructive menu item is the only exception that puts an accent color on a grayed fill: `danger-hover` on `neutral-subtle-hover`, and `danger-pressed` on `neutral-subtle-pressed` (see Background families and `components/menu.md`).
+
+If such exceptions multiply, stop adding rules. Check every content color against all the backgrounds where it really sits.
 
 ## Lint and contrast
 
@@ -258,7 +265,7 @@ The reference spec is `components/button.md`. Every component spec uses the sect
 | 1 | Title and intro | Component name, one sentence on what it does | Prose |
 | 2 | At a glance | Summary of parts, configurations, variants, sizes, states | Table: aspect, summary |
 | 3 | Purpose | When to use it, when not to | Short list |
-| 4 | Anatomy | Parts, then allowed and forbidden configurations, then combination rules | Tables: part, role, required, notes; configuration by part, allowed |
+| 4 | Anatomy | Parts, then configurations with their status, then combination rules | Tables: part, role, required, notes; configuration by part, status |
 | 5 | Properties | Every input of the component | Table: property, values, default, description |
 | 6 | Variants | Each variant and its intent | Table |
 | 7 | Sizes | Optional short note on what is specific to this component's sizes, then one row per size, then geometry rules | Table: size, then one column per dimension |
@@ -268,14 +275,34 @@ The reference spec is `components/button.md`. Every component spec uses the sect
 | 11 | Accessibility | Role, accessible name, focus, keyboard, target size, contrast | Table: topic, requirement |
 | 12 | Behavior | Runtime behavior not covered by states | Short list |
 | 13 | Do and don't | Usage guidance | Table: do, don't |
-| 14 | Out of scope | What the spec deliberately ignores | One line |
+| 14 | Out of scope | What the spec deliberately ignores, including every configuration with the status `out-of-scope` | One line |
 
 The justification of a spec's decisions is not part of the spec: it goes in `docs/rationale/<component>.md`, for human contributors.
 
 Table rules, so that a machine-readable block can be derived without ambiguity:
 
 - The first column is the key of the row. Keys use kebab-case and the exact names declared in the spec.
-- A cell holds one value: a token reference such as `{colors.primary}`, a name in backticks, `none`, `yes`, `no`, or short text.
+- A cell holds one value: a token reference such as `{colors.primary}`, a name in backticks, `none`, `yes`, `no`, short text, or, in a Status column, one status (see Configuration status).
 - `none` means no fill, no border, or no value. Never leave a cell empty, never write "same as above".
 - No values copied from the theme. No code blocks in a spec.
 - Keep tables narrow: split a wide table into several short ones rather than adding columns.
+
+### Configuration status
+
+Each configuration of the Anatomy table has one status, in a `Status` column. The four statuses are defined here once; a spec never redefines them.
+
+| Status | Meaning | Use it when |
+|---|---|---|
+| `allowed` | The kit specifies the case in full | The spec has the rules, tokens, and geometry for it |
+| `forbidden` | The case is never generated | Accessibility or valid markup is at stake: no accessible name, interactive content where the role forbids it, invalid nesting of HTML or ARIA, a contrast that cannot be checked |
+| `avoid` | The case can exist, but is discouraged | A design reason applies and no accessibility failure follows. The spec says why to avoid it and, when it is simple, how to do it correctly (model: the clickable card with controls, `components/card.md`) |
+| `out-of-scope` | The case is not specified yet | The kit has no rule, token, or geometry for it. The spec also lists it in its Out of scope section |
+
+Rules:
+
+- `forbidden` is reserved for accessibility and for invalid HTML or ARIA. A reason of taste, density, or economy never makes a case `forbidden`.
+- A `forbidden` case never moves to `avoid` when accessibility is at stake. In doubt, keep `forbidden`.
+- The reason and the correct form of an `avoid` case sit in the Combination rules of the spec, in one or two sentences. The full justification sits in `docs/rationale/<component>.md`.
+- A Status cell holds one status. A condition on an `allowed` case goes in the configuration cell or in the Combination rules.
+- Row keys are kebab-case, like every other key of a spec.
+- What an agent does with each status: see Component API in `docs/implementation.md`.

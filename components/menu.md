@@ -31,7 +31,7 @@ A menu is a short list of commands or settings that opens from a trigger button,
 
 | Part | Role | Required | Notes |
 |---|---|---|---|
-| `container` | The floating panel that holds the items | yes | Carries fill, border, radius, elevation; role `menu` |
+| `container` | The floating surface that holds the items | yes | Carries fill, border, radius, elevation; role `menu` |
 | `item` | One command or one checkable setting | yes | At least one; the whole row is the click target |
 | `leading-icon` | Decorative icon before the label | no | Only on an `action` item |
 | `check-icon` | Checkmark before the label | when `checked` | Only on a `checkbox` item; the library checkmark |
@@ -46,19 +46,20 @@ The trigger is a button (see `components/button.md`). It is not a part of the me
 
 ### Configurations
 
-| Configuration | Content | Allowed |
+| Configuration | Content | Status |
 |---|---|---|
-| flat | `item` rows only | yes |
-| grouped | `group` blocks, each with an optional `group-title`, separated by `separator` | yes |
-| checkable | `checkbox` or `radio` items, alone or mixed with `action` items | yes |
-| empty | no `item` | no |
-| icon-and-check | `leading-icon` and a checkable mark on the same item | no |
-| nested | an item that opens another menu (submenu) | no |
-| interactive-content | an input, a button, or a link inside the container | no |
+| flat | `item` rows only | allowed |
+| grouped | `group` blocks, each with an optional `group-title`, separated by `separator` | allowed |
+| checkable | `checkbox` or `radio` items, alone or mixed with `action` items | allowed |
+| empty | no `item` | forbidden |
+| icon-and-check | `leading-icon` and a checkable mark on the same item | out-of-scope |
+| nested | an item that opens another menu (submenu) | out-of-scope |
+| interactive-content | an input, a button, or a link inside the container | forbidden |
 
 Combination rules:
 
-- An item has at most one leading element: a `leading-icon` (`action`), a `check-icon` (`checkbox`), or a `dot` (`radio`).
+- An item has at most one leading element: a `leading-icon` (`action`), a `check-icon` (`checkbox`), or a `dot` (`radio`). An icon and a checkable mark on one item are `out-of-scope`.
+- A menu with no `item` is `forbidden`: the `menu` role needs items. Interactive content in the container is `forbidden`: the items are the only focus targets of a menu (use a popover for free content).
 - When any item of a menu has a leading element, every item reserves the same leading space, so labels stay aligned.
 - `radio` items always sit in a `group`: one group is one exclusive set, and exactly one of its items is checked.
 - A `separator` sits between two groups; it is never the first or the last child.
@@ -273,7 +274,7 @@ One entry per color pair of an item state, using only the standard `backgroundCo
 | `menu-muted` | `{colors.surface}` | `{colors.on-surface-muted}` |
 | `menu-focus-ring` | `{colors.surface}` | `{colors.focus-ring}` |
 
-The `menu-item-danger` states follow the fill-less rule of "State changes" in `docs/conventions.md`, with one extension: on a grayed fill, `danger-hover` serves `neutral-subtle-hover` and `danger-pressed` serves `neutral-subtle-pressed`, and no other pairing. The focus ring is also checked against the two grayed fills by `theme/theme.py` (see Focus ring in `docs/conventions.md`).
+The `menu-item-danger` states follow the fill-less rule of "State changes" in `docs/conventions.md`, with one extension: on a grayed fill, `danger-hover` serves `neutral-subtle-hover` and `danger-pressed` serves `neutral-subtle-pressed`, and no other pairing. The focus ring is also checked against the two grayed fills by `theme/theme.py` (see Background families in `docs/conventions.md`).
 
 ### Non-token requirement
 
@@ -333,4 +334,4 @@ Keyboard:
 
 ## Out of scope
 
-Submenus (they need a pointer-direction safety area and left and right key rules, so they are not simple enough to include), context menus opened by right click or long press, menu bars, menus that hold inputs or free content (see `components/popover.md`), item descriptions and avatars, search inside a menu, items that are links to pages, animations, dark mode, and the choice of the trigger (a button, see `components/button.md`) are not covered by this spec; contrast is checked only against `{colors.surface}`, so on an image or a dark background the user retouches the menu colors after generation.
+Submenus (they need a pointer-direction safety area and left and right key rules, so they are not simple enough to include), context menus opened by right click or long press, menu bars, an item with both an icon and a checkable mark, item descriptions and avatars, search inside a menu, items that are links to pages, animations, dark mode, and the choice of the trigger (a button, see `components/button.md`) are not covered by this spec; contrast is checked only against `{colors.surface}`, so on an image or a dark background the user retouches the menu colors after generation.

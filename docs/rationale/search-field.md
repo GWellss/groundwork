@@ -13,3 +13,4 @@ For human contributors: why the spec is the way it is. Agents do not need this f
 | Clear does not submit; `Escape` clears | Emptying a field is a local edit; submitting an empty query is the project's choice |
 | Suggestions left to the select listbox | Suggestions need a list, keyboard navigation inside it, and live announcements: that is the listbox pattern of `components/select.md` (role `listbox`, not `menu`), not a field property |
 | Explicit submit only | Instant filtering needs a debounce and a result announcement strategy that depend on the project |
+| Statuses of the dropped features | Multiline, affixes, error, and read-only are `out-of-scope` (see above for why a search needs none). A custom icon is `avoid`: the magnifier is what identifies the field as a search |

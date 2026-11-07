@@ -43,24 +43,26 @@ A text field lets the user type free text on a single line or on several lines (
 
 ### Configurations
 
-| Configuration | Elements in `field` | Allowed |
+| Configuration | Elements in `field` | Status |
 |---|---|---|
-| plain | `input` | yes |
-| leading-icon | `leading-icon`, `input` | yes |
-| trailing-icon | `input`, `trailing-icon` | yes |
-| affixes | `prefix` and/or `suffix` around `input` | yes |
-| icon-and-affix | an icon and an affix on the same side | no |
-| multiline-plain | `input` | yes |
-| multiline-with-elements | icon, `prefix`, or `suffix` | no |
-| no-label | any | no |
-| error-and-disabled | `error-message` with `disabled` | no |
-| error-and-read-only | `error-message` with `read-only` | no |
+| plain | `input` | allowed |
+| leading-icon | `leading-icon`, `input` | allowed |
+| trailing-icon | `input`, `trailing-icon` | allowed |
+| affixes | `prefix` and/or `suffix` around `input` | allowed |
+| icon-and-affix | an icon and an affix on the same side | out-of-scope |
+| multiline-plain | `input` | allowed |
+| multiline-with-elements | icon, `prefix`, or `suffix` | out-of-scope |
+| no-label | any | forbidden |
+| error-and-disabled | `error-message` with `disabled` | forbidden |
+| error-and-read-only | `error-message` with `read-only` | avoid |
 
 Combination rules:
 
-- A field always has a visible `label`. A placeholder never replaces it.
-- A side holds at most one element: an icon or an affix.
-- `multiline` holds only `input`; icons and affixes are single line features.
+- A field always has a visible `label`. A placeholder never replaces it. A field with no label is `forbidden`.
+- A side holds at most one element: an icon or an affix. An icon and an affix on the same side are `out-of-scope`.
+- `multiline` holds only `input`; icons and affixes are single line features, and on a `multiline` field they are `out-of-scope`.
+- `error-message` with `disabled` is `forbidden`: a disabled field leaves the tab order, so its error cannot be reached by keyboard.
+- `error-message` with `read-only` is `avoid`: the user cannot edit the value to fix it, so the error is a dead end. Make the field editable, or resolve the cause elsewhere.
 - A field in `error` always shows `error-message` with `error-icon`. Color alone never says "error".
 - `error-message` replaces `helper-text` in the same slot. `counter` stays visible next to it.
 - `counter` requires `max-length`.
@@ -153,7 +155,7 @@ The field has no fill, so `hover` moves the border (a non-text part) and leaves 
 | `error` | None. Derived: `error-message` is non-empty | Danger border, `error-icon` and `error-message` |
 | `disabled` | No hover, not focusable, not editable | Disabled tokens; label included |
 
-Precedence: `disabled` overrides `read-only`, which overrides `error`, which overrides the `default` group. Interactive states apply on top of the resulting group. `error` is never combined with `disabled` or `read-only` (see Anatomy).
+Precedence: `disabled` overrides `read-only`, which overrides `error`, which overrides the `default` group. Interactive states apply on top of the resulting group. `error` is never combined with `disabled` (`forbidden`), and its combination with `read-only` is `avoid` (see Anatomy).
 
 ## Token mapping
 
@@ -322,4 +324,4 @@ One entry per text color, using only the standard `backgroundColor` and `textCol
 
 ## Out of scope
 
-Animations, dark mode, floating or inside labels, filled field appearance, password reveal, number steppers, input masks, auto-growing height, rich text, inline clear button (see `components/search-field.md`), and suggestion lists are not covered by this spec.
+Animations, dark mode, an icon and an affix on the same side, icons and affixes in a multiline field, floating or inside labels, filled field appearance, password reveal, number steppers, input masks, auto-growing height, rich text, inline clear button (see `components/search-field.md`), and suggestion lists are not covered by this spec.

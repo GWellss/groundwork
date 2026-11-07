@@ -8,7 +8,7 @@ A switch turns one setting on or off and the change takes effect at once, with a
 |---|---|
 | Base | `components/checkbox.md`, read first; everything not stated here is unchanged |
 | Parts | `choice`, `control` (the track), `thumb`, `label`, `helper-text` |
-| Configurations | alone, with or without helper text; never in a group |
+| Configurations | alone, with or without helper text; in a group: out of scope |
 | Selection | `off`, `on`; no indeterminate |
 | Variants | none by emphasis; two appearance groups: `off` and `on` |
 | Sizes | `s`, `m` |
@@ -38,18 +38,19 @@ The checkbox parts `check-icon`, `indeterminate-icon`, `required-marker`, `error
 
 ### Configurations
 
-| Configuration | Elements | Allowed |
+| Configuration | Elements | Status |
 |---|---|---|
-| alone | `choice` | yes |
-| alone-with-help | `choice`, `helper-text` under it | yes |
-| group | several switches in a `fieldset` | no |
-| no-label | any | no |
-| indeterminate | a mixed state | no |
-| error | `error-message` | no |
+| alone | `choice` | allowed |
+| alone-with-help | `choice`, `helper-text` under it | allowed |
+| group | several switches in a `fieldset` | out-of-scope |
+| no-label | any | forbidden |
+| indeterminate | a mixed state | forbidden |
+| error | `error-message` | out-of-scope |
 
 Combination rules:
 
-- A switch always has a visible `label`. It is stated as the setting, not as the action ("Notifications", not "Turn on notifications").
+- A switch always has a visible `label`; one with no label is `forbidden`. It is stated as the setting, not as the action ("Notifications", not "Turn on notifications").
+- A mixed state is `forbidden`: the `switch` role has no mixed state in ARIA.
 - A list of switches (a settings page) is a layout of independent switches; it carries no group semantics and no group help.
 - The state is carried by the position of the thumb and by the fill, never by color alone.
 
@@ -197,4 +198,4 @@ Everything in the checkbox Accessibility table applies, except the rows about gr
 
 ## Out of scope
 
-Animations (the thumb movement included), dark mode, icons inside the thumb, a label placed before the track (a layout choice), switches in a group, and a loading state are not covered by this spec.
+Animations (the thumb movement included), dark mode, icons inside the thumb, a label placed before the track (a layout choice), switches in a group, an error state, and a loading state are not covered by this spec.

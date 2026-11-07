@@ -32,18 +32,18 @@ A link is a text element that takes the user to another place: another page, ano
 
 ### Configurations
 
-| Configuration | Variant | Trailing slot | Allowed |
+| Configuration | Variant | Trailing slot | Status |
 |---|---|---|---|
-| inline-label | `inline` | none | yes |
-| standalone-label | `standalone` | none | yes |
-| standalone-label-icon | `standalone` | `trailing-icon` | yes |
-| inline-icon | `inline` | `trailing-icon` | no |
-| no-label | any | any | no |
+| inline-label | `inline` | none | allowed |
+| standalone-label | `standalone` | none | allowed |
+| standalone-label-icon | `standalone` | `trailing-icon` | allowed |
+| inline-icon | `inline` | `trailing-icon` | out-of-scope |
+| no-label | any | any | forbidden |
 
 Combination rules:
 
-- A link always has a visible label. Icon-only links are not allowed: use an icon-only button, or give the link a visible label.
-- `inline` has no icon, so that the line height of the paragraph never changes.
+- A link always has a visible label. An icon-only link is `forbidden`: use an icon-only button, or give the link a visible label.
+- `inline` has no icon, so that the line height of the paragraph never changes. An icon in an `inline` link is `out-of-scope`: the inline link has no icon size.
 - A link that opens a new window or tab says so in its label or through the external-link `trailing-icon` and its accessible text.
 
 ## Properties
@@ -223,4 +223,4 @@ Icon style and library come from the `## Icons` section of DESIGN.md. The extern
 
 ## Out of scope
 
-Animations, dark mode, link on a colored or image background (contrast is checked only against `{colors.surface}`, so the user retouches the link colors after generation), links that look like buttons, breadcrumbs, and semantic color variants (danger, success) are not covered by this spec.
+Animations, dark mode, an icon in an inline link, link on a colored or image background (contrast is checked only against `{colors.surface}`, so the user retouches the link colors after generation), links that look like buttons, breadcrumbs, and semantic color variants (danger, success) are not covered by this spec.

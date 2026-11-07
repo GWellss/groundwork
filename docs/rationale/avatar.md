@@ -13,3 +13,4 @@ For human contributors: why the spec is the way it is. Agents do not need this f
 | Never interactive | A clickable avatar is a button or a link with its own focus ring and target size; the avatar stays a plain visual |
 | `label` empty means decorative | Next to a written name, an alt text would be announced twice (WCAG technique for adjacent text); the spec makes the choice explicit |
 | Own `components` entry despite equal pair | Same reason as the chip entries: the report names the avatar |
+| Several contents, or none, are `out-of-scope` | The fallback order shows one content at a time and always ends with the person glyph, so the kit has no layering and no empty look to specify |

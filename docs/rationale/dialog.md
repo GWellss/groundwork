@@ -20,3 +20,4 @@ For human contributors: why the spec is the way it is. Agents do not need this f
 | Body scrolls, title and actions stay | The question and the buttons must stay visible; long content must not push the buttons off screen. A subtle divider appears while it scrolls |
 | Toasts wait while a dialog is open | The page behind a dialog is inert, so a live region there is not announced; the toast shows when it closes |
 | Title typography `label-xl` | The largest existing label size; no new typography token for a heading |
+| Close button on a confirmation is `avoid` | A confirmation asks for an answer; a close button is an exit that is not an answer. It breaks no accessibility rule, so the kit discourages it. An untitled dialog and a dialog with no actions are `forbidden` (no accessible name, no visible way out). Nested dialogs are `out-of-scope` for the reason of "No nested dialogs" above |

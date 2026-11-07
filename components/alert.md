@@ -40,19 +40,20 @@ An alert is a message that stays in the page and tells the user something about 
 
 ### Configurations
 
-| Configuration | Parts | Allowed |
+| Configuration | Parts | Status |
 |---|---|---|
-| message-only | `icon`, `message` | yes |
-| titled | `icon`, `title`, `message` | yes |
-| with-action | `action` with any of the above | yes |
-| with-close | `close-button` with any of the above | yes |
-| no-icon | no `icon` | no |
-| no-message | no `message` | no |
-| two-actions | two `action` parts | no |
-| link-in-message | a link inside `message` | no |
+| message-only | `icon`, `message` | allowed |
+| titled | `icon`, `title`, `message` | allowed |
+| with-action | `action` with any of the above | allowed |
+| with-close | `close-button` with any of the above | allowed |
+| no-icon | no `icon` | forbidden |
+| no-message | no `message` | out-of-scope |
+| two-actions | two `action` parts | out-of-scope |
+| link-in-message | a link inside `message` | out-of-scope |
 
 Combination rules:
 
+- An alert with no `icon` is `forbidden`: the icon carries the severity besides the color (WCAG 1.4.1).
 - `message` states what is happening and, when it can, what to do. The `title` must not repeat it.
 - `action` is a single, optional way to go on ("Review", "Try again", "Sign in"). Two choices are a dialog.
 - `action` is rendered as a link when it navigates and as a button when it acts; both look the same here (see Token mapping).

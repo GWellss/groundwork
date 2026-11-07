@@ -40,24 +40,24 @@ The trigger is the element that opened the dialog. It is not a part of the dialo
 
 ### Configurations
 
-| Configuration | Parts | Allowed |
+| Configuration | Parts | Status |
 |---|---|---|
-| standard | `title`, `body`, `actions` | yes |
-| with-close | `close-button` with `default` | yes |
-| confirmation | `title`, `body`, `actions`, variant `confirmation` | yes |
-| confirmation-with-close | `close-button` with `confirmation` | no |
-| untitled | no `title` | no |
-| no-actions | no `actions` | no |
-| nested | a dialog opened from inside a dialog | no |
-| non-modal | a dialog that leaves the page usable | no |
+| standard | `title`, `body`, `actions` | allowed |
+| with-close | `close-button` with `default` | allowed |
+| confirmation | `title`, `body`, `actions`, variant `confirmation` | allowed |
+| confirmation-with-close | `close-button` with `confirmation` | avoid |
+| untitled | no `title` | forbidden |
+| no-actions | no `actions` | forbidden |
+| nested | a dialog opened from inside a dialog | out-of-scope |
+| non-modal | a dialog that leaves the page usable | out-of-scope |
 
 Combination rules:
 
-- A dialog always has a `title`: it is the accessible name, and it tells the user at once why the page was blocked.
-- `actions` holds one to three buttons, so that the user always has a visible way out or forward. A dialog that only informs has one button ("Close"). More than three choices are a page, a menu, or a list in `body`.
+- A dialog always has a `title`: it is the accessible name, and it tells the user at once why the page was blocked. An untitled dialog is `forbidden`.
+- `actions` holds one to three buttons, so that the user always has a visible way out or forward. A dialog that only informs has one button ("Close"). More than three choices are a page, a menu, or a list in `body`. A dialog with no `actions` is `forbidden`: the modal would hold focus with no visible control to leave it.
 - Order of `actions`: the main action is the last one, the secondary action (usually "Cancel") comes before it, the tertiary action comes first. At most one button is `filled` or `danger` (see `components/button.md`).
-- In `confirmation`, `actions` holds one or two buttons, `body` is plain text (no field, no list of options), and there is no `close-button`: the answer is one of the buttons.
-- Floating surfaces opened from inside `container` (a select list, a menu, a popover, a tooltip) are allowed and belong to the dialog. The dialog itself is never nested.
+- In `confirmation`, `actions` holds one or two buttons, `body` is plain text (no field, no list of options), and there is no `close-button`: the answer is one of the buttons. A `close-button` on a `confirmation` is `avoid`: it adds an exit that is not an answer. Let the buttons answer.
+- Floating surfaces opened from inside `container` (a select list, a menu, a popover, a tooltip) are allowed and belong to the dialog. A dialog opened from inside a dialog is `out-of-scope`.
 
 ## Properties
 
@@ -66,7 +66,7 @@ Combination rules:
 | `title` | text | none, required | Heading of the dialog |
 | `variant` | `default`, `confirmation` | `default` | `confirmation` is the confirm-an-action dialog: role `alertdialog`, the rules above |
 | `size` | `sm`, `md` | `md`; `sm` when `variant` is `confirmation` | Width of `container` |
-| `closable` | `true`, `false` | `false` | Shows `close-button`; not allowed with `confirmation` |
+| `closable` | `true`, `false` | `false` | Shows `close-button`; avoid with `confirmation` |
 
 The content of `body` and `actions` is given by the project. The destructive nature of a `confirmation` is expressed by the variant of the main button (`danger`), not by a property of the dialog.
 

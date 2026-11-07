@@ -37,19 +37,21 @@ The text field parts `required-marker`, `prefix`, `suffix`, `error-icon`, `error
 
 ### Configurations
 
-| Configuration | Elements | Allowed |
+| Configuration | Elements | Status |
 |---|---|---|
-| empty | `search-icon`, `input` with `placeholder` | yes |
-| filled | `search-icon`, `input`, `clear-button` | yes |
-| with-helper-text | any of the above plus `helper-text` | yes |
-| multiline | any | no |
-| custom-icon | an icon other than `search-icon`, or an affix | no |
-| error | `error-message` | no |
-| read-only | `read-only` true | no |
+| empty | `search-icon`, `input` with `placeholder` | allowed |
+| filled | `search-icon`, `input`, `clear-button` | allowed |
+| with-helper-text | any of the above plus `helper-text` | allowed |
+| multiline | any | out-of-scope |
+| custom-icon | an icon other than `search-icon` | avoid |
+| affix | `prefix` or `suffix` | out-of-scope |
+| error | `error-message` | out-of-scope |
+| read-only | `read-only` true | out-of-scope |
 
 Combination rules:
 
-- The search field is single line, always. `multiline`, `type`, `max-length`, `required`, `prefix`, `suffix`, `trailing-icon`, `error-message`, and `read-only` of the text field are not available.
+- The search field is single line, always. `multiline`, `type`, `max-length`, `required`, `prefix`, `suffix`, `trailing-icon`, `error-message`, and `read-only` of the text field are not available (`out-of-scope`).
+- An icon other than `search-icon` is `avoid`: the magnifier is what tells that the field is a search. Keep `search-icon`.
 - `clear-button` is shown only while `value` is not empty and the field is not `disabled`.
 - The search field sits inside a search landmark (see Accessibility).
 - A visible submit button, when the design wants one, is a button of `components/button.md` placed next to the field by the layout. It is not a part of the search field.
@@ -215,4 +217,4 @@ Everything in the text field Accessibility table applies, except the rows about 
 
 ## Out of scope
 
-Animations, dark mode, suggestions, autocomplete lists, recent searches, voice input, filters and scopes inside the field, instant filtering rules, and a field that expands or collapses are not covered by this spec.
+Animations, dark mode, a multiline field, a prefix or a suffix, an error or read-only state, suggestions, autocomplete lists, recent searches, voice input, filters and scopes inside the field, instant filtering rules, and a field that expands or collapses are not covered by this spec.

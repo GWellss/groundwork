@@ -22,3 +22,4 @@ For human contributors: why the spec is the way it is. Agents do not need this f
 | `max` 99 with "99+" | Matches Material 3 and keeps the badge narrow; `label` keeps the real number |
 | Zero not rendered | A badge with 0 signals nothing and adds noise |
 | Colors reused | `primary`, `danger`, and the chip neutral cover the intents of `count` and `dot`; only `success` and `warning` are new tokens |
+| Text in a `count` and a standalone count are `avoid` | Neither breaks accessibility. The count shape is made for digits, and a number alone means nothing without its host; the fix is a `status` badge, or a host. An empty `status` is `forbidden`: no accessible text |

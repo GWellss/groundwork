@@ -40,22 +40,22 @@ The host is the element a `count` or `dot` badge is attached to. It is not a par
 
 ### Configurations
 
-| Configuration | Type | `value` | Variants | Allowed |
+| Configuration | Type | `value` | Variants | Status |
 |---|---|---|---|---|
-| count | `count` | yes | `primary`, `danger`, `neutral` | yes |
-| dot | `dot` | no | `primary`, `danger` | yes |
-| dot-neutral | `dot` | no | `neutral` | no |
-| status | `status` | yes, text | `primary`, `danger`, `success`, `warning`, `neutral` | yes |
-| count-text | `count` | text, not a number | any | no |
-| status-empty | `status` | no | any | no |
-| standalone-count | `count` or `dot` | any | any | no |
+| count | `count` | yes | `primary`, `danger`, `neutral` | allowed |
+| dot | `dot` | no | `primary`, `danger` | allowed |
+| dot-neutral | `dot` | no | `neutral` | forbidden |
+| status | `status` | yes, text | `primary`, `danger`, `success`, `warning`, `neutral` | allowed |
+| count-text | `count` | text, not a number | any | avoid |
+| status-empty | `status` | no | any | forbidden |
+| standalone-count | `count` or `dot` | any | any | avoid |
 
 Combination rules:
 
-- In a `count`, `value` is a whole number. Text is not allowed there: use `status`.
-- In a `status`, `value` is a short text, a word or two, on one line. No icon, no remove button, no number-only content (use `count`).
-- The `neutral` variant has no `dot`: its fill is too close to the surface to reach the 3:1 contrast of a shape without text (WCAG 1.4.11).
-- A `count` or `dot` badge is always attached to a host. A `status` badge never is.
+- In a `count`, `value` is a whole number. A text in a `count` is `avoid`: the count shape is made for digits, so use a `status` badge.
+- In a `status`, `value` is a short text, a word or two, on one line. No icon, no remove button, no number-only content (use `count`). A `status` with no text is `forbidden`: nothing is announced.
+- The `neutral` variant has no `dot`: a neutral `dot` is `forbidden`, because its fill is too close to the surface to reach the 3:1 contrast of a shape without text (WCAG 1.4.11).
+- A `count` or `dot` badge is attached to a host. One alone is `avoid`: a number or a dot means nothing without the element it describes. Attach it to its host, or use a `status` badge with a text. A `status` badge never has a host.
 
 ## Properties
 
@@ -223,7 +223,7 @@ The badge has no icon and no elevation.
 |---|---|
 | Role | None of its own: a badge is not interactive and has no landmark role. |
 | Accessible text | `count` and `dot`: `label` says what the badge means ("3 unread messages"). It is exposed as text attached to the host, for example in its accessible name or description. The visible digits are hidden from assistive technologies so that the number is not read twice. `status`: the visible text is the accessible text, in reading order next to what it qualifies; it is not hidden and has no `label`. |
-| `dot` | Has no visible text, so `label` is the only way to know about it. A `dot` without `label` is not allowed. |
+| `dot` | Has no visible text, so `label` is the only way to know about it. A `dot` without `label` is `forbidden`. |
 | Not by color alone | The meaning is carried by the number, the text, or `label`, never by the color of the badge alone (WCAG 1.4.1). A `danger` status says what is wrong in its text. |
 | Updates | A change of `value` is announced politely (a polite live region) when the host or the badge is on screen and the change matters to the user. |
 | Focus | Never focusable; the host follows its own spec. |

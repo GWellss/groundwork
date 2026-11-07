@@ -43,20 +43,23 @@ A checkbox lets the user turn one option on or off, or pick any number of option
 
 ### Configurations
 
-| Configuration | Elements | Allowed |
+| Configuration | Elements | Status |
 |---|---|---|
-| alone | `choice` | yes |
-| alone-with-help | `choice`, `helper-text` or `error-message` under it | yes |
-| group | `group`, `legend`, two or more `choice`, optional `helper-text` or `error-message` under the options | yes |
-| group-option-help | `helper-text` or `error-message` attached to one option of a group | no |
-| group-without-legend | `group` | no |
-| no-label | any | no |
-| error-and-disabled | `error-message` with `disabled` | no |
+| alone | `choice` | allowed |
+| alone-with-help | `choice`, `helper-text` or `error-message` under it | allowed |
+| group | `group`, `legend`, two or more `choice`, optional `helper-text` or `error-message` under the options | allowed |
+| group-option-help | `helper-text` or `error-message` attached to one option of a group | avoid |
+| group-without-legend | `group` | forbidden |
+| no-visible-label | any, with an accessible name | out-of-scope |
+| no-label | any, with no accessible name | forbidden |
+| error-and-disabled | `error-message` with `disabled` | forbidden |
 
 Combination rules:
 
-- A checkbox always has a visible `label`. Checkboxes without a visible label (row selection in a table) are out of scope.
-- In a group, `helper-text`, `error-icon`, and `error-message` belong to the group and sit once under the last option; the options carry none. `required-marker` is not available in a group.
+- A checkbox always has a visible `label`. Checkboxes without a visible label (row selection in a table) are `out-of-scope`; one with no accessible name at all is `forbidden`.
+- In a group, `helper-text`, `error-icon`, and `error-message` belong to the group and sit once under the last option; the options carry none. `required-marker` is not available in a group. Help or error on one option is `avoid`: the message concerns the whole choice, so a message per option repeats it and moves the layout. Put it in the group's `helper-text` or `error-message`.
+- A group without a `legend` is `forbidden`: the group has no accessible name.
+- `error-message` with `disabled` is `forbidden`: a disabled checkbox leaves the tab order, so its error cannot be reached by keyboard.
 - An error always shows `error-icon` and `error-message`. Color alone never says "error".
 - `error-message` replaces `helper-text` in the same slot.
 - `indeterminate` is set by the project, never by the user's click: activating an `indeterminate` checkbox makes it `checked`.

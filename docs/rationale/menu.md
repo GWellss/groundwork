@@ -21,3 +21,4 @@ For human contributors: why the spec is the way it is. Agents do not need this f
 | Labels wrap, never truncated | The kit rule for text; a truncated command is an unsafe command |
 | No submenu | A submenu needs a pointer-direction safety area (so moving to it does not close it) and left and right keys; that is not simple, so it is left out |
 | `dot` and `check-icon` as in radio and checkbox | Same marks as the controls users already know, without a new glyph |
+| Icon with a checkable mark `out-of-scope`, empty menu and interactive content `forbidden` | Two leading elements would break the shared leading space of the items. The `menu` role needs items, and the items are its only focus targets: a control inside the container is not reachable as a menu item |

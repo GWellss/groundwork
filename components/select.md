@@ -36,7 +36,7 @@ Parts inherited unchanged from the text field: `label`, `required-marker`, `fiel
 | `value` | The label of the chosen option | when a value exists | Single line, ellipsis when it overflows |
 | `placeholder` | Hint while no option is chosen | no | Replaces `value`; never the only label |
 | `chevron` | Shows that a list opens | yes | The library chevron-down glyph; decorative; at the end of `field` |
-| `listbox` | The floating panel that holds the options | yes | Role `listbox`; a floating surface |
+| `listbox` | The floating surface that holds the options | yes | Role `listbox`; a floating surface |
 | `option` | One choosable value | yes | At least one |
 | `leading-icon` | Decorative icon before the option label | no | Option only |
 | `option-label` | Visible text of an option | yes | Provides the accessible name of the option; wraps |
@@ -44,20 +44,21 @@ Parts inherited unchanged from the text field: `label`, `required-marker`, `fiel
 
 ### Configurations
 
-| Configuration | Content | Allowed |
+| Configuration | Content | Status |
 |---|---|---|
-| plain | `field`, `listbox` of text options | yes |
-| with-icons | options with `leading-icon` | yes |
-| with-help | `helper-text` or `error-message` under `field` | yes |
-| no-label | any | no |
-| multiple | several options selected | no |
-| filterable | a text input inside `field` that filters the list | no |
-| option-groups | titled groups of options | no |
-| error-and-disabled | `error-message` with `disabled` | no |
+| plain | `field`, `listbox` of text options | allowed |
+| with-icons | options with `leading-icon` | allowed |
+| with-help | `helper-text` or `error-message` under `field` | allowed |
+| no-label | any | forbidden |
+| multiple | several options selected | out-of-scope |
+| filterable | a text input inside `field` that filters the list | out-of-scope |
+| option-groups | titled groups of options | out-of-scope |
+| error-and-disabled | `error-message` with `disabled` | forbidden |
 
 Combination rules:
 
-- A select always has a visible `label`. `placeholder` never replaces it.
+- A select always has a visible `label`; one with no label is `forbidden`. `placeholder` never replaces it.
+- `error-message` with `disabled` is `forbidden`: a disabled select leaves the tab order, so its error cannot be reached by keyboard.
 - A field in `error` always shows `error-message` with `error-icon`. Color alone never says "error".
 - `error-message` replaces `helper-text` in the same slot.
 - A user cannot clear a chosen value. When "no value" is valid, the project adds an explicit option for it ("None").
