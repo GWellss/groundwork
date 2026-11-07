@@ -115,9 +115,15 @@ Contrast is checked only against `{colors.surface}`; on an image or a dark backg
 
 - The DESIGN.md contrast rule (`contrast-ratio`) checks only the entries of the `components` key.
 - The kit never adds non-standard properties to `components`. It only declares standard `backgroundColor` and `textColor` entries, one per variant and active state, so the DESIGN.md lint checks contrast.
-- Non-text contrast (WCAG 1.4.11, 3:1) cannot be declared in `components`: a pair would be checked at 4.5:1, and a border property would be non-standard. The one such pair of the kit, `colors.outline` against `colors.surface` (see `components/text-field.md`), is checked by `theme/theme.py` and listed in its report; without the script, compute it by hand. It covers every part drawn in `outline`: the field border, the border of an unselected checkbox, radio button, and switch (and the off thumb), and the slider track.
+- Non-text contrast (WCAG 1.4.11, 3:1) cannot be declared in `components`: a pair would be checked at 4.5:1, and a border property would be non-standard. The one such pair of the kit, `colors.outline` against `colors.surface` (see `components/text-field.md`), is checked by `theme/theme.py` and listed in its report; without the script, compute it by hand. It covers every part drawn in `outline`: the field border, the border of an unselected checkbox, radio button, and switch (and the off thumb), the slider track, the border and dividers of the segmented control, and the dividers of the accordion.
 - Disabled-state pairs are never declared in `components`, because WCAG 1.4.3 exempts inactive components and the lint would otherwise flag them. The disabled token mapping stays described in the component spec, and the `on-disabled` and `disabled-container` tokens stay in the colors token contract.
 - Theme validation criterion: 0 errors and 0 `contrast-ratio` warnings. `orphaned-tokens` warnings on unused primitive palette steps are expected and tolerated; no other warning is.
+
+## Motion
+
+- Essential motion, which tells the user that work is going on (the button spinner, the indeterminate progress), is kept under `prefers-reduced-motion` but slowed down by about 2.5 to 3 times (WCAG 2.2.2). It is never turned into a static shape.
+- Every other transition (the height of an accordion panel, the turn of its chevron, the move of a tab indicator, the change of fill of a segmented control, a thumb or a determinate progress change) carries no information that the final state does not give. It is optional, it is the project's choice, and it is removed under reduced motion: the final state appears at once. It is removed, not slowed.
+- A duration named by a spec is a behavior constant, not a theme token.
 
 ## Elevation
 

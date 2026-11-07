@@ -20,6 +20,7 @@ A radio button lets the user pick exactly one option among a short list of exclu
 - Use radio buttons to choose exactly one option among two to about seven that the user must compare, all visible at once.
 - Use a checkbox group when several options may be selected (see `components/checkbox.md`).
 - Use a switch for a single on and off setting that applies at once (see `components/switch.md`).
+- Use a segmented control instead when the choice applies at once and switches a view or a filter (see `components/segmented-control.md`).
 - Do not use radio buttons for a long list: use a select or a menu.
 - Do not use a single radio button: a lone option is a checkbox.
 
@@ -164,4 +165,4 @@ Everything in the checkbox Accessibility table applies, except the rows about in
 
 ## Out of scope
 
-Animations, dark mode, radio buttons rendered as segmented controls or cards, option descriptions, a deselect action, and a horizontal-wrapping layout rule are not covered by this spec.
+Animations, dark mode, radio buttons rendered as cards (for a segmented look, see `components/segmented-control.md`), option descriptions, a deselect action, and a horizontal-wrapping layout rule are not covered by this spec.

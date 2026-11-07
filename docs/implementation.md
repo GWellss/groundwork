@@ -92,6 +92,9 @@ A state property that accessibility can expose is exposed there, and the style r
 | `value`, `min`, `max`, `step` (slider) | Native `input` of type `range` | `aria-valuetext` only when `value-text` is set |
 | `range` variant (slider) | Two native `input` elements of type `range` over one track, in a `group` named by `label` (or two ARIA `role="slider"` elements, with the full keyboard handled by the project) | One native range input handles one thumb only. Clamp each input to the other's value plus or minus `min-gap` and set `aria-valuemin` and `aria-valuemax` to those limits |
 | `error` (checkbox, radio group, slider) | `aria-invalid="true"` and `aria-describedby` to the message | Group description on the `fieldset`; present exactly when `error-message` is |
+| `value` (segmented control) | Native `checked` on the selected radio, one shared `name` | Group with `role="radiogroup"`, see `components/segmented-control.md` |
+| `selected` (tab), `value` (tabs) | `aria-selected` on a button with `role="tab"`; `aria-controls` and `aria-labelledby` link tab and panel | Roving `tabindex`: the selected tab is the only tab stop; see `components/tabs.md` |
+| `expanded` (accordion item) | `aria-expanded` and `aria-controls` on the header button | Hidden panel when collapsed; see `components/accordion.md` |
 | `open` (tooltip) | Rendered or not rendered | `role="tooltip"`; trigger references it with `aria-describedby` while open, as in the spec |
 | `variant`, `size`, other options | Free (attribute, prop, modifier) | No accessibility attribute exists for them |
 
@@ -104,7 +107,7 @@ Optional. A demo page may force a state (for example to show `hover` statically)
 - The dimensions of a spec are outer dimensions: the border is included. A height of `{spacing.control-md}` is the full height, border included. This is the `box-sizing: border-box` model: height and width include the border.
 - The padding of a spec is measured inside the border: the border sits outside the padding and is part of the total height and width.
 - Every variant reserves the border width `{spacing.border-width}`, transparent when the variant has no border. All variants of one size therefore share the same outer geometry, and a state change never moves the content.
-- The focus ring is drawn outside the box at `{spacing.focus-ring-offset}` and never changes the layout. Exception: the chip `remove-button` and the search `clear-button` (see `components/chip.md`, `components/search-field.md`).
+- The focus ring is drawn outside the box at `{spacing.focus-ring-offset}` and never changes the layout. Exceptions: the chip `remove-button` and the search `clear-button` (see `components/chip.md`, `components/search-field.md`), and the segments of the segmented control and the tabs, whose ring is drawn inside because their container clips or scrolls (see `components/segmented-control.md`, `components/tabs.md`).
 
 ## Target size
 
@@ -116,7 +119,7 @@ Optional. A demo page may force a state (for example to show `hover` statically)
 ## Icons
 
 - Library and style: exactly those named in the `## Icons` section of DESIGN.md (for example Material Symbols, outlined). Never another style of the same library (filled instead of outlined), never another library.
-- Glyphs: those named by the spec (`check-icon`: the library checkmark; `remove-button` and search `clear-button`: the library close icon; text field `error-icon`: the library error icon; `search-icon`: the library search icon; checkbox `check-icon`: the library checkmark; checkbox `indeterminate-icon`: the library minus glyph; checkbox, radio group, and slider `error-icon`: the library error icon).
+- Glyphs: those named by the spec (`check-icon`: the library checkmark; `remove-button` and search `clear-button`: the library close icon; text field `error-icon`: the library error icon; `search-icon`: the library search icon; checkbox `check-icon`: the library checkmark; checkbox `indeterminate-icon`: the library minus glyph; checkbox, radio group, and slider `error-icon`: the library error icon; segmented control `check-icon`: the library checkmark; accordion `chevron`: the library chevron-down glyph, turned up when expanded).
 - Size: the `--spacing-icon-*` variable given by the size table of the spec.
 - Defaults when `## Icons` does not state them: weight 400, no fill (fill 0), and optical size aligned with the icon size if the library supports an optical size axis. `## Icons` wins when it states a value.
 - License: if the library carries a license (for example Material Symbols, Apache-2.0), respect its terms.
@@ -149,5 +152,5 @@ Recommendations only; the project conventions win.
 
 - One file per component, plus `tokens.css` kept as generated.
 - Plain CSS: BEM class names derived from the spec names: block = component, element = part, modifier = variant or size (for example `chip`, `chip__remove-button`, `button--tonal`, `button--size-m`).
-- Framework: one component per spec, named after it (Button, Chip, Tooltip, Divider, Link, Badge, Avatar, Progress, TextField, SearchField, Checkbox, Radio, Switch, Slider); the checkbox and radio groups are CheckboxGroup and RadioGroup.
+- Framework: one component per spec, named after it (Button, Chip, Tooltip, Divider, Link, Badge, Avatar, Progress, TextField, SearchField, Checkbox, Radio, Switch, Slider, SegmentedControl, Tabs, Accordion); the checkbox and radio groups are CheckboxGroup and RadioGroup.
 - Demo pages stay apart from component files.

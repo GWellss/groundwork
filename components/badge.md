@@ -107,7 +107,7 @@ Geometry rules:
 - A `dot` is a circle of the dot diameter. It has no padding and no content.
 - The value is centered in the container.
 - A `count` or `dot` badge is anchored to the top-end corner of its host, centered on that corner. A round host may need a small adjustment, which belongs to the layout.
-- A `count` or `dot` badge never changes the size or the layout of its host. A `status` badge sits in the flow, aligned on the text baseline of its neighbor.
+- A `count` or `dot` badge never changes the size or the layout of its host, with one exception: in a tab the badge sits in the flow after the label (see `components/tabs.md`). A `status` badge sits in the flow, aligned on the text baseline of its neighbor.
 
 ## States
 

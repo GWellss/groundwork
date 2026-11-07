@@ -328,15 +328,48 @@ components:
   slider-pressed:
     backgroundColor: "{colors.surface}"
     textColor: "{colors.primary-pressed}"
+  tab:
+    backgroundColor: "{colors.surface}"
+    textColor: "{colors.on-surface-muted}"
+  tab-selected:
+    backgroundColor: "{colors.surface}"
+    textColor: "{colors.on-surface}"
+  tab-hover:
+    backgroundColor: "{colors.neutral-subtle-hover}"
+    textColor: "{colors.on-surface}"
+  tab-selected-hover:
+    backgroundColor: "{colors.neutral-subtle-hover}"
+    textColor: "{colors.on-surface}"
+  tab-pressed:
+    backgroundColor: "{colors.neutral-subtle-pressed}"
+    textColor: "{colors.on-surface}"
+  tab-selected-pressed:
+    backgroundColor: "{colors.neutral-subtle-pressed}"
+    textColor: "{colors.on-surface}"
+  tab-focus-ring:
+    backgroundColor: "{colors.surface}"
+    textColor: "{colors.focus-ring}"
+  accordion:
+    backgroundColor: "{colors.surface}"
+    textColor: "{colors.on-surface}"
+  accordion-hover:
+    backgroundColor: "{colors.neutral-subtle-hover}"
+    textColor: "{colors.on-surface}"
+  accordion-pressed:
+    backgroundColor: "{colors.neutral-subtle-pressed}"
+    textColor: "{colors.on-surface}"
+  accordion-focus-ring:
+    backgroundColor: "{colors.surface}"
+    textColor: "{colors.focus-ring}"
 ---
 
 ## Overview
 
-Design System is a design system theme for buttons, chips, tooltips, dividers, links, badges, avatars, progress indicators, text fields, search fields, checkboxes, radio buttons, switches, sliders and the components built on them. It uses a blue brand color (#2563EB), a red danger color (#DC2626), a green success color (#15803D), a orange warning color (#B45309), neutral grays, the system-ui font, soft corners and default density. Every value lives in this file; component specs only reference tokens.
+Design System is a design system theme for buttons, chips, tooltips, dividers, links, badges, avatars, progress indicators, text fields, search fields, checkboxes, radio buttons, switches, sliders, segmented controls, tabs, accordions and the components built on them. It uses a blue brand color (#2563EB), a red danger color (#DC2626), a green success color (#15803D), a orange warning color (#B45309), neutral grays, the system-ui font, soft corners and default density. Every value lives in this file; component specs only reference tokens.
 
 ## Colors
 
-The theme has five primitive scales: `blue-50` to `blue-900` for the brand, `red-50` to `red-900` for destructive actions, `green-50` to `green-900` for success, `orange-50` to `orange-900` for warnings, and `neutral-50` to `neutral-900` for grays and backgrounds. State colors are semantic tokens that point to scale steps. The `default` step is the first step from 600 to 900 reaching 4.5:1 in the worse case between white and `{colors.surface}`; `hover` is `default` plus 2 steps and `pressed` is `default` plus 4 steps, stopped at 900. Here the `default` steps are `blue-600` (brand), `red-600` (danger), `green-600` (success) and `orange-600` (warning). Content on a filled brand, danger, success or warning color (`on-primary`, `on-danger`, `on-success`, `on-warning`) is always white. Tonal containers use steps 50, 100 and 200 (enabled, hover, pressed); `on-primary-container` and `on-primary-subtle` are the first step from 700 to 900 reaching 4.5:1 on every background they serve. The neutral chip uses `surface`, `neutral-subtle-hover` and `neutral-subtle-pressed` (neutral 50, 100, 200) with `on-surface`, found by the same search on the neutral scale. The tooltip is `inverse-surface` (neutral 900) with white `on-inverse-surface`. Links, badges, avatars and progress indicators reuse these tokens: the link moves its content color (`primary`, `primary-hover`, `primary-pressed`, then `link-visited`, the brand step just after `primary`, when visited) on the surface, the status badge adds `success` and `warning` fills, the avatar and the neutral badge use `neutral-subtle-pressed` with `on-surface`, and the progress indicator is `primary` or `danger` on the surface. The text field adds one color, `on-surface-muted` (neutral step 600, or 700 if 600 is below 4.5:1), for the placeholder, the helper text, the counter and the affixes; its value and label use `on-surface`, its error uses `danger`, and a read-only field is filled with `neutral-subtle-hover`. The field border is `outline`, kept at 3:1 or more on the surface (neutral step 500, or 600), a non-text check that the script reports and the lint cannot. The search field reuses the text field tokens. `on-surface-muted` is used on the surface only, never on a grayed fill, and the script refuses a theme where it equals `on-surface`. The checkbox, radio and switch select with `primary` (white mark), draw their unselected border in `outline` and reuse `danger` for errors; the slider track is `outline` and its fill and thumb are `primary`. The divider has no text and declares no pair.
+The theme has five primitive scales: `blue-50` to `blue-900` for the brand, `red-50` to `red-900` for destructive actions, `green-50` to `green-900` for success, `orange-50` to `orange-900` for warnings, and `neutral-50` to `neutral-900` for grays and backgrounds. State colors are semantic tokens that point to scale steps. The `default` step is the first step from 600 to 900 reaching 4.5:1 in the worse case between white and `{colors.surface}`; `hover` is `default` plus 2 steps and `pressed` is `default` plus 4 steps, stopped at 900. Here the `default` steps are `blue-600` (brand), `red-600` (danger), `green-600` (success) and `orange-600` (warning). Content on a filled brand, danger, success or warning color (`on-primary`, `on-danger`, `on-success`, `on-warning`) is always white. Tonal containers use steps 50, 100 and 200 (enabled, hover, pressed); `on-primary-container` and `on-primary-subtle` are the first step from 700 to 900 reaching 4.5:1 on every background they serve. The neutral chip uses `surface`, `neutral-subtle-hover` and `neutral-subtle-pressed` (neutral 50, 100, 200) with `on-surface`, found by the same search on the neutral scale. The tooltip is `inverse-surface` (neutral 900) with white `on-inverse-surface`. Links, badges, avatars and progress indicators reuse these tokens: the link moves its content color (`primary`, `primary-hover`, `primary-pressed`, then `link-visited`, the brand step just after `primary`, when visited) on the surface, the status badge adds `success` and `warning` fills, the avatar and the neutral badge use `neutral-subtle-pressed` with `on-surface`, and the progress indicator is `primary` or `danger` on the surface. The text field adds one color, `on-surface-muted` (neutral step 600, or 700 if 600 is below 4.5:1), for the placeholder, the helper text, the counter and the affixes; its value and label use `on-surface`, its error uses `danger`, and a read-only field is filled with `neutral-subtle-hover`. The field border is `outline`, kept at 3:1 or more on the surface (neutral step 500, or 600), a non-text check that the script reports and the lint cannot. The search field reuses the text field tokens. `on-surface-muted` is used on the surface only, never on a grayed fill, and the script refuses a theme where it equals `on-surface`. The checkbox, radio and switch select with `primary` (white mark), draw their unselected border in `outline` and reuse `danger` for errors; the slider track is `outline` and its fill and thumb are `primary`. Segmented controls reuse the chip tokens (`outline` for their border and dividers). Tabs show their selected tab with a `primary` indicator and keep the label on `on-surface` (quiet `on-surface-muted` for an unselected tab at rest, on the surface only); accordion headers use the neutral chip fills with `on-surface`. The divider has no text and declares no pair.
 
 ## Typography
 
@@ -369,7 +402,7 @@ Icon style: outlined. Icon library: Material Symbols.
 
 ## Components
 
-The `components` entries declare one `backgroundColor` and `textColor` pair per button variant, per chip group and per `enabled`, `hover` and `pressed` state, plus the focus rings against the surface, the tooltip pair, the link states against the surface, the badge variants, the avatar, the progress indicators, the text field (value, muted text, error, read-only, focus ring), the search field clear button, the mark on the selected fill of the checkbox, radio and switch, the choice control text (label, muted, error, focus ring) and the slider thumb, so the lint checks contrast. Disabled pairs are exempt (WCAG 1.4.3) and are not declared. See the component specs in the kit: `button.md`, `chip.md`, `tooltip.md`, `divider.md`, `link.md`, `badge.md`, `avatar.md`, `progress.md`, `text-field.md`, `search-field.md`, `checkbox.md`, `radio.md`, `switch.md`, `slider.md`.
+The `components` entries declare one `backgroundColor` and `textColor` pair per button variant, per chip group and per `enabled`, `hover` and `pressed` state, plus the focus rings against the surface, the tooltip pair, the link states against the surface, the badge variants, the avatar, the progress indicators, the text field (value, muted text, error, read-only, focus ring), the search field clear button, the mark on the selected fill of the checkbox, radio and switch, the choice control text (label, muted, error, focus ring), the slider thumb, the tab labels (unselected and selected, with their focus ring) and the accordion headers, so the lint checks contrast. The segmented control declares nothing of its own: it reuses the `chip-*` entries. Disabled pairs are exempt (WCAG 1.4.3) and are not declared. See the component specs in the kit: `button.md`, `chip.md`, `tooltip.md`, `divider.md`, `link.md`, `badge.md`, `avatar.md`, `progress.md`, `text-field.md`, `search-field.md`, `checkbox.md`, `radio.md`, `switch.md`, `slider.md`, `segmented-control.md`, `tabs.md`, `accordion.md`.
 
 ## Do's and Don'ts
 
