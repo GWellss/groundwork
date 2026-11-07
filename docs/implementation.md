@@ -48,7 +48,7 @@ The font family variable holds a fallback stack: the font entered by the user fi
 - Never a raw THEME value in component code: no hex, no theme pixel length, no shadow value, no font name of the text typography.
 - Allowed as literals, because they are not theme values:
   - accessibility constants (24 by 24, 44 by 44 target sizes);
-  - behavior constants fixed by the specs (for example 700 ms, 300 ms, 1000 ms, 2000 ms);
+  - behavior constants fixed by the specs (for example 700 ms, 300 ms, 1000 ms, 2000 ms, the 6000 ms and 5000 ms of the toast, the 50% opacity of the dialog scrim);
   - the name of the icon font, which is data of the `## Icons` section of DESIGN.md.
 - Name these literals as local aliases with a comment that cites their source (for example `--target-size-min: 24px; /* WCAG 2.5.8 */`). The aliases hold no theme value.
 - Never a new variable that copies a token value. A local alias that points to a generated variable is allowed (for example a component-level variable set to `--color-primary`), as long as no value is duplicated.
@@ -99,6 +99,10 @@ A state property that accessibility can expose is exposed there, and the style r
 | `open` (menu, select list, popover) | Rendered or not rendered | Trigger with `aria-expanded` and `aria-controls`, and `aria-haspopup` (`menu`, `listbox`, or `dialog`), as in each spec |
 | `checked` (menu item) | `aria-checked` on `menuitemcheckbox` or `menuitemradio` | Roles `menu`, `menuitem`; `aria-disabled` for a disabled item, never native `disabled` |
 | `value` (select) | Native `select` when it suffices; otherwise `role="combobox"` on the field with `aria-activedescendant`, and `aria-selected` on the chosen `option` | See `components/select.md` |
+| `open` (dialog) | Native `dialog` element opened with its modal method (top layer, inert page, focus trap, `Escape`); `role="alertdialog"` for `confirmation` | Named by `aria-labelledby` to the title; `aria-describedby` to the body for `confirmation`; trigger with `aria-haspopup="dialog"`; see `components/dialog.md` |
+| `open` (toast) | Rendered or not rendered, inside one live region that exists from the start | `aria-live="polite"` on the region; `role="alert"` on a `danger` toast; see `components/toast.md` |
+| `interactive` (card) | One native `a` with `href`, or one native `button`, holding the whole card | `aria-labelledby` the heading, `aria-describedby` the body; `disabled` is native on the button, and a link card has no `href` when disabled; see `components/card.md` |
+| `severity` (alert) | `role="status"` (`info`, `success`, `warning`) or `role="alert"` (`danger`) when inserted after load; no live role when rendered with the page | The icon has an image role and a name for its severity; see `components/alert.md` |
 | `variant`, `size`, other options | Free (attribute, prop, modifier) | No accessibility attribute exists for them |
 
 ### Forced states for demonstration
@@ -122,7 +126,7 @@ Optional. A demo page may force a state (for example to show `hover` statically)
 ## Icons
 
 - Library and style: exactly those named in the `## Icons` section of DESIGN.md (for example Material Symbols, outlined). Never another style of the same library (filled instead of outlined), never another library.
-- Glyphs: those named by the spec (`check-icon`: the library checkmark; `remove-button` and search `clear-button`: the library close icon; text field `error-icon`: the library error icon; `search-icon`: the library search icon; checkbox `check-icon`: the library checkmark; menu `check-icon` and select `check-icon`: the library checkmark; select `chevron`: the library chevron-down glyph, optionally turned up while open; popover `close-button`: the library close icon; checkbox `indeterminate-icon`: the library minus glyph; checkbox, radio group, and slider `error-icon`: the library error icon; segmented control `check-icon`: the library checkmark; accordion `chevron`: the library chevron-down glyph, turned up when expanded).
+- Glyphs: those named by the spec (`check-icon`: the library checkmark; `remove-button` and search `clear-button`: the library close icon; text field `error-icon`: the library error icon; `search-icon`: the library search icon; checkbox `check-icon`: the library checkmark; menu `check-icon` and select `check-icon`: the library checkmark; select `chevron`: the library chevron-down glyph, optionally turned up while open; popover, dialog and toast `close-button` and alert `close-button`: the library close icon; alert `icon`: the library information, check-in-circle, warning, and error glyphs by severity; toast `icon`: the library check-in-circle and error glyphs; checkbox `indeterminate-icon`: the library minus glyph; checkbox, radio group, and slider `error-icon`: the library error icon; segmented control `check-icon`: the library checkmark; accordion `chevron`: the library chevron-down glyph, turned up when expanded).
 - Size: the `--spacing-icon-*` variable given by the size table of the spec.
 - Defaults when `## Icons` does not state them: weight 400, no fill (fill 0), and optical size aligned with the icon size if the library supports an optical size axis. `## Icons` wins when it states a value.
 - License: if the library carries a license (for example Material Symbols, Apache-2.0), respect its terms.
@@ -137,10 +141,12 @@ Optional. A demo page may force a state (for example to show `hover` statically)
 - The agent tells the user which fonts to load: the family of each typography token in use, and the icon font of `## Icons`, with the weights and styles the specs use. It does not add a font file, a CDN link, or a package on its own.
 - Until the fonts are loaded, the fallback stack of the font family variable applies.
 
-## Floating surfaces
+## Floating surfaces and overlay panels
 
 - Menu, select list, and popover follow "Floating surface" in `docs/conventions.md`. Where the platform has a native mechanism, use it rather than script: the HTML `popover` attribute (top layer, `Escape`, press outside), and CSS anchor positioning for the placement, with script only to flip and shift when it is not available.
 - Focus management stays in script: where focus goes on open, and its return to the trigger on `Escape` (see each spec's Accessibility section).
+- Dialog and toast follow "Overlay panel" in `docs/conventions.md`. For the dialog, use the native `dialog` element with its modal method: it provides the top layer, the inert page, the focus trap, `Escape`, and the `::backdrop` that carries the scrim (the `inverse-surface` color at the constant opacity of the spec). Script only sets the initial focus, returns focus to the trigger, and applies the `loading` and `confirmation` rules of the spec. Lock the scroll of the page while it is open.
+- The toast region is a plain element in the page, present from the start, in the top layer or above the page by layout; the toasts are inserted into it. The timer, the pause, the stack, and the wait while a dialog is open are script.
 - A native `select` is preferred to the custom select (see `components/select.md`); its closed field takes the text field tokens, its open list stays the platform's.
 
 ## Target browsers
@@ -151,7 +157,7 @@ Recent evergreen browsers. Modern selectors such as `:has()` are allowed. If the
 
 Some behaviors of the specs need script. They are requirements, not options.
 
-Every Behavior requirement of a spec that is not implemented must be listed in the agent's report, by spec and by behavior (keyboard and dismissal requirements of its Accessibility section included, for example `Delete` and `Backspace` on the chip `remove-button`, or `Escape` on the tooltip, the menu, the select list, and the popover). This applies in particular when the requested output is static (for example HTML and CSS without script). Never omit one silently.
+Every Behavior requirement of a spec that is not implemented must be listed in the agent's report, by spec and by behavior (keyboard and dismissal requirements of its Accessibility section included, for example `Delete` and `Backspace` on the chip `remove-button`, or `Escape` on the tooltip, the menu, the select list, the popover, and the dialog; the focus trap and the initial focus of the dialog; the timer, the pause and the live region of the toast). This applies in particular when the requested output is static (for example HTML and CSS without script). Never omit one silently.
 
 Static output also drops the attributes that depend on the open state. For example, without script the tooltip is never open, so the trigger has no `aria-describedby`. Such attributes are omitted and listed as not implemented, with the behaviors above.
 
@@ -161,5 +167,5 @@ Recommendations only; the project conventions win.
 
 - One file per component, plus `tokens.css` kept as generated.
 - Plain CSS: BEM class names derived from the spec names: block = component, element = part, modifier = variant or size (for example `chip`, `chip__remove-button`, `button--tonal`, `button--size-m`).
-- Framework: one component per spec, named after it (Button, Chip, Tooltip, Divider, Link, Badge, Avatar, Progress, TextField, SearchField, Checkbox, Radio, Switch, Slider, SegmentedControl, Tabs, Accordion, Menu, Select, Popover); the checkbox and radio groups are CheckboxGroup and RadioGroup.
+- Framework: one component per spec, named after it (Button, Chip, Tooltip, Divider, Link, Badge, Avatar, Progress, TextField, SearchField, Checkbox, Radio, Switch, Slider, SegmentedControl, Tabs, Accordion, Menu, Select, Popover, Dialog, Alert, Toast, Card); the checkbox and radio groups are CheckboxGroup and RadioGroup.
 - Demo pages stay apart from component files.

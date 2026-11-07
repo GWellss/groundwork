@@ -75,6 +75,18 @@ colors:
   on-warning: "#FFFFFF"
   warning-hover: "{colors.orange-800}"
   warning-pressed: "{colors.orange-900}"
+  danger-container: "{colors.red-50}"
+  danger-container-hover: "{colors.red-100}"
+  danger-container-pressed: "{colors.red-200}"
+  on-danger-container: "{colors.red-700}"
+  success-container: "{colors.green-50}"
+  success-container-hover: "{colors.green-100}"
+  success-container-pressed: "{colors.green-200}"
+  on-success-container: "{colors.green-700}"
+  warning-container: "{colors.orange-50}"
+  warning-container-hover: "{colors.orange-100}"
+  warning-container-pressed: "{colors.orange-200}"
+  on-warning-container: "{colors.orange-700}"
   outline: "{colors.neutral-500}"
   disabled-container: "{colors.neutral-100}"
   on-disabled: "{colors.neutral-500}"
@@ -134,6 +146,7 @@ spacing:
   tooltip-max-width: 240px
   menu-min-width: 160px
   floating-max-width: 320px
+  dialog-max-width: 480px
   border-width: 1px
   focus-ring-width: 2px
   focus-ring-offset: 2px
@@ -390,15 +403,66 @@ components:
   popover:
     backgroundColor: "{colors.surface}"
     textColor: "{colors.on-surface}"
+  alert-danger:
+    backgroundColor: "{colors.danger-container}"
+    textColor: "{colors.on-danger-container}"
+  alert-danger-hover:
+    backgroundColor: "{colors.danger-container-hover}"
+    textColor: "{colors.on-danger-container}"
+  alert-danger-pressed:
+    backgroundColor: "{colors.danger-container-pressed}"
+    textColor: "{colors.on-danger-container}"
+  alert-success:
+    backgroundColor: "{colors.success-container}"
+    textColor: "{colors.on-success-container}"
+  alert-success-hover:
+    backgroundColor: "{colors.success-container-hover}"
+    textColor: "{colors.on-success-container}"
+  alert-success-pressed:
+    backgroundColor: "{colors.success-container-pressed}"
+    textColor: "{colors.on-success-container}"
+  alert-warning:
+    backgroundColor: "{colors.warning-container}"
+    textColor: "{colors.on-warning-container}"
+  alert-warning-hover:
+    backgroundColor: "{colors.warning-container-hover}"
+    textColor: "{colors.on-warning-container}"
+  alert-warning-pressed:
+    backgroundColor: "{colors.warning-container-pressed}"
+    textColor: "{colors.on-warning-container}"
+  card:
+    backgroundColor: "{colors.surface}"
+    textColor: "{colors.on-surface}"
+  card-hover:
+    backgroundColor: "{colors.neutral-subtle-hover}"
+    textColor: "{colors.on-surface}"
+  card-pressed:
+    backgroundColor: "{colors.neutral-subtle-pressed}"
+    textColor: "{colors.on-surface}"
+  card-focus-ring:
+    backgroundColor: "{colors.surface}"
+    textColor: "{colors.focus-ring}"
+  dialog:
+    backgroundColor: "{colors.surface}"
+    textColor: "{colors.on-surface}"
+  toast:
+    backgroundColor: "{colors.surface}"
+    textColor: "{colors.on-surface}"
+  toast-success:
+    backgroundColor: "{colors.surface}"
+    textColor: "{colors.success}"
+  toast-danger:
+    backgroundColor: "{colors.surface}"
+    textColor: "{colors.danger}"
 ---
 
 ## Overview
 
-Design System is a design system theme for buttons, chips, tooltips, dividers, links, badges, avatars, progress indicators, text fields, search fields, checkboxes, radio buttons, switches, sliders, segmented controls, tabs, accordions, menus, selects, popovers and the components built on them. It uses a blue brand color (#2563EB), a red danger color (#DC2626), a green success color (#15803D), a orange warning color (#B45309), neutral grays, the system-ui font, soft corners and default density. Every value lives in this file; component specs only reference tokens.
+Design System is a design system theme for buttons, chips, tooltips, dividers, links, badges, avatars, progress indicators, text fields, search fields, checkboxes, radio buttons, switches, sliders, segmented controls, tabs, accordions, menus, selects, popovers, dialogs, alerts, toasts, cards and the components built on them. It uses a blue brand color (#2563EB), a red danger color (#DC2626), a green success color (#15803D), a orange warning color (#B45309), neutral grays, the system-ui font, soft corners and default density. Every value lives in this file; component specs only reference tokens.
 
 ## Colors
 
-The theme has five primitive scales: `blue-50` to `blue-900` for the brand, `red-50` to `red-900` for destructive actions, `green-50` to `green-900` for success, `orange-50` to `orange-900` for warnings, and `neutral-50` to `neutral-900` for grays and backgrounds. State colors are semantic tokens that point to scale steps. The `default` step is the first step from 600 to 900 reaching 4.5:1 in the worse case between white and `{colors.surface}`; `hover` is `default` plus 2 steps and `pressed` is `default` plus 4 steps, stopped at 900. Here the `default` steps are `blue-600` (brand), `red-600` (danger), `green-600` (success) and `orange-600` (warning). Content on a filled brand, danger, success or warning color (`on-primary`, `on-danger`, `on-success`, `on-warning`) is always white. Tonal containers use steps 50, 100 and 200 (enabled, hover, pressed); `on-primary-container` and `on-primary-subtle` are the first step from 700 to 900 reaching 4.5:1 on every background they serve. The neutral chip uses `surface`, `neutral-subtle-hover` and `neutral-subtle-pressed` (neutral 50, 100, 200) with `on-surface`, found by the same search on the neutral scale. The tooltip is `inverse-surface` (neutral 900) with white `on-inverse-surface`. Links, badges, avatars and progress indicators reuse these tokens: the link moves its content color (`primary`, `primary-hover`, `primary-pressed`, then `link-visited`, the brand step just after `primary`, when visited) on the surface, the status badge adds `success` and `warning` fills, the avatar and the neutral badge use `neutral-subtle-pressed` with `on-surface`, and the progress indicator is `primary` or `danger` on the surface. The text field adds one color, `on-surface-muted` (neutral step 600, or 700 if 600 is below 4.5:1), for the placeholder, the helper text, the counter and the affixes; its value and label use `on-surface`, its error uses `danger`, and a read-only field is filled with `neutral-subtle-hover`. The field border is `outline`, kept at 3:1 or more on the surface (neutral step 500, or 600), a non-text check that the script reports and the lint cannot. The focus ring (`focus-ring`, the brand `default` step, moved to a darker step if needed) is checked the same way at 3:1 against every fill it can sit on: the surface, the neutral hover and pressed fills, and the selected container in its three states, because segments, tabs and the small round buttons draw it inside. The search field reuses the text field tokens. `on-surface-muted` is used on the surface only, never on a grayed fill, and the script refuses a theme where it equals `on-surface`. The checkbox, radio and switch select with `primary` (white mark), draw their unselected border in `outline` and reuse `danger` for errors; the slider track is `outline` and its fill and thumb are `primary`. Segmented controls reuse the chip tokens (`outline` for their border and dividers). Tabs show their selected tab with a `primary` indicator and keep the label on `on-surface` (quiet `on-surface-muted` for an unselected tab at rest, on the surface only); accordion headers use the neutral chip fills with `on-surface`. The divider has no text and declares no pair. Menus, select lists and popovers float on `surface` with a quiet `neutral-subtle-pressed` border and the `level-2` shadow, so they add no color: items and options use the neutral fills (`surface`, `neutral-subtle-hover`, `neutral-subtle-pressed`) with `on-surface`, quiet `on-surface-muted` for group titles and for a shortcut at rest (on the surface only), and a destructive item moves from `danger` to `danger-hover` and `danger-pressed` as its fill darkens. Two spacing tokens size them: `menu-min-width` and `floating-max-width`.
+The theme has five primitive scales: `blue-50` to `blue-900` for the brand, `red-50` to `red-900` for destructive actions, `green-50` to `green-900` for success, `orange-50` to `orange-900` for warnings, and `neutral-50` to `neutral-900` for grays and backgrounds. State colors are semantic tokens that point to scale steps. The `default` step is the first step from 600 to 900 reaching 4.5:1 in the worse case between white and `{colors.surface}`; `hover` is `default` plus 2 steps and `pressed` is `default` plus 4 steps, stopped at 900. Here the `default` steps are `blue-600` (brand), `red-600` (danger), `green-600` (success) and `orange-600` (warning). Content on a filled brand, danger, success or warning color (`on-primary`, `on-danger`, `on-success`, `on-warning`) is always white. Tonal containers use steps 50, 100 and 200 (enabled, hover, pressed); `on-primary-container` and `on-primary-subtle` are the first step from 700 to 900 reaching 4.5:1 on every background they serve. The neutral chip uses `surface`, `neutral-subtle-hover` and `neutral-subtle-pressed` (neutral 50, 100, 200) with `on-surface`, found by the same search on the neutral scale. The tooltip is `inverse-surface` (neutral 900) with white `on-inverse-surface`. Links, badges, avatars and progress indicators reuse these tokens: the link moves its content color (`primary`, `primary-hover`, `primary-pressed`, then `link-visited`, the brand step just after `primary`, when visited) on the surface, the status badge adds `success` and `warning` fills, the avatar and the neutral badge use `neutral-subtle-pressed` with `on-surface`, and the progress indicator is `primary` or `danger` on the surface. The text field adds one color, `on-surface-muted` (neutral step 600, or 700 if 600 is below 4.5:1), for the placeholder, the helper text, the counter and the affixes; its value and label use `on-surface`, its error uses `danger`, and a read-only field is filled with `neutral-subtle-hover`. The field border is `outline`, kept at 3:1 or more on the surface (neutral step 500, or 600), a non-text check that the script reports and the lint cannot. The focus ring (`focus-ring`, the brand `default` step, moved to a darker step if needed) is checked the same way at 3:1 against every fill it can sit on: the surface, the neutral hover and pressed fills, and the selected container in its three states, because segments, tabs and the small round buttons draw it inside. The search field reuses the text field tokens. `on-surface-muted` is used on the surface only, never on a grayed fill, and the script refuses a theme where it equals `on-surface`. The checkbox, radio and switch select with `primary` (white mark), draw their unselected border in `outline` and reuse `danger` for errors; the slider track is `outline` and its fill and thumb are `primary`. Segmented controls reuse the chip tokens (`outline` for their border and dividers). Tabs show their selected tab with a `primary` indicator and keep the label on `on-surface` (quiet `on-surface-muted` for an unselected tab at rest, on the surface only); accordion headers use the neutral chip fills with `on-surface`. The divider has no text and declares no pair. Menus, select lists and popovers float on `surface` with a quiet `neutral-subtle-pressed` border and the `level-2` shadow, so they add no color: items and options use the neutral fills (`surface`, `neutral-subtle-hover`, `neutral-subtle-pressed`) with `on-surface`, quiet `on-surface-muted` for group titles and for a shortcut at rest (on the surface only), and a destructive item moves from `danger` to `danger-hover` and `danger-pressed` as its fill darkens. Two spacing tokens size them: `menu-min-width` and `floating-max-width`. Dialogs, toasts and cards reuse the same surface, border and neutral fills, with `level-3` for the dialog and the toast; the dialog adds one width token, `dialog-max-width`, and its scrim is `inverse-surface` at a fixed opacity. The alert adds tonal containers for `danger`, `success` and `warning` (`<role>-container`, `-hover` and `-pressed` are steps 50, 100 and 200, with `on-<role>-container`, the first step from 700 to 900 reaching 4.5:1 on all three), as `primary-container` does for the brand, which the information alert reuses. The toast icon uses `success` or `danger` on the surface.
 
 ## Typography
 
@@ -423,7 +487,7 @@ This theme defines no shadow token: the elevation scale is this table.
 
 ## Shapes
 
-Corners are soft: `rounded.control` is 4px and `rounded.overlay` (tooltip, menu, select list, popover) is 4px. `rounded.avatar` is 9999px (a circle) whatever the corners; edit it to change the avatar shape.
+Corners are soft: `rounded.control` is 4px and `rounded.overlay` (tooltip, menu, select list, popover, dialog, alert, toast, card) is 4px. `rounded.avatar` is 9999px (a circle) whatever the corners; edit it to change the avatar shape.
 
 ## Icons
 
@@ -431,7 +495,7 @@ Icon style: outlined. Icon library: Material Symbols.
 
 ## Components
 
-The `components` entries declare one `backgroundColor` and `textColor` pair per button variant, per chip group and per `enabled`, `hover` and `pressed` state, plus the focus rings against the surface, the tooltip pair, the link states against the surface, the badge variants, the avatar, the progress indicators, the text field (value, muted text, error, read-only, focus ring), the search field clear button, the mark on the selected fill of the checkbox, radio and switch, the choice control text (label, muted, error, focus ring), the slider thumb, the tab labels (unselected and selected, with their focus ring), the accordion headers, the menu items and select options (neutral and destructive, with their muted text and focus ring) and the popover text, so the lint checks contrast. The segmented control declares nothing of its own: it reuses the `chip-*` entries. Disabled pairs are exempt (WCAG 1.4.3) and are not declared. See the component specs in the kit: `button.md`, `chip.md`, `tooltip.md`, `divider.md`, `link.md`, `badge.md`, `avatar.md`, `progress.md`, `text-field.md`, `search-field.md`, `checkbox.md`, `radio.md`, `switch.md`, `slider.md`, `segmented-control.md`, `tabs.md`, `accordion.md`, `menu.md`, `select.md`, `popover.md`.
+The `components` entries declare one `backgroundColor` and `textColor` pair per button variant, per chip group and per `enabled`, `hover` and `pressed` state, plus the focus rings against the surface, the tooltip pair, the link states against the surface, the badge variants, the avatar, the progress indicators, the text field (value, muted text, error, read-only, focus ring), the search field clear button, the mark on the selected fill of the checkbox, radio and switch, the choice control text (label, muted, error, focus ring), the slider thumb, the tab labels (unselected and selected, with their focus ring), the accordion headers, the menu items and select options (neutral and destructive, with their muted text and focus ring), the popover, dialog and toast text, the toast status icons, the alert tonal fills (danger, success, warning; the information alert reuses the tonal button entries) and the card states with its focus ring, so the lint checks contrast. The segmented control declares nothing of its own: it reuses the `chip-*` entries. Disabled pairs are exempt (WCAG 1.4.3) and are not declared. See the component specs in the kit: `button.md`, `chip.md`, `tooltip.md`, `divider.md`, `link.md`, `badge.md`, `avatar.md`, `progress.md`, `text-field.md`, `search-field.md`, `checkbox.md`, `radio.md`, `switch.md`, `slider.md`, `segmented-control.md`, `tabs.md`, `accordion.md`, `menu.md`, `select.md`, `popover.md`, `dialog.md`, `alert.md`, `toast.md`, `card.md`.
 
 ## Do's and Don'ts
 

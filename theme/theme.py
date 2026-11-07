@@ -32,7 +32,7 @@ LIGHT = (0.97, 0.93, 0.87, 0.79, 0.70, 0.62, 0.54, 0.46, 0.38, 0.30)
 SHARE = (0.15, 0.30, 0.50, 0.75, 0.90, 1.0, 1.0, 1.0, 0.90, 0.75)
 NEUTRAL_TINT = {"neutral": (0.0, 0), "warm": (0.010, 70), "cool": (0.010, 250)}
 WHITE = "#FFFFFF"
-ACCENT = ("primary", "primary-hover", "primary-pressed", "danger", "focus-ring", "link-visited", "on-surface-muted")
+ACCENT = ("primary", "primary-hover", "primary-pressed", "danger", "focus-ring", "link-visited", "on-surface-muted", "success")
 ON_FILL = {"danger-hover": "neutral-subtle-hover", "danger-pressed": "neutral-subtle-pressed"}  # destructive menu item: danger content darkens on the grayed fill it meets
 ROLES = ("brand", "danger", "success", "warning")  # one scale each; states derived by the same rule
 
@@ -47,7 +47,7 @@ SPACING = {  # token: (compact, default, comfortable)
     "icon-sm": (14, 16, 20), "icon-md": (16, 20, 24), "icon-lg": (20, 24, 28), "icon-xl": (24, 28, 32),
     "xs": (2, 4, 6), "sm": (6, 8, 10), "md": (8, 12, 16), "lg": (12, 16, 20), "xl": (16, 20, 24), "2xl": (20, 24, 32),
     "tooltip-max-width": (200, 240, 280),
-    "menu-min-width": (128, 160, 192), "floating-max-width": (280, 320, 360),
+    "menu-min-width": (128, 160, 192), "floating-max-width": (280, 320, 360), "dialog-max-width": (400, 480, 560),
 }
 DENSITIES = ("compact", "default", "comfortable")
 
@@ -233,6 +233,10 @@ def derive(a):
         **{tok: v for k in ROLES[1:] for tok, v in (
             (k, ref(names[k], info["idx"][k])), ("on-" + k, WHITE),
             (k + "-hover", ref(names[k], info["idx"][k] + 2)), (k + "-pressed", ref(names[k], info["idx"][k] + 4)))},
+        # tonal containers of the alert (the info alert reuses primary-container*): steps 50, 100, 200 with content searched like on-primary-container
+        **{tok: v for k in ROLES[1:] for tok, v in (
+            (k + "-container", ref(names[k], 0)), (k + "-container-hover", ref(names[k], 1)),
+            (k + "-container-pressed", ref(names[k], 2)), ("on-%s-container" % k, None))},
         "outline": ref("neutral", next((i for i in (5, 6) if contrast(neutral[i], surface) >= 3), 6)),  # 3:1 on the surface (WCAG 1.4.11)
         "disabled-container": "{colors.neutral-100}",
         "on-disabled": "{colors.neutral-500}", "focus-ring": ref(b, bd),
@@ -242,11 +246,12 @@ def derive(a):
         # visited: the brand step between default (600, the only usable default) and hover (800): distinct from default, hover and pressed
         "link-visited": ref(b, bd + 1),
     }
-    assert len(sem) == 35
+    assert len(sem) == 47
     flat.update(sem)
     # focus ring drawn inside a control or on a fill: 3:1 on every fill it can meet (WCAG 1.4.11); darker brand step if needed, as outline
     sem["focus-ring"] = flat["focus-ring"] = ref(b, next((i for i in range(bd, 9) if ring_ok(flat, ref(b, i))), 9))
-    for tok, sc in (("on-primary-container", b), ("on-primary-subtle", b), ("on-surface", "neutral")):
+    for tok, sc in (("on-primary-container", b), ("on-primary-subtle", b), ("on-surface", "neutral"),
+                    *(("on-%s-container" % k, names[k]) for k in ROLES[1:])):
         bgs = [resolve(flat, "{colors.%s}" % bg) for _, bg, fg in components() if fg == tok]  # darkest decides
         flat[tok] = ref(sc, content_index(colors[sc], bgs) or 9)  # 900 failing is reported by check()
     check_muted(flat)
@@ -318,7 +323,15 @@ def components():
         out.append(("menu-item" + st, bg, "on-surface"))  # menu items and select options
         out.append(("menu-item-danger" + st, bg, "danger" + st))  # destructive item: the content darkens with its fill
     out += [("menu-muted", "surface", "on-surface-muted"), ("menu-focus-ring", "surface", "focus-ring"), ("popover", "surface", "on-surface")]
-    assert len(out) == 84
+    for k in ROLES[1:]:  # alert (info reuses button-tonal*): its close button and action take the hover and pressed fills
+        for st in ("", "-hover", "-pressed"):
+            out.append(("alert-%s%s" % (k, st), "%s-container%s" % (k, st), "on-%s-container" % k))
+    for st, bg in (("", "surface"), ("-hover", "neutral-subtle-hover"), ("-pressed", "neutral-subtle-pressed")):
+        out.append(("card" + st, bg, "on-surface"))  # clickable card: grayed fills, so on-surface only
+    out.append(("card-focus-ring", "surface", "focus-ring"))
+    out += [("dialog", "surface", "on-surface"), ("toast", "surface", "on-surface"),
+            ("toast-success", "surface", "success"), ("toast-danger", "surface", "danger")]  # status icon, on the surface
+    assert len(out) == 101
     return out
 
 
@@ -417,11 +430,11 @@ def design_md(a, colors, info, comps):
     body = f"""
 ## Overview
 
-{a.name} is a design system theme for buttons, chips, tooltips, dividers, links, badges, avatars, progress indicators, text fields, search fields, checkboxes, radio buttons, switches, sliders, segmented controls, tabs, accordions, menus, selects, popovers and the components built on them. It uses a {ni['brand']} brand color ({a.brand}), a {ni['danger']} danger color ({a.danger}), a {ni['success']} success color ({a.success}), a {ni['warning']} warning color ({a.warning}), {a.neutral} grays, the {a.font} font, {a.corners} corners and {a.density} density. Every value lives in this file; component specs only reference tokens.
+{a.name} is a design system theme for buttons, chips, tooltips, dividers, links, badges, avatars, progress indicators, text fields, search fields, checkboxes, radio buttons, switches, sliders, segmented controls, tabs, accordions, menus, selects, popovers, dialogs, alerts, toasts, cards and the components built on them. It uses a {ni['brand']} brand color ({a.brand}), a {ni['danger']} danger color ({a.danger}), a {ni['success']} success color ({a.success}), a {ni['warning']} warning color ({a.warning}), {a.neutral} grays, the {a.font} font, {a.corners} corners and {a.density} density. Every value lives in this file; component specs only reference tokens.
 
 ## Colors
 
-The theme has five primitive scales: {sc('brand')} for the brand, {sc('danger')} for destructive actions, {sc('success')} for success, {sc('warning')} for warnings, and {sc('neutral')} for grays and backgrounds. State colors are semantic tokens that point to scale steps. The `default` step is the first step from 600 to 900 reaching 4.5:1 in the worse case between white and `{{colors.surface}}`; `hover` is `default` plus 2 steps and `pressed` is `default` plus 4 steps, stopped at 900. Here the `default` steps are `{ni['brand']}-{STEPS[ix['brand']]}` (brand), `{ni['danger']}-{STEPS[ix['danger']]}` (danger), `{ni['success']}-{STEPS[ix['success']]}` (success) and `{ni['warning']}-{STEPS[ix['warning']]}` (warning). Content on a filled brand, danger, success or warning color (`on-primary`, `on-danger`, `on-success`, `on-warning`) is always white. Tonal containers use steps 50, 100 and 200 (enabled, hover, pressed); `on-primary-container` and `on-primary-subtle` are the first step from 700 to 900 reaching 4.5:1 on every background they serve. The neutral chip uses `surface`, `neutral-subtle-hover` and `neutral-subtle-pressed` (neutral 50, 100, 200) with `on-surface`, found by the same search on the neutral scale. The tooltip is `inverse-surface` (neutral 900) with white `on-inverse-surface`. Links, badges, avatars and progress indicators reuse these tokens: the link moves its content color (`primary`, `primary-hover`, `primary-pressed`, then `link-visited`, the brand step just after `primary`, when visited) on the surface, the status badge adds `success` and `warning` fills, the avatar and the neutral badge use `neutral-subtle-pressed` with `on-surface`, and the progress indicator is `primary` or `danger` on the surface. The text field adds one color, `on-surface-muted` (neutral step 600, or 700 if 600 is below 4.5:1), for the placeholder, the helper text, the counter and the affixes; its value and label use `on-surface`, its error uses `danger`, and a read-only field is filled with `neutral-subtle-hover`. The field border is `outline`, kept at 3:1 or more on the surface (neutral step 500, or 600), a non-text check that the script reports and the lint cannot. The focus ring (`focus-ring`, the brand `default` step, moved to a darker step if needed) is checked the same way at 3:1 against every fill it can sit on: the surface, the neutral hover and pressed fills, and the selected container in its three states, because segments, tabs and the small round buttons draw it inside. The search field reuses the text field tokens. `on-surface-muted` is used on the surface only, never on a grayed fill, and the script refuses a theme where it equals `on-surface`. The checkbox, radio and switch select with `primary` (white mark), draw their unselected border in `outline` and reuse `danger` for errors; the slider track is `outline` and its fill and thumb are `primary`. Segmented controls reuse the chip tokens (`outline` for their border and dividers). Tabs show their selected tab with a `primary` indicator and keep the label on `on-surface` (quiet `on-surface-muted` for an unselected tab at rest, on the surface only); accordion headers use the neutral chip fills with `on-surface`. The divider has no text and declares no pair. Menus, select lists and popovers float on `surface` with a quiet `neutral-subtle-pressed` border and the `level-2` shadow, so they add no color: items and options use the neutral fills (`surface`, `neutral-subtle-hover`, `neutral-subtle-pressed`) with `on-surface`, quiet `on-surface-muted` for group titles and for a shortcut at rest (on the surface only), and a destructive item moves from `danger` to `danger-hover` and `danger-pressed` as its fill darkens. Two spacing tokens size them: `menu-min-width` and `floating-max-width`.
+The theme has five primitive scales: {sc('brand')} for the brand, {sc('danger')} for destructive actions, {sc('success')} for success, {sc('warning')} for warnings, and {sc('neutral')} for grays and backgrounds. State colors are semantic tokens that point to scale steps. The `default` step is the first step from 600 to 900 reaching 4.5:1 in the worse case between white and `{{colors.surface}}`; `hover` is `default` plus 2 steps and `pressed` is `default` plus 4 steps, stopped at 900. Here the `default` steps are `{ni['brand']}-{STEPS[ix['brand']]}` (brand), `{ni['danger']}-{STEPS[ix['danger']]}` (danger), `{ni['success']}-{STEPS[ix['success']]}` (success) and `{ni['warning']}-{STEPS[ix['warning']]}` (warning). Content on a filled brand, danger, success or warning color (`on-primary`, `on-danger`, `on-success`, `on-warning`) is always white. Tonal containers use steps 50, 100 and 200 (enabled, hover, pressed); `on-primary-container` and `on-primary-subtle` are the first step from 700 to 900 reaching 4.5:1 on every background they serve. The neutral chip uses `surface`, `neutral-subtle-hover` and `neutral-subtle-pressed` (neutral 50, 100, 200) with `on-surface`, found by the same search on the neutral scale. The tooltip is `inverse-surface` (neutral 900) with white `on-inverse-surface`. Links, badges, avatars and progress indicators reuse these tokens: the link moves its content color (`primary`, `primary-hover`, `primary-pressed`, then `link-visited`, the brand step just after `primary`, when visited) on the surface, the status badge adds `success` and `warning` fills, the avatar and the neutral badge use `neutral-subtle-pressed` with `on-surface`, and the progress indicator is `primary` or `danger` on the surface. The text field adds one color, `on-surface-muted` (neutral step 600, or 700 if 600 is below 4.5:1), for the placeholder, the helper text, the counter and the affixes; its value and label use `on-surface`, its error uses `danger`, and a read-only field is filled with `neutral-subtle-hover`. The field border is `outline`, kept at 3:1 or more on the surface (neutral step 500, or 600), a non-text check that the script reports and the lint cannot. The focus ring (`focus-ring`, the brand `default` step, moved to a darker step if needed) is checked the same way at 3:1 against every fill it can sit on: the surface, the neutral hover and pressed fills, and the selected container in its three states, because segments, tabs and the small round buttons draw it inside. The search field reuses the text field tokens. `on-surface-muted` is used on the surface only, never on a grayed fill, and the script refuses a theme where it equals `on-surface`. The checkbox, radio and switch select with `primary` (white mark), draw their unselected border in `outline` and reuse `danger` for errors; the slider track is `outline` and its fill and thumb are `primary`. Segmented controls reuse the chip tokens (`outline` for their border and dividers). Tabs show their selected tab with a `primary` indicator and keep the label on `on-surface` (quiet `on-surface-muted` for an unselected tab at rest, on the surface only); accordion headers use the neutral chip fills with `on-surface`. The divider has no text and declares no pair. Menus, select lists and popovers float on `surface` with a quiet `neutral-subtle-pressed` border and the `level-2` shadow, so they add no color: items and options use the neutral fills (`surface`, `neutral-subtle-hover`, `neutral-subtle-pressed`) with `on-surface`, quiet `on-surface-muted` for group titles and for a shortcut at rest (on the surface only), and a destructive item moves from `danger` to `danger-hover` and `danger-pressed` as its fill darkens. Two spacing tokens size them: `menu-min-width` and `floating-max-width`. Dialogs, toasts and cards reuse the same surface, border and neutral fills, with `level-3` for the dialog and the toast; the dialog adds one width token, `dialog-max-width`, and its scrim is `inverse-surface` at a fixed opacity. The alert adds tonal containers for `danger`, `success` and `warning` (`<role>-container`, `-hover` and `-pressed` are steps 50, 100 and 200, with `on-<role>-container`, the first step from 700 to 900 reaching 4.5:1 on all three), as `primary-container` does for the brand, which the information alert reuses. The toast icon uses `success` or `danger` on the surface.
 
 ## Typography
 
@@ -441,7 +454,7 @@ This theme defines no shadow token: the elevation scale is this table.
 
 ## Shapes
 
-Corners are {a.corners}: `rounded.control` is {ROUNDED[a.corners]} and `rounded.overlay` (tooltip, menu, select list, popover) is {OVERLAY[a.corners]}. `rounded.avatar` is {AVATAR_RADIUS} (a circle) whatever the corners; edit it to change the avatar shape.
+Corners are {a.corners}: `rounded.control` is {ROUNDED[a.corners]} and `rounded.overlay` (tooltip, menu, select list, popover, dialog, alert, toast, card) is {OVERLAY[a.corners]}. `rounded.avatar` is {AVATAR_RADIUS} (a circle) whatever the corners; edit it to change the avatar shape.
 
 ## Icons
 
@@ -449,7 +462,7 @@ Icon style: {style}. Icon library: {lib}.
 
 ## Components
 
-The `components` entries declare one `backgroundColor` and `textColor` pair per button variant, per chip group and per `enabled`, `hover` and `pressed` state, plus the focus rings against the surface, the tooltip pair, the link states against the surface, the badge variants, the avatar, the progress indicators, the text field (value, muted text, error, read-only, focus ring), the search field clear button, the mark on the selected fill of the checkbox, radio and switch, the choice control text (label, muted, error, focus ring), the slider thumb, the tab labels (unselected and selected, with their focus ring), the accordion headers, the menu items and select options (neutral and destructive, with their muted text and focus ring) and the popover text, so the lint checks contrast. The segmented control declares nothing of its own: it reuses the `chip-*` entries. Disabled pairs are exempt (WCAG 1.4.3) and are not declared. See the component specs in the kit: `button.md`, `chip.md`, `tooltip.md`, `divider.md`, `link.md`, `badge.md`, `avatar.md`, `progress.md`, `text-field.md`, `search-field.md`, `checkbox.md`, `radio.md`, `switch.md`, `slider.md`, `segmented-control.md`, `tabs.md`, `accordion.md`, `menu.md`, `select.md`, `popover.md`.
+The `components` entries declare one `backgroundColor` and `textColor` pair per button variant, per chip group and per `enabled`, `hover` and `pressed` state, plus the focus rings against the surface, the tooltip pair, the link states against the surface, the badge variants, the avatar, the progress indicators, the text field (value, muted text, error, read-only, focus ring), the search field clear button, the mark on the selected fill of the checkbox, radio and switch, the choice control text (label, muted, error, focus ring), the slider thumb, the tab labels (unselected and selected, with their focus ring), the accordion headers, the menu items and select options (neutral and destructive, with their muted text and focus ring), the popover, dialog and toast text, the toast status icons, the alert tonal fills (danger, success, warning; the information alert reuses the tonal button entries) and the card states with its focus ring, so the lint checks contrast. The segmented control declares nothing of its own: it reuses the `chip-*` entries. Disabled pairs are exempt (WCAG 1.4.3) and are not declared. See the component specs in the kit: `button.md`, `chip.md`, `tooltip.md`, `divider.md`, `link.md`, `badge.md`, `avatar.md`, `progress.md`, `text-field.md`, `search-field.md`, `checkbox.md`, `radio.md`, `switch.md`, `slider.md`, `segmented-control.md`, `tabs.md`, `accordion.md`, `menu.md`, `select.md`, `popover.md`, `dialog.md`, `alert.md`, `toast.md`, `card.md`.
 
 ## Do's and Don'ts
 
@@ -559,7 +572,11 @@ def selftest():
     assert report(bad, components())[1] == 4
     bad = dict(colors, **{"primary-hover": "{colors.blue-600}"})  # link hover equal to enabled: must fail
     assert any(w for n, _, _, _, w in check(bad, components()) if n == "link-hover")
-    assert len(colors) - 50 == 35 and len(components()) == 84, "35 semantic colors, 84 components entries"
+    assert len(colors) - 50 == 47 and len(components()) == 101, "47 semantic colors, 101 components entries"
+    bad = dict(colors, **{"on-danger-container": "{colors.red-600}"})  # alert content on a light fill below step 700: must fail on its 3 states
+    assert sum(1 for n, _, _, _, w in check(bad, components()) if n.startswith("alert-danger") and w) == 3
+    assert (colors["danger-container-pressed"], colors["warning-container"]) == ("{colors.red-200}", "{colors.orange-50}")
+    assert not check(colors, [("x", "surface", "success")])[0][4] and check(colors, [("x", "surface", "warning")])[0][4], "success is an accent on the surface, warning is not"
     assert not any(w for *_, w in check(colors, [("x", "neutral-subtle-hover", "danger-hover")])), "destructive item hover pair"
     assert check(colors, [("x", "neutral-subtle-pressed", "danger-hover")])[0][4], "danger-hover only serves neutral-subtle-hover"
     bad = dict(colors, **{"danger-hover": "{colors.red-400}"})  # destructive hover content too light on its fill: must fail

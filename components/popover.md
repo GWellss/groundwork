@@ -19,7 +19,7 @@ A popover is a small panel anchored to a trigger that holds free, interactive co
 
 - Use a popover for a small amount of content tied to one element that the user may act on, without leaving the page: a short form, a list of options with explanations, a confirmation with two buttons, a help text with a link.
 - Use a tooltip for a short description that is not interactive (see `components/tooltip.md`). A tooltip opens on hover and focus and holds no control; a popover opens on activation and may hold controls.
-- Use a dialog when the user must decide before going on, when the content is long or has several steps, or when the page behind should be blocked (the dialog is a separate spec, lot C6). A popover never blocks the page.
+- Use a dialog when the user must decide before going on, when the content is long or has several steps, or when the page behind should be blocked (see `components/dialog.md`). A popover never blocks the page.
 - Use a menu for a list of commands (see `components/menu.md`), and a select to pick a value (see `components/select.md`).
 - Do not open a popover on hover alone, and do not use it for an error or a message the user must read: show it inline.
 
@@ -231,4 +231,4 @@ The buttons and fields inside declare their own entries.
 
 ## Out of scope
 
-Modal behavior and focus trapping (see the dialog spec, lot C6), popovers that open on hover or on a long press, popovers inside popovers, a menu or select opened inside a popover, a popover on a dark or tinted fill, a popover that follows the pointer, a full-screen sheet on small screens, animations, and dark mode are not covered by this spec; contrast is checked only against `{colors.surface}`, so on an image or a dark background the user retouches the popover colors after generation.
+Modal behavior and focus trapping (see `components/dialog.md`), popovers that open on hover or on a long press, popovers inside popovers, a menu or select opened inside a popover, a popover on a dark or tinted fill, a popover that follows the pointer, a full-screen sheet on small screens, animations, and dark mode are not covered by this spec; contrast is checked only against `{colors.surface}`, so on an image or a dark background the user retouches the popover colors after generation.

@@ -46,11 +46,15 @@ Steps are those of a 10-step scale, `50` (lightest) to `900` (darkest). The fami
 | Family | Background steps | Allowed content |
 |---|---|---|
 | `light` | `50`, `100`, `200` | Step `700`, `800`, or `900` of the same scale |
-| `light`, surface only | `{colors.surface}` | Same as `light`, or an accent token whose step comes from the State colors rule (`primary`, `primary-hover`, `primary-pressed`, `danger`, `focus-ring`), `link-visited`, the brand step right after `primary`, or `on-surface-muted`, neutral step `600` (or `700`), the quieter text of the text field |
+| `light`, surface only | `{colors.surface}` | Same as `light`, or an accent token whose step comes from the State colors rule (`primary`, `primary-hover`, `primary-pressed`, `danger`, `success`, `focus-ring`), `link-visited`, the brand step right after `primary`, or `on-surface-muted`, neutral step `600` (or `700`), the quieter text of the text field |
 | `intermediate` | `300`, `400`, `500` | none: never a background behind text or icons |
 | `solid` | `600` to `900` | An `on-*` token: white by default; a theme may choose step `50` of the same scale instead |
 
 One extension covers the destructive menu item (see `components/menu.md`): `danger-hover` is allowed on `neutral-subtle-hover`, and `danger-pressed` on `neutral-subtle-pressed`, and no other accent content is allowed on a grayed fill. They are the darker steps of the State colors rule, chosen because `danger` itself reaches 4.5:1 on `{colors.surface}` only. The script checks the pairing and the 4.5:1 ratio.
+
+Tonal containers exist for every status role, not only for the brand: `primary-container`, `danger-container`, `success-container` and `warning-container` are steps `50`, `100` and `200` of their scale (enabled, hover, pressed), with a content token (`on-primary-container`, `on-danger-container`, and so on) found by the content step search below. This is the plain `light` family rule, with no exception: the content is step `700` to `900` of the same scale as its background. The `success` accent on the surface is the only addition to the accent list above; it serves the status icon of the toast (see `components/toast.md`).
+
+One component draws its focus ring in another color than `focus-ring`: the controls inside the alert (`action`, `close-button`) use the content color of their tonal container. `focus-ring` is checked only on the surface, the neutral fills and the brand container, and the tonal fills of the other roles would need twelve more checks; the content color already reaches 4.5:1 on each of them, so the ring reaches at least 3:1 with no extra check (see `components/alert.md`).
 
 ### State changes
 
@@ -117,7 +121,7 @@ Contrast is checked only against `{colors.surface}`; on an image or a dark backg
 
 - The DESIGN.md contrast rule (`contrast-ratio`) checks only the entries of the `components` key.
 - The kit never adds non-standard properties to `components`. It only declares standard `backgroundColor` and `textColor` entries, one per variant and active state, so the DESIGN.md lint checks contrast.
-- Non-text contrast (WCAG 1.4.11, 3:1) cannot be declared in `components`: a pair would be checked at 4.5:1, and a border property would be non-standard. The one such pair of the kit, `colors.outline` against `colors.surface` (see `components/text-field.md`), is checked by `theme/theme.py` and listed in its report; without the script, compute it by hand. It covers every part drawn in `outline`: the field border, the border of an unselected checkbox, radio button, and switch (and the off thumb), the slider track, the border and dividers of the segmented control, and the dividers of the accordion.
+- Non-text contrast (WCAG 1.4.11, 3:1) cannot be declared in `components`: a pair would be checked at 4.5:1, and a border property would be non-standard. The one such pair of the kit, `colors.outline` against `colors.surface` (see `components/text-field.md`), is checked by `theme/theme.py` and listed in its report; without the script, compute it by hand. It covers every part drawn in `outline`: the field border, the border of a clickable outlined card, the border of an unselected checkbox, radio button, and switch (and the off thumb), the slider track, the border and dividers of the segmented control, and the dividers of the accordion.
 - Disabled-state pairs are never declared in `components`, because WCAG 1.4.3 exempts inactive components and the lint would otherwise flag them. The disabled token mapping stays described in the component spec, and the `on-disabled` and `disabled-container` tokens stay in the colors token contract.
 - Theme validation criterion: 0 errors and 0 `contrast-ratio` warnings. `orphaned-tokens` warnings on unused primitive palette steps are expected and tolerated; no other warning is.
 
@@ -138,10 +142,10 @@ The scale follows the Material 3 model: six levels, named after their relative d
 | Level | Role | Typical use |
 |---|---|---|
 | `level-0` | At rest, in the page flow, flat on the surface, no shadow | Every component that declares no level |
-| `level-1` | At rest, slightly raised, still in the page flow | Raised containers (no kit component yet) |
+| `level-1` | At rest, slightly raised, still in the page flow | Elevated card |
 | `level-2` | At rest, overlay tied to a trigger | Tooltip, menu, select list, popover |
-| `level-3` | At rest, floating above the content while it scrolls | Floating button |
-| `level-4` | Interaction only, one step above a resting level | Hover of the floating button |
+| `level-3` | At rest, floating above the content while it scrolls | Floating button, dialog, toast |
+| `level-4` | Interaction only, one step above a resting level | Hover of the floating button and of the clickable elevated card |
 | `level-5` | Interaction only, highest | Dragged element (no kit component yet) |
 
 - Resting state: a component at rest (no user interaction, for example `enabled`, `open`, `disabled`, `loading`) uses `level-0` to `level-3`.
@@ -212,6 +216,26 @@ The fill of the menu, the select list, and the popover is `{colors.surface}`, so
 - `Escape` returns focus to the trigger when focus was inside the surface. A press outside closes the surface without moving focus: it stays where the user pressed.
 - At most one interactive surface is open at a time: opening one closes the other. A tooltip closes when its trigger is activated.
 - Motion: the opening and closing transitions, if any, are the project's choice and are removed under reduced motion (see Motion).
+
+### With a dialog
+
+A dialog is modal and may hold floating surfaces: a select list, a menu, a popover, or a tooltip opened from inside it belongs to the dialog and sits above it. The "one interactive surface at a time" rule applies between those surfaces, not between a surface and the dialog that contains it. `Escape` closes the innermost surface first, and the dialog on the next press. Opening a dialog closes every floating surface that was open outside it.
+
+## Overlay panel
+
+An overlay panel is a panel that floats above the page and is not tied to a trigger by position: the dialog (modal, centered) and the toast (not modal, at an edge of the viewport). It is defined once, here. Each spec states only what it adds or changes.
+
+| Aspect | Rule |
+|---|---|
+| Fill | `{colors.surface}` |
+| Border | `{spacing.border-width}` in `{colors.neutral-subtle-pressed}` |
+| Radius | `{rounded.overlay}` |
+| Elevation | `level-3` while open: it floats above the content, higher than a surface tied to a trigger (`level-2`); never `level-4` or `level-5` |
+| Placement | By the spec (centered for the dialog, an edge for the toast), never by a trigger: no offset, no flipping |
+
+- Text on the surface follows the same rules as for a floating surface: `on-surface-muted` is allowed (the toast does not use it), contrast is checked against the surface, and the border and the shadow need no 3:1 check since no information depends on them.
+- The page behind a dialog is inert and veiled by the scrim, which is `{colors.inverse-surface}` at a fixed opacity (a behavior constant of the dialog spec, not a theme token). A toast does not veil or block anything.
+- A toast waits while a dialog is open, because the page behind a dialog is inert and a message shown there would not be announced.
 
 ## Sizes
 
