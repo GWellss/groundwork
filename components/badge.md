@@ -172,12 +172,8 @@ The theme must define every token below. The `success` and `warning` colors are 
 | `colors.on-danger` | `danger` value |
 | `colors.success` | `success` container (`status` only) |
 | `colors.on-success` | `success` value |
-| `colors.success-hover` | Not used by the badge (never interactive): derived with `success` by the State colors rule, for later components |
-| `colors.success-pressed` | Same as `success-hover`: derived, not used by the badge |
 | `colors.warning` | `warning` container (`status` only) |
 | `colors.on-warning` | `warning` value |
-| `colors.warning-hover` | Not used by the badge: derived with `warning` by the State colors rule, for later components |
-| `colors.warning-pressed` | Same as `warning-hover`: derived, not used by the badge |
 | `colors.neutral-subtle-pressed` | `neutral` container. Default: neutral step `200` |
 | `colors.on-surface` | `neutral` value |
 

@@ -231,8 +231,9 @@ def derive(a):
         "primary-container-hover": ref(b, 1), "primary-container-pressed": ref(b, 2),
         "primary-subtle-hover": ref(b, 0), "primary-subtle-pressed": ref(b, 1), "on-primary-subtle": None,
         **{tok: v for k in ROLES[1:] for tok, v in (
-            (k, ref(names[k], info["idx"][k])), ("on-" + k, WHITE),
-            (k + "-hover", ref(names[k], info["idx"][k] + 2)), (k + "-pressed", ref(names[k], info["idx"][k] + 4)))},
+            (k, ref(names[k], info["idx"][k])), ("on-" + k, WHITE))},
+        # only danger has a solid hover and pressed (success and warning have no interactive solid component)
+        "danger-hover": ref(names["danger"], info["idx"]["danger"] + 2), "danger-pressed": ref(names["danger"], info["idx"]["danger"] + 4),
         # tonal containers of the alert (the info alert reuses primary-container*): steps 50, 100, 200 with content searched like on-primary-container
         **{tok: v for k in ROLES[1:] for tok, v in (
             (k + "-container", ref(names[k], 0)), (k + "-container-hover", ref(names[k], 1)),
@@ -246,7 +247,7 @@ def derive(a):
         # visited: the brand step between default (600, the only usable default) and hover (800): distinct from default, hover and pressed
         "link-visited": ref(b, bd + 1),
     }
-    assert len(sem) == 47
+    assert len(sem) == 43
     flat.update(sem)
     # focus ring drawn inside a control or on a fill: 3:1 on every fill it can meet (WCAG 1.4.11); darker brand step if needed, as outline
     sem["focus-ring"] = flat["focus-ring"] = ref(b, next((i for i in range(bd, 9) if ring_ok(flat, ref(b, i))), 9))
@@ -562,7 +563,7 @@ def selftest():
     a = parser().parse_args([])
     colors, info = derive(a)
     assert [info["idx"][k] for k in ROLES] == [6, 6, 6, 6], info
-    assert (colors["success-hover"], colors["warning-pressed"]) == ("{colors.green-800}", "{colors.orange-900}")
+    assert (colors["danger-hover"], colors["danger-pressed"]) == ("{colors.red-800}", "{colors.red-900}") and "success-hover" not in colors and "warning-pressed" not in colors
     assert colors["primary-pressed"] == "{colors.blue-900}"
     assert issues(color_scale(a.brand)[0], None, 0.1) and issues(color_scale(a.brand)[0], 7, 0.0)
     assert (colors["primary-container-pressed"], colors["primary-subtle-pressed"]) == ("{colors.blue-200}", "{colors.blue-100}")
@@ -573,7 +574,7 @@ def selftest():
     assert report(bad, components())[1] == 4
     bad = dict(colors, **{"primary-hover": "{colors.blue-600}"})  # link hover equal to enabled: must fail
     assert any(w for n, _, _, _, w in check(bad, components()) if n == "link-hover")
-    assert len(colors) - 50 == 47 and len(components()) == 101, "47 semantic colors, 101 components entries"
+    assert len(colors) - 50 == 43 and len(components()) == 101, "43 semantic colors, 101 components entries"
     bad = dict(colors, **{"on-danger-container": "{colors.red-600}"})  # alert content on a light fill below step 700: must fail on its 3 states
     assert sum(1 for n, _, _, _, w in check(bad, components()) if n.startswith("alert-danger") and w) == 3
     assert (colors["danger-container-pressed"], colors["warning-container"]) == ("{colors.red-200}", "{colors.orange-50}")

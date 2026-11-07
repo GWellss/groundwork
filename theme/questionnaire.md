@@ -64,8 +64,8 @@ Before asking anything, find out which tools you have. Pick the highest level th
 | `name` | product name, else "Design System" | DESIGN.md `name`, Overview section |
 | `brand` | `#2563EB` | primary scale and every `primary-*` and `on-primary*` color; `focus-ring` |
 | `danger` | `#DC2626` | danger scale; `danger`, `on-danger`, `danger-hover`, `danger-pressed` |
-| `success` | `#15803D` | success scale; `success`, `on-success`, `success-hover`, `success-pressed` |
-| `warning` | `#B45309` | warning scale; `warning`, `on-warning`, `warning-hover`, `warning-pressed` |
+| `success` | `#15803D` | success scale; `success`, `on-success` |
+| `warning` | `#B45309` | warning scale; `warning`, `on-warning` |
 | `neutral` | neutral | neutral scale; `surface`, `on-surface`, `neutral-subtle-hover`, `neutral-subtle-pressed`, `inverse-surface`, `outline`, `on-surface-muted`, `disabled-container`, `on-disabled` |
 | `font` | system UI font | `fontFamily` of the typography tokens |
 | `corners` | soft | `rounded.control`, `rounded.overlay` (`rounded.avatar` is constant, see "Rounded") |
@@ -152,12 +152,8 @@ Write the colors of the token contracts of the button, the chip (new colors), an
 | `danger-pressed` | danger scale, `default` + 4 steps |
 | `success` | `{colors.<success>-d}` |
 | `on-success` | `#FFFFFF` |
-| `success-hover` | success scale, `default` + 2 steps |
-| `success-pressed` | success scale, `default` + 4 steps |
 | `warning` | `{colors.<warning>-d}` |
 | `on-warning` | `#FFFFFF` |
-| `warning-hover` | warning scale, `default` + 2 steps |
-| `warning-pressed` | warning scale, `default` + 4 steps |
 | `outline` | `{colors.neutral-500}`, or `{colors.neutral-600}` if `500` is below 3:1 on `surface` |
 | `on-surface-muted` | `{colors.neutral-m}`: step `600`, or `700` if `600` is below 4.5:1 on `surface` |
 | `disabled-container` | `{colors.neutral-100}` |

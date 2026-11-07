@@ -23,7 +23,8 @@ A toast is a brief message that appears over the page, outside the flow, to conf
 - Use a dialog when the user must answer before going on (see `components/dialog.md`).
 - Use the field error for a problem with a field (see `components/text-field.md`).
 - Do not use a toast to say something important only once: it may be gone before it is read, and screen reader and keyboard users may never reach it.
-- **The `action` is never the only way to do something.** A toast goes away by itself, even with an `action`, and a keyboard or screen reader user may not reach it in time. The `action` repeats something that exists elsewhere in the page ("Undo" is also available there), so a user who misses it loses nothing.
+- A toast with an `action` stays until the user closes it or uses the action: it never goes away by itself, so a keyboard or screen reader user can always reach it.
+- Good practice: the `action` also exists elsewhere in the page ("Undo" is also available there), so a user who closes the toast without using it loses nothing.
 
 ## Anatomy
 
@@ -52,8 +53,7 @@ A toast is a brief message that appears over the page, outside the flow, to conf
 
 Combination rules:
 
-- A `danger` toast never disappears by itself (see Behavior). A toast with an `action` and a `danger` toast always have `close-button`; any other toast may omit it.
-- A toast with an `action` goes away after `duration` like any other, so its `action` must repeat something that exists elsewhere in the page (see Purpose).
+- A `danger` toast and a toast with an `action` never disappear by themselves (see Behavior). Both always have `close-button`; any other toast may omit it.
 - `message` is short, a sentence at most, and fits on one or two lines. A longer message is an alert.
 - `action` is a verb, and a single one. An action that opens a form or a page is a link or a dialog, not a toast action.
 
@@ -65,7 +65,7 @@ Combination rules:
 | `severity` | `neutral`, `success`, `danger` | `neutral` | Meaning; adds `icon` for `success` and `danger` |
 | `action` | label and handler | none | The single action |
 | `closable` | `true`, `false` | `true`; forced `true` with an `action` or `danger` | Shows `close-button` |
-| `duration` | whole milliseconds, or `none` | the default duration; forced `none` with `danger` | How long the toast stays before it goes away; at least the minimum duration |
+| `duration` | whole milliseconds, or `none` | the default duration; forced `none` with `danger` or an `action` | How long the toast stays before it goes away; at least the minimum duration |
 | `placement` | `bottom-center`, `bottom-start`, `bottom-end`, `top-center` | `bottom-center` | Where the stack sits, one value per page |
 
 A `warning` toast does not exist: a warning is something the user may need to read again and act on, which is an alert.
@@ -203,11 +203,11 @@ The buttons inside declare their own entries.
 |---|---|
 | Live region | One region, present in the page from the start (never created with the first toast), holds all the toasts and has `aria-live="polite"`: a message is announced when the user is idle, without taking focus. |
 | Urgency | `neutral` and `success` use the polite region. `danger` has `role="alert"` (assertive), because a failure of what the user just did must be known at once. No other toast is assertive. |
-| Name | The region has an accessible name given by the project ("Notifications"). Each toast is read as its `message`, and `icon` has an accessible name for its severity ("Success", "Error"). |
+| Name | The region is a landmark (`role="region"`) named "Notifications" (the project may translate it). Each toast is read as its `message`, and `icon` has an accessible name for its severity ("Success", "Error"). |
 | Focus | A toast never takes focus when it appears. `action` and `close-button` are focusable, in the order of the region in the page. |
-| Reaching the action | The region sits at the end of the reading order, so a toast with an `action` is reached by `Tab` only while it is still there; the project may add a documented key that moves focus to the region. Because the `action` is never the only way to do something, a user who never reaches it loses nothing: this rule is what makes the timer acceptable. |
+| Reaching the region | `F6` moves focus to the "Notifications" region (to its first toast) and `Shift+F6` leaves it, back to where focus was. The key is not announced by the toasts: it is documented in the product's keyboard help. A toast with an `action` stays until used or closed, so there is always time to reach it. |
 | Keyboard | `Escape` closes the toast that holds focus. `Enter` and `Space` activate `action` and `close-button`. |
-| Time limit | Every toast but `danger` goes away after `duration`, with or without `action`. The time is paused while the pointer or the focus is on it and while the page is hidden, the project can set another duration, and the toast carries nothing the user cannot find elsewhere. A `danger` toast has no limit. Pausing does not by itself meet every path of WCAG 2.2.1 Timing Adjustable: a project that must claim strict conformity adds a user setting that turns the timer off (see the rationale). |
+| Time limit | A `danger` toast and a toast with an `action` have no time limit. Any other toast goes away after `duration`; the timer pauses while the pointer is over it and while the page is hidden, and it is cancelled for good as soon as the toast receives focus (it then stays until closed). See the rationale for the WCAG 2.2.1 verdict. |
 | Not by color alone | The meaning is in the message and in `icon`, never in the color of the icon alone (WCAG 1.4.1). |
 | Target size | `action` and `close-button` follow their own spec: at least 24 by 24 CSS pixels (WCAG 2.2 criterion 2.5.8). |
 | Contrast | Text and icons reach 4.5:1 against the surface. Delegated to the DESIGN.md lint through the `toast*` entries. |
@@ -215,9 +215,10 @@ The buttons inside declare their own entries.
 ## Behavior
 
 - Appearing: the toast appears at `placement` and is announced by the region. It is never opened by hover.
-- Duration: a toast that is not `danger` goes away after `duration`, which is `default-duration` unless the project sets another value that is at least `minimum-duration`. This holds for a toast with an `action` too. A `danger` toast stays until the user closes it.
-- Pause: the timer stops while the pointer is over the toast or focus is inside it, and while the page is hidden. When it resumes, the toast gets the full `duration` again.
-- Stack: at most `visible-count` toasts are shown. The newest sits nearest the edge of the viewport; older ones move away from it. Extra toasts wait in order and appear when one goes away. A toast never replaces a `danger` toast.
+- Duration: a toast with neither `action` nor `danger` goes away after `duration`, which is `default-duration` unless the project sets another value that is at least `minimum-duration`. A toast with an `action` and a `danger` toast stay until the user closes them or uses the action.
+- Pause and cancel: the timer stops while the pointer is over the toast and while the page is hidden; when it resumes, the toast gets the full `duration` again. When the toast receives focus the timer is cancelled for good: the toast stays until explicitly closed, even if focus leaves it.
+- Focus: the toast never takes focus by itself, not even for its `action`; the user reaches it with `F6` or `Tab`.
+- Stack: at most `visible-count` toasts are shown. The newest sits nearest the edge of the viewport; older ones move away from it. Extra toasts wait in order and appear when one goes away. A toast never replaces a toast with an `action` or a `danger` toast: when the stack is full of them, new toasts wait.
 - Dialog: while a dialog is open, new toasts wait and appear when it closes (the page behind a dialog is inert, so a toast shown then would not be announced).
 - Closing: `close-button`, `Escape` with focus inside, the end of `duration`, or the end of the action (the project decides if `action` closes the toast; it normally does). Focus never moves by itself; when the toast that held focus goes away, focus goes to the element that had it before, or to the next focusable element.
 - Floating button: the stack is laid out so that it never covers the floating button of the page (see `components/button.md`); the layout leaves room.
@@ -236,11 +237,12 @@ The buttons inside declare their own entries.
 | Keep the message to one short sentence | Write a paragraph in a toast |
 | Use it to confirm what the user just did | Use it for something the user must read |
 | Keep an error toast until it is closed | Make an error disappear on a timer |
-| Offer an action that repeats what exists elsewhere ("Undo") | Put the only way to do something in a toast, even with a timer of several seconds |
+| Keep a toast with an action until it is used or closed | Let a toast with an action disappear on a timer |
+| Offer an action that also exists elsewhere in the page ("Undo") | Make the toast the only way to do something |
 | Keep the live region in the page from the start | Create the region together with the first toast |
 | Use an alert for a message that must stay | Use a toast for a warning |
-| Pause the timer on hover and focus | Remove a toast under the pointer |
+| Pause the timer on hover and cancel it on focus | Remove a toast under the pointer or with focus |
 
 ## Out of scope
 
-Toasts with a title, several actions, a link, a progress bar, or a custom content, a `warning` toast, a toast that takes focus, swipe to dismiss, a toast tied to an element (use a popover), a toast that survives page navigation (the project's choice), notification centers and history, a stack taller than `visible-count`, animations, dark mode, and a toast on an image or a tinted fill are not covered by this spec; contrast is checked only against `{colors.surface}`, which is the toast fill in the active mode.
+Toasts with a title, several actions, a link, a progress bar, or a custom content, a `warning` toast, a toast that takes focus by itself, swipe to dismiss, a toast tied to an element (use a popover), a toast that survives page navigation (the project's choice), notification centers and history, a stack taller than `visible-count`, animations, dark mode, and a toast on an image or a tinted fill are not covered by this spec; contrast is checked only against `{colors.surface}`, which is the toast fill in the active mode.

@@ -66,16 +66,12 @@
   --color-on-primary-subtle: #0946CD;
   --color-danger: #DC2626;
   --color-on-danger: #FFFFFF;
-  --color-danger-hover: #810008;
-  --color-danger-pressed: #5D0004;
   --color-success: #15803D;
   --color-on-success: #FFFFFF;
-  --color-success-hover: #005122;
-  --color-success-pressed: #003915;
   --color-warning: #B45309;
   --color-on-warning: #FFFFFF;
-  --color-warning-hover: #6C2E00;
-  --color-warning-pressed: #4C1E00;
+  --color-danger-hover: #810008;
+  --color-danger-pressed: #5D0004;
   --color-danger-container: #FFF2F0;
   --color-danger-container-hover: #FFE0DB;
   --color-danger-container-pressed: #FFC4BC;
