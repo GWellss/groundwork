@@ -86,6 +86,11 @@ A state property that accessibility can expose is exposed there, and the style r
 | `value` (progress) | `aria-valuenow`, absent when indeterminate | `role="progressbar"`, see `components/progress.md` |
 | `error` (text field) | `aria-invalid="true"` and `aria-describedby` to the error message | Present exactly when `error-message` is present; helper text is referenced the same way otherwise |
 | `required`, `read-only` (text field) | Native `required`, native `readonly` | Native attributes, never a parallel class |
+| `checked` (checkbox, switch) | Native `checked` | Switch: `role="switch"` on the checkbox input, see `components/switch.md` |
+| `indeterminate` (checkbox) | Native `indeterminate` property | Announced as "mixed"; never set by the user's click |
+| `value` (radio group) | Native `checked` on the selected radio, one shared `name` | Group in a `fieldset` with `role="radiogroup"` |
+| `value`, `min`, `max`, `step` (slider) | Native `input` of type `range` | `aria-valuetext` only when `value-text` is set |
+| `error` (checkbox, radio group, slider) | `aria-invalid="true"` and `aria-describedby` to the message | Group description on the `fieldset`; present exactly when `error-message` is |
 | `open` (tooltip) | Rendered or not rendered | `role="tooltip"`; trigger references it with `aria-describedby` while open, as in the spec |
 | `variant`, `size`, other options | Free (attribute, prop, modifier) | No accessibility attribute exists for them |
 
@@ -110,7 +115,7 @@ Optional. A demo page may force a state (for example to show `hover` statically)
 ## Icons
 
 - Library and style: exactly those named in the `## Icons` section of DESIGN.md (for example Material Symbols, outlined). Never another style of the same library (filled instead of outlined), never another library.
-- Glyphs: those named by the spec (`check-icon`: the library checkmark; `remove-button` and search `clear-button`: the library close icon; text field `error-icon`: the library error icon; `search-icon`: the library search icon).
+- Glyphs: those named by the spec (`check-icon`: the library checkmark; `remove-button` and search `clear-button`: the library close icon; text field `error-icon`: the library error icon; `search-icon`: the library search icon; checkbox `check-icon`: the library checkmark; checkbox `indeterminate-icon`: the library minus glyph; checkbox, radio group, and slider `error-icon`: the library error icon).
 - Size: the `--spacing-icon-*` variable given by the size table of the spec.
 - Defaults when `## Icons` does not state them: weight 400, no fill (fill 0), and optical size aligned with the icon size if the library supports an optical size axis. `## Icons` wins when it states a value.
 - License: if the library carries a license (for example Material Symbols, Apache-2.0), respect its terms.
@@ -143,5 +148,5 @@ Recommendations only; the project conventions win.
 
 - One file per component, plus `tokens.css` kept as generated.
 - Plain CSS: BEM class names derived from the spec names: block = component, element = part, modifier = variant or size (for example `chip`, `chip__remove-button`, `button--tonal`, `button--size-m`).
-- Framework: one component per spec, named after it (Button, Chip, Tooltip, Divider, Link, Badge, Avatar, Progress, TextField, SearchField).
+- Framework: one component per spec, named after it (Button, Chip, Tooltip, Divider, Link, Badge, Avatar, Progress, TextField, SearchField, Checkbox, Radio, Switch, Slider); the checkbox and radio groups are CheckboxGroup and RadioGroup.
 - Demo pages stay apart from component files.

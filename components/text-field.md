@@ -198,8 +198,10 @@ Cell vocabulary: a token reference, or `none` (no fill, no border).
 | Part | Token |
 |---|---|
 | `label`, `required-marker` | `{colors.on-surface}` |
-| `placeholder`, `helper-text`, `counter`, `prefix`, `suffix` | `{colors.on-surface-muted}` |
-| `leading-icon`, `trailing-icon` | `{colors.on-surface-muted}` |
+| `placeholder`, `helper-text`, `counter` | `{colors.on-surface-muted}` |
+| `prefix`, `suffix`, `leading-icon`, `trailing-icon` | `{colors.on-surface-muted}`; in `read-only`: `{colors.on-surface}` |
+
+`{colors.on-surface-muted}` is used on `{colors.surface}` only, never on a grayed fill. `helper-text` and `counter` sit under the field, on the surface; `placeholder`, `prefix`, `suffix`, and the icons sit in the field, which has no fill, except in `read-only`, where the fill is `{colors.neutral-subtle-hover}` and these parts take `{colors.on-surface}` (a read-only field has no `placeholder`).
 
 ### Focus ring
 
@@ -220,8 +222,8 @@ The theme must define every token below. The text field adds one color, `on-surf
 | Token | Role |
 |---|---|
 | `colors.surface` | Background of the text pairs; the surface shows through the field |
-| `colors.on-surface` | Value, `label`, hover border |
-| `colors.on-surface-muted` | New. Placeholder, `helper-text`, `counter`, affixes, icons. A quieter neutral than `on-surface`: step `600` of the neutral scale, or `700` when `600` is below 4.5:1 against `colors.surface`. Distinct from `on-surface`, which is step `700` or later |
+| `colors.on-surface` | Value, `label`, hover border; in `read-only`, affixes and icons |
+| `colors.on-surface-muted` | New. Placeholder, `helper-text`, `counter`, affixes, icons, on the surface only (never on the `read-only` fill). A quieter neutral than `on-surface`: step `600` of the neutral scale, or `700` when `600` is below 4.5:1 against `colors.surface`. Distinct from `on-surface`, which is step `700` or later |
 | `colors.outline` | Field border; at least 3:1 against `colors.surface` (see Non-token requirement) |
 | `colors.danger` | `error` border, `error-icon`, `error-message` |
 | `colors.danger-hover` | `error` border on hover |

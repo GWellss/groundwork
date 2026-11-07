@@ -65,7 +65,7 @@ The background moves first, the content follows.
 
 A variant with fewer states uses the first columns of its row.
 
-Fill-less exception: a component with no fill at all (the link, the text field) keeps `{colors.surface}` as the background of every state. Its content color moves instead, each state darker than the previous one (State colors rule: `primary`, `primary-hover`, `primary-pressed`), and the script checks the content order for these entries. The text field has no fill and no text that should change on hover, so its border moves instead (a non-text part, not a pair); its text entries are unchanged between states.
+Fill-less exception: a component with no fill at all (the link, the text field, the slider) keeps `{colors.surface}` as the background of every state. Its content color moves instead, each state darker than the previous one (State colors rule: `primary`, `primary-hover`, `primary-pressed`), and the script checks the content order for these entries. The text field has no fill and no text that should change on hover, so its border moves instead (a non-text part, not a pair); its text entries are unchanged between states. The slider moves the color of its fill and thumb, as the link moves its text. An unselected checkbox, radio button, or switch has no fill either, and no text inside it: its border moves on hover and a quiet fill appears on pressed, none of them a pair.
 
 Surface scale: `{colors.surface}` is step `50` of the neutral scale. When the variant without fill takes its hover and pressed backgrounds from the scale of `{colors.surface}`, step `50` would equal the enabled background, so the sequence shifts by one step: surface, `100`, `200`. It stays in the `light` family, and the three backgrounds are distinct and each darker than the previous one.
 
@@ -100,6 +100,13 @@ A component with a dark background and light content (for example a tooltip) use
 - An entry that is not a variant state (for example `button-focus-ring`) is only checked for contrast.
 - Disabled-state pairs stay excluded (see below).
 
+### Muted text
+
+`on-surface-muted` (placeholder, helper text, counter, affixes, quiet icons) is quieter than `on-surface` but is only checked against `{colors.surface}`.
+
+- Use it on `{colors.surface}` only. Never use it on a grayed fill: `neutral-subtle-hover`, `neutral-subtle-pressed`, `disabled-container`, or any neutral step `100` and beyond. On those fills it falls below 4.5:1. A part that sits on a grayed fill (for example the affixes of a `read-only` text field) takes `on-surface`.
+- It must not resolve to the same color as `on-surface`. `theme/theme.py` stops with an explicit error (exit code 2, nothing written) when both fall on the same neutral step, instead of silently accepting a muted text that is not quieter.
+
 ### Known limit
 
 Contrast is checked only against `{colors.surface}`; on an image or a dark background (for example under a floating button), the user retouches the theme after generation.
@@ -108,7 +115,7 @@ Contrast is checked only against `{colors.surface}`; on an image or a dark backg
 
 - The DESIGN.md contrast rule (`contrast-ratio`) checks only the entries of the `components` key.
 - The kit never adds non-standard properties to `components`. It only declares standard `backgroundColor` and `textColor` entries, one per variant and active state, so the DESIGN.md lint checks contrast.
-- Non-text contrast (WCAG 1.4.11, 3:1) cannot be declared in `components`: a pair would be checked at 4.5:1, and a border property would be non-standard. The one such pair of the kit, the field border (`colors.outline` against `colors.surface`, see `components/text-field.md`), is checked by `theme/theme.py` and listed in its report; without the script, compute it by hand.
+- Non-text contrast (WCAG 1.4.11, 3:1) cannot be declared in `components`: a pair would be checked at 4.5:1, and a border property would be non-standard. The one such pair of the kit, `colors.outline` against `colors.surface` (see `components/text-field.md`), is checked by `theme/theme.py` and listed in its report; without the script, compute it by hand. It covers every part drawn in `outline`: the field border, the border of an unselected checkbox, radio button, and switch (and the off thumb), and the slider track.
 - Disabled-state pairs are never declared in `components`, because WCAG 1.4.3 exempts inactive components and the lint would otherwise flag them. The disabled token mapping stays described in the component spec, and the `on-disabled` and `disabled-container` tokens stay in the colors token contract.
 - Theme validation criterion: 0 errors and 0 `contrast-ratio` warnings. `orphaned-tokens` warnings on unused primitive palette steps are expected and tolerated; no other warning is.
 

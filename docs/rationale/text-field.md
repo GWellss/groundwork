@@ -20,3 +20,4 @@ For human contributors: why the spec is the way it is. Agents do not need this f
 | Vertical resize only | Horizontal resize breaks layouts and the full-width rule |
 | Affixes and icons single line only | In several lines their alignment is ambiguous (first line or centered) |
 | `type` limited to four values | Those change keyboard and validation on touch screens; password and number add reveal and stepper controls, out of scope |
+| Affixes and icons of a read-only field use `on-surface` | `on-surface-muted` is checked on the surface only; on the read-only fill (neutral 100) it falls below 4.5:1. The rule is general (see `docs/conventions.md`, Muted text): muted text never sits on a grayed fill |
