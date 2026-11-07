@@ -29,7 +29,7 @@ Before asking anything, find out which tools you have. Pick the highest level th
 ### Level 3: no tools
 
 - Never compute a color, a contrast ratio, or a scale yourself, even approximately. Every color value comes from `theme/palettes.md`.
-- You do: ask the questions. Replace the `brand` and `danger` questions with "Choose the range closest to your brand color" among the 14 ranges of `theme/palettes.md`. If the user gives a hex code, propose the closest range and say that the match is approximate. For the `neutral` question, map the answer to a range of `theme/palettes.md`: neutral → `gray`, warm → `warm-gray`, cool → `cool-gray`. Do not offer the "tinted with the brand color" option at this level, because no precomputed range exists for it: propose only the other three, and if the user wants a tinted gray, say that it requires Level 1 or Level 2. Take density, corners, and typography from the default tables below. Copy the precomputed steps (`default`, `hover`, `pressed`, and the other steps of the range) into the DESIGN.md. For the neutral-derived colors, use the range chosen for `neutral` (`gray`, `warm-gray`, or `cool-gray`): `on-surface` is the `on-container` row of that range (step `700`, searched against steps `50`, `100`, `200`, which are `surface`, `neutral-subtle-hover`, and `neutral-subtle-pressed`); `neutral-subtle-hover` is step `100`, `neutral-subtle-pressed` is step `200`, `inverse-surface` is step `900`, and `on-inverse-surface` is white. Name the copied scale `neutral` in the DESIGN.md. If a value needed here is missing from `theme/palettes.md`, say so to the user instead of computing it.
+- You do: ask the questions. Replace the `brand`, `danger`, `success` and `warning` questions with "Choose the range closest to your brand color" among the 14 ranges of `theme/palettes.md`. If the user gives a hex code, propose the closest range and say that the match is approximate. For the `neutral` question, map the answer to a range of `theme/palettes.md`: neutral → `gray`, warm → `warm-gray`, cool → `cool-gray`. Do not offer the "tinted with the brand color" option at this level, because no precomputed range exists for it: propose only the other three, and if the user wants a tinted gray, say that it requires Level 1 or Level 2. Take density, corners, and typography from the default tables below. Copy the precomputed steps (`default`, `hover`, `pressed`, and the other steps of the range) into the DESIGN.md. For the neutral-derived colors, use the range chosen for `neutral` (`gray`, `warm-gray`, or `cool-gray`): `on-surface` is the `on-container` row of that range (step `700`, searched against steps `50`, `100`, `200`, which are `surface`, `neutral-subtle-hover`, and `neutral-subtle-pressed`); `neutral-subtle-hover` is step `100`, `neutral-subtle-pressed` is step `200`, `inverse-surface` is step `900`, and `on-inverse-surface` is white. Name the copied scale `neutral` in the DESIGN.md. If a value needed here is missing from `theme/palettes.md`, say so to the user instead of computing it.
 - Elevation: copy the default table of "Elevation" below; it needs no computation.
 - `tokens.css`: no script writes it at this level. If code is to be generated, write it by copying the values of the DESIGN.md under the variable names of `docs/implementation.md`, semantic colors resolved to the hex of their step, and the font family followed by the fallback stack of "Typography" below. Copy only; never compute.
 - You delegate: the final check, to the user, with an online contrast checker such as WebAIM Contrast Checker (https://webaim.org/resources/contrastchecker/). List the key pairs to check, each with its two hex values: every `components` entry that pairs a background with a text color (including the `chip-*`, `link-*`, `badge-*`, `avatar-default`, `progress-*` entries and `tooltip-plain`), and at least the `primary` on `surface` pair. Neutral-derived values (`on-surface`, `neutral-subtle-hover`, `neutral-subtle-pressed`, `inverse-surface`) come from the range chosen for `neutral`, as described in "Semantic color tokens".
@@ -41,7 +41,7 @@ Before asking anything, find out which tools you have. Pick the highest level th
 - Every question comes with a default value. Show it, and let the user accept it with a single word ("ok", "default").
 - Skip a question when the user already answered it, or when the answer can be deduced (for example a brand color given in the first message).
 - If the user says "use defaults for the rest", stop asking and apply the remaining defaults.
-- Never ask about anything that the derivation rules below settle. Ask 8 questions at most.
+- Never ask about anything that the derivation rules below settle. Ask 10 questions at most.
 - Do not mention token names to the user. Speak in design terms (color, corners, density).
 
 ## Questions
@@ -51,6 +51,8 @@ Before asking anything, find out which tools you have. Pick the highest level th
 | `name` | What is the name of your design system? (default: the product name if known, otherwise "Design System") |
 | `brand` | What is your main brand color? Give a hex code or a color name. (default: `#2563EB`, a blue) |
 | `danger` | Which color should signal destructive actions such as delete? (default: `#DC2626`, a red) |
+| `success` | Which color should signal success, such as a completed or paid status? (default: `#15803D`, a green) |
+| `warning` | Which color should signal a warning, such as a status that needs attention soon? (default: `#B45309`, an amber-orange) |
 | `neutral` | Which tint should grays and backgrounds have: neutral, warm, cool, or tinted with your brand color? (default: neutral) |
 | `font` | Which font should the interface use? (default: the system UI font) |
 | `corners` | How rounded should corners be: sharp, soft, rounded, or pill? (default: soft) |
@@ -62,6 +64,8 @@ Before asking anything, find out which tools you have. Pick the highest level th
 | `name` | product name, else "Design System" | DESIGN.md `name`, Overview section |
 | `brand` | `#2563EB` | primary scale and every `primary-*` and `on-primary*` color; `focus-ring` |
 | `danger` | `#DC2626` | danger scale; `danger`, `on-danger`, `danger-hover`, `danger-pressed` |
+| `success` | `#15803D` | success scale; `success`, `on-success`, `success-hover`, `success-pressed` |
+| `warning` | `#B45309` | warning scale; `warning`, `on-warning`, `warning-hover`, `warning-pressed` |
 | `neutral` | neutral | neutral scale; `surface`, `on-surface`, `neutral-subtle-hover`, `neutral-subtle-pressed`, `inverse-surface`, `outline`, `disabled-container`, `on-disabled` |
 | `font` | system UI font | `fontFamily` of the typography tokens |
 | `corners` | soft | `rounded.control`, `rounded.overlay` (`rounded.avatar` is constant, see "Rounded") |
@@ -74,9 +78,9 @@ Everything below is deduced. Do not ask the user about it.
 
 ### Palette scales
 
-Build three primitive scales in `colors`: one for `brand`, one for `danger`, one for the neutral tint. Each has 10 steps named `<name>-50`, `-100`, `-200`, `-300`, `-400`, `-500`, `-600`, `-700`, `-800`, `-900`, from lightest to darkest.
+Build five primitive scales in `colors`: one for `brand`, one for each of `danger`, `success` and `warning`, one for the neutral tint. Each has 10 steps named `<name>-50`, `-100`, `-200`, `-300`, `-400`, `-500`, `-600`, `-700`, `-800`, `-900`, from lightest to darkest.
 
-- Name a scale after the common English color name of its hue (blue, red, green, orange). If the brand and danger colors share the same name, call the brand scale `brand`. Call the neutral scale `neutral`.
+- Name a scale after the common English color name of its hue (blue, red, green, orange). If the brand color shares its name with the danger, success or warning color, call the brand scale `brand`. Danger, success and warning must have different names: otherwise ask for another color. Call the neutral scale `neutral`.
 - Method: convert the base color to the OKLCH model (perceptual lightness, chroma, hue). Keep the hue constant across the scale. Set the lightness of each step to a fixed target, then set its chroma to a share of the base chroma, then reduce the chroma if needed until the color fits the sRGB gamut. Output hex values.
 - Replace the step whose lightness is closest to the base color with the exact base color, so the brand color appears unchanged in the scale.
 - For the neutral scale, use the same lightness targets, but chroma is fixed by the answer to `neutral`, and the hue follows it.
@@ -115,11 +119,11 @@ For each of them, apply the content step search of `docs/conventions.md`: test s
 
 ### State colors
 
-Apply the State colors rule of `docs/conventions.md` to the brand scale and to the danger scale separately: `default` is searched from `600` to `900` against the `on-*` color and against `surface`; `hover` is `default` plus 2 steps; `pressed` is `default` plus 4 steps, stopping at `900`. Compute contrast with the WCAG 2.x relative luminance formula.
+Apply the State colors rule of `docs/conventions.md` to the brand, danger, success and warning scales separately: `default` is searched from `600` to `900` against the `on-*` color and against `surface`; `hover` is `default` plus 2 steps; `pressed` is `default` plus 4 steps, stopping at `900`. Compute contrast with the WCAG 2.x relative luminance formula.
 
 ### Semantic color tokens
 
-Write the colors of the token contracts of the button, the chip (new colors), and the tooltip (new colors) as references (divider, badge, avatar, and progress add no color; the link adds only `link-visited`) to scale steps. `<brand>` and `<danger>` are the scale names; `d` is the `default` step of the corresponding scale; `c` is the step found by the content step search above; `n` is the step found by the same search on the neutral scale for `on-surface`.
+Write the colors of the token contracts of the button, the chip (new colors), and the tooltip (new colors) as references (divider, avatar, and progress add no color; the badge adds the `success` and `warning` colors; the link adds only `link-visited`) to scale steps. `<brand>`, `<danger>`, `<success>` and `<warning>` are the scale names; `d` is the `default` step of the corresponding scale; `c` is the step found by the content step search above; `n` is the step found by the same search on the neutral scale for `on-surface`.
 
 | Token | Value |
 |---|---|
@@ -139,6 +143,14 @@ Write the colors of the token contracts of the button, the chip (new colors), an
 | `on-danger` | `#FFFFFF` |
 | `danger-hover` | danger scale, `default` + 2 steps |
 | `danger-pressed` | danger scale, `default` + 4 steps |
+| `success` | `{colors.<success>-d}` |
+| `on-success` | `#FFFFFF` |
+| `success-hover` | success scale, `default` + 2 steps |
+| `success-pressed` | success scale, `default` + 4 steps |
+| `warning` | `{colors.<warning>-d}` |
+| `on-warning` | `#FFFFFF` |
+| `warning-hover` | warning scale, `default` + 2 steps |
+| `warning-pressed` | warning scale, `default` + 4 steps |
 | `outline` | `{colors.neutral-500}` |
 | `disabled-container` | `{colors.neutral-100}` |
 | `on-disabled` | `{colors.neutral-500}` |
@@ -148,7 +160,7 @@ Write the colors of the token contracts of the button, the chip (new colors), an
 | `neutral-subtle-pressed` | `{colors.neutral-200}` |
 | `inverse-surface` | `{colors.neutral-900}` |
 | `on-inverse-surface` | `#FFFFFF` |
-| `link-visited` | a hex value, no question asked: violet (OKLCH hue 300) at the first lightness from 0.54 downward, in steps of 0.02, reaching 4.5:1 on `surface`; green (hue 120) instead when the brand range is `indigo` or `violet`, so that it never looks like `primary`. At Level 3, copy it from the `link-visited` section of `theme/palettes.md` |
+| `link-visited` | `{colors.<brand>-v}`, where `v` is the step right after `d` (`default` is always `600`, so `700`): a step of the same scale as `primary`, distinct from `default`, `hover` (`800`) and `pressed` (`900`), reaching 4.5:1 on `surface` |
 
 If a pair fails, never make two states identical, never move a background back to an earlier step, and never lower the 4.5:1 threshold (see "Contrast pairs" in `docs/conventions.md`). Only the content step can change, within its search. If no step passes, report the pair to the user instead of forcing it, following "When a color cannot reach AA".
 
@@ -215,7 +227,7 @@ Write every `components` entry listed in the Token contract of each component sp
 | `components/tooltip.md` | `tooltip-plain` |
 | `components/divider.md` | none |
 | `components/link.md` | `link` through `link-focus-ring` |
-| `components/badge.md` | `badge-primary`, `badge-danger`, `badge-neutral` |
+| `components/badge.md` | `badge-primary`, `badge-danger`, `badge-success`, `badge-warning`, `badge-neutral` |
 | `components/avatar.md` | `avatar-default` |
 | `components/progress.md` | `progress-primary`, `progress-danger` |
 
@@ -241,7 +253,7 @@ Write a `## Icons` section stating the icon style and the icon library from the 
 ## Output procedure
 
 1. Identify your level (Step 0), then ask the questions (skip those already answered).
-2. Derive everything. Levels 1 and 2: the script applies the rules above; use its output instead of computing by hand. Level 3: copy from `theme/palettes.md`. If a brand or danger color triggers the case in "When a color cannot reach AA" (script exit code `2` at Levels 1 and 2), stop and handle it before writing.
+2. Derive everything. Levels 1 and 2: the script applies the rules above; use its output instead of computing by hand. Level 3: copy from `theme/palettes.md`. If a brand, danger, success or warning color triggers the case in "When a color cannot reach AA" (script exit code `2` at Levels 1 and 2), stop and handle it before writing.
 3. Write DESIGN.md at the path given by the task. At Levels 1 and 2, check that the file produced by the script has the sections below and add any that is missing. If none is given, write `DESIGN.md` in the working directory. The YAML front matter holds `name`, `colors`, `typography`, `rounded`, `spacing`, and `components`. Below it, write the sections in this exact order:
 
 | Order | Section | Content |
@@ -263,7 +275,7 @@ The `## Icons` section may sit anywhere; place it right after Shapes.
    - Level 3: give the user the list of pairs to check with an online contrast checker (see Level 3).
 5. Fix every error and every failed pair, then validate again. Repeat until the criterion is met: Level 1, 0 lint errors and 0 `contrast-ratio` warnings; Level 2, script exit code `0`; Level 3, no iteration possible, deliver and state that the check is left to the user. `orphaned-tokens` warnings on unused palette steps are tolerated; any other warning must be fixed. Fixes follow the contrast rule of `docs/conventions.md`. After 5 runs without success, stop and give the user the remaining findings as they are.
 6. Reply to the user with a short summary of the choices, as in the template below. Mention any deviation from the defaults and any color you adjusted.
-7. Button color different from the entered color: when the `default` step of the brand or danger scale is not the exact entered color, tell the user in plain words, with both hex codes. For example (illustrative values): "Your blue #3B82F6 stays in the palette, but buttons use the darker #2563EB so that white text stays readable." At Levels 1 and 2, the script prints a `Warning:` line for this case; relay it, never drop it. At Level 3, compare the entered hex with the `default` step of the chosen range.
+7. Button color different from the entered color: when the `default` step of the brand, danger, success or warning scale is not the exact entered color, tell the user in plain words, with both hex codes. For example (illustrative values): "Your blue #3B82F6 stays in the palette, but buttons use the darker #2563EB so that white text stays readable." At Levels 1 and 2, the script prints a `Warning:` line for this case; relay it, never drop it. At Level 3, compare the entered hex with the `default` step of the chosen range.
 
 Summary template:
 
@@ -285,7 +297,7 @@ Add one line on the validation: Level 1, the lint passed (0 errors, 0 contrast w
 
 ## When a color cannot reach AA
 
-A brand or danger color is unusable as it stands in any of these cases:
+A brand, danger, success or warning color is unusable as it stands in any of these cases:
 
 - No step from `600` to `900` of its scale reaches 4.5:1 against the `on-*` color and `surface`.
 - For the brand color, no step from `700` to `900` reaches 4.5:1 against every background of `on-primary-container` or `on-primary-subtle`.

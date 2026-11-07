@@ -25,6 +25,6 @@ For human contributors: why the spec is the way it is. Agents do not need this f
 | Floating `disabled` and `loading` at `level-3` | Neither state has hover, so both keep the resting level; the button keeps floating above the content. Material 3 FAB has no disabled state, so this is a kit decision |
 | No new `components` entry for floating | The floating colors are the `filled` and `tonal` pairs, already declared |
 | Spinner size and stroke from existing tokens | The icon size keeps the spinner in proportion with the content it replaces; `{spacing.focus-ring-width}` gives a visible stroke at icon sizes, where `{spacing.border-width}` is too thin, without a new token |
-| Spinner stops under reduced motion | Continuous rotation is motion the user asked to avoid; the busy state and the visible arc still convey loading |
+| Spinner slowed, not stopped, under reduced motion | Same rule as the progress indicator: a static arc is indistinguishable from a stuck button, and WCAG 2.2.2 exempts essential activity. The turn takes about 2.5 to 3 times longer, which lowers the discomfort while the spinner still shows that loading goes on |
 | `spinner-turn` as a behavior constant | Same reason as the tooltip delays: DESIGN.md has no duration token type, and the speed serves usability, not brand identity |
 | `aria-busy` instead of native disabled for `loading` | Native disabled removes focus, which the Loading requirement keeps; the style reads the same attribute, so there is one source of truth |

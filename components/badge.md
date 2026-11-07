@@ -12,7 +12,7 @@ The text form is named the **status badge** in this kit. Use that name in code a
 |---|---|
 | Parts | `container`, `value` |
 | Types | `count` (number in the container), `dot` (no content), `status` (short text, autonomous) |
-| Variants | `primary`, `danger`, `neutral` |
+| Variants | `primary`, `danger`, `neutral`; `status` also `success`, `warning` |
 | Sizes | `s`, `m` |
 | Interactive states | none (never interactive) |
 | State properties | none |
@@ -45,7 +45,7 @@ The host is the element a `count` or `dot` badge is attached to. It is not a par
 | count | `count` | yes | `primary`, `danger`, `neutral` | yes |
 | dot | `dot` | no | `primary`, `danger` | yes |
 | dot-neutral | `dot` | no | `neutral` | no |
-| status | `status` | yes, text | `primary`, `danger`, `neutral` | yes |
+| status | `status` | yes, text | `primary`, `danger`, `success`, `warning`, `neutral` | yes |
 | count-text | `count` | text, not a number | any | no |
 | status-empty | `status` | no | any | no |
 | standalone-count | `count` or `dot` | any | any | no |
@@ -64,7 +64,7 @@ Combination rules:
 | `type` | `count`, `dot`, `status` | `count` | Number, dot, or status text |
 | `value` | whole number, 0 or more (`count`); short text (`status`) | none, required for `count` and `status` | The number or the text shown |
 | `max` | whole number, 1 or more | 99 | `count` only: highest number shown; above it the badge shows `max` followed by "+" |
-| `variant` | `primary`, `danger`, `neutral` | `primary` | Color group |
+| `variant` | `primary`, `danger`, `success`, `warning`, `neutral` | `primary` | Color group; `success` and `warning` only with `type` `status` |
 | `size` | `s`, `m` | `m` | Named dimension set |
 | `label` | text | none, required for `count` and `dot` | Accessible text that says what the number or dot means ("3 unread messages"). Not used by `status`: its text is the accessible text |
 
@@ -74,9 +74,11 @@ Combination rules:
 |---|---|---|---|
 | `primary` | solid brand | white | New or unread items |
 | `danger` | solid danger | white | Items that need action, or an error |
+| `success` | solid success | white | `status` only: a completed or positive status |
+| `warning` | solid warning | white | `status` only: a status that needs attention soon |
 | `neutral` | light neutral | dark neutral | A quiet count, or a data tag, that must not draw attention |
 
-For `status`, the same three variants apply: `primary` for a new or active status ("New"), `danger` for a status that needs action or an error ("Overdue"), `neutral` for a quiet status or tag ("Draft", "PDF 262 KB"). This kit has no semantic success or warning color: see Out of scope.
+For `status`, the same three variants apply, plus `success` for a completed or positive status ("Paid") and `warning` for a status that needs attention soon ("Expiring"). `primary` is for a new or active status ("New"), `danger` for a status that needs action or an error ("Overdue"), `neutral` for a quiet status or tag ("Draft", "PDF 262 KB"). `success` and `warning` exist only for `status`: `count` and `dot` use `primary`, `danger` or `neutral`.
 
 ## Sizes
 
@@ -133,19 +135,31 @@ Cell vocabulary: a token reference, or `none` (no fill, no border). A badge has 
 |---|---|---|
 | `container` | `{colors.danger}` | `{colors.on-danger}` |
 
+### `success`
+
+| Part | Fill | Content |
+|---|---|---|
+| `container` | `{colors.success}` | `{colors.on-success}` |
+
+### `warning`
+
+| Part | Fill | Content |
+|---|---|---|
+| `container` | `{colors.warning}` | `{colors.on-warning}` |
+
 ### `neutral`
 
 | Part | Fill | Content |
 |---|---|---|
 | `container` | `{colors.neutral-subtle-pressed}` | `{colors.on-surface}` |
 
-The `status` badge uses the same fills and contents as the `count` badge, variant by variant. It has no border.
+The `status` badge uses the same fills and contents as the `count` badge, variant by variant, plus the two variants above. It has no border.
 
 The badge is at `level-0`: its host carries the depth.
 
 ## Token contract
 
-The theme must define every token below. The badge adds no token: every color is reused from the button and the chip, and the `status` badge reuses the same colors and the same `components` entries as the `count` badge.
+The theme must define every token below. The `success` and `warning` colors are new; every other color is reused from the button and the chip, and the `status` badge reuses the same colors and the same `components` entries as the `count` badge.
 
 ### Colors
 
@@ -156,6 +170,14 @@ The theme must define every token below. The badge adds no token: every color is
 | `colors.on-primary` | `primary` value |
 | `colors.danger` | `danger` container |
 | `colors.on-danger` | `danger` value |
+| `colors.success` | `success` container (`status` only) |
+| `colors.on-success` | `success` value |
+| `colors.success-hover` | Not used by the badge (never interactive): derived with `success` by the State colors rule, for later components |
+| `colors.success-pressed` | Same as `success-hover`: derived, not used by the badge |
+| `colors.warning` | `warning` container (`status` only) |
+| `colors.on-warning` | `warning` value |
+| `colors.warning-hover` | Not used by the badge: derived with `warning` by the State colors rule, for later components |
+| `colors.warning-pressed` | Same as `warning-hover`: derived, not used by the badge |
 | `colors.neutral-subtle-pressed` | `neutral` container. Default: neutral step `200` |
 | `colors.on-surface` | `neutral` value |
 
@@ -185,12 +207,14 @@ The theme must define every token below. The badge adds no token: every color is
 
 ### Components entries (contrast checks)
 
-One entry per variant, shared by `count`, `dot`, and `status`, using only the standard `backgroundColor` and `textColor` properties. The badge has no interactive state, so the entries have no state suffix. The `primary` and `danger` fills are checked against `{colors.surface}` by the State colors rule of `docs/conventions.md`, which makes the `dot` shape visible.
+One entry per variant, shared by `count`, `dot`, and `status` (`success` and `warning` serve `status` only), using only the standard `backgroundColor` and `textColor` properties. The badge has no interactive state, so the entries have no state suffix. The `primary`, `danger`, `success` and `warning` fills are checked against `{colors.surface}` by the State colors rule of `docs/conventions.md`, which makes the `dot` shape visible.
 
 | Entry | backgroundColor | textColor |
 |---|---|---|
 | `badge-primary` | `{colors.primary}` | `{colors.on-primary}` |
 | `badge-danger` | `{colors.danger}` | `{colors.on-danger}` |
+| `badge-success` | `{colors.success}` | `{colors.on-success}` |
+| `badge-warning` | `{colors.warning}` | `{colors.on-warning}` |
 | `badge-neutral` | `{colors.neutral-subtle-pressed}` | `{colors.on-surface}` |
 
 ### Non-token requirement
@@ -231,4 +255,4 @@ The badge has no icon and no elevation.
 
 ## Out of scope
 
-Interactive badges, animations, semantic status colors (success, warning: the theme has no such role, so a `status` badge uses `primary`, `danger`, or `neutral`, and the user adds colors after generation), icons inside a status badge, multi-line status text, dark mode, outline around the badge to separate it from the host, badges on a colored or image host (contrast is checked only against `{colors.surface}`, so the user retouches the colors after generation), and the exact placement on round hosts are not covered by this spec.
+Interactive badges, animations, `success` and `warning` on `count` and `dot` badges, other semantic roles (info), light (tonal) status badges, icons inside a status badge, multi-line status text, dark mode, outline around the badge to separate it from the host, badges on a colored or image host (contrast is checked only against `{colors.surface}`, so the user retouches the colors after generation), and the exact placement on round hosts are not covered by this spec.

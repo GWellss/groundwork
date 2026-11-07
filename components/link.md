@@ -122,7 +122,7 @@ Cell vocabulary: a token reference, or `none`. A link has no container and no bo
 | `visited` | `{colors.link-visited}` |
 | `disabled` | `{colors.on-disabled}` |
 
-The state moves the content color, because there is no fill to move. `enabled`, `hover`, and `pressed` are each darker than the previous one. `visited` has its own color, `{colors.link-visited}`, a violet that is different from `{colors.primary}` and from `{colors.on-surface}` so that a visited link is recognizable by color in running text.
+The state moves the content color, because there is no fill to move. `enabled`, `hover`, and `pressed` are each darker than the previous one. `visited` has its own color, `{colors.link-visited}`, the step of the `primary` scale right after the `primary` step. It is different from `{colors.primary}`, `{colors.primary-hover}` and `{colors.primary-pressed}`, so a visited link is recognizable by color in running text without a second hue.
 
 ### Focus ring
 
@@ -144,7 +144,7 @@ The theme must define every token below. The link adds one token, `colors.link-v
 | `colors.primary` | `enabled` content |
 | `colors.primary-hover` | `hover` content |
 | `colors.primary-pressed` | `pressed` content |
-| `colors.link-visited` | `visited` content. Default: a violet reaching 4.5:1 against `colors.surface`, different from `colors.primary` and `colors.on-surface` |
+| `colors.link-visited` | `visited` content. Default: the `primary` scale step right after the `primary` step, reaching 4.5:1 against `colors.surface`, different from `colors.primary`, `colors.primary-hover` and `colors.primary-pressed` |
 | `colors.on-disabled` | `disabled` content |
 | `colors.focus-ring` | Focus ring |
 

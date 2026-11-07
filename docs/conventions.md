@@ -21,7 +21,7 @@ The theme follows DESIGN.md as checked by `@google/design.md` pinned to 0.4.0. U
 
 State colors (default, hover, pressed) are semantic tokens that reference steps of a primitive palette scale defined in `colors`, for example `{colors.blue-600}`. A scale runs from the lightest step to the darkest (for example `blue-50` to `blue-900`).
 
-The user gives only the base color. The agent that fills the theme builds the scale and applies this rule for each base color (`primary`, `danger`). It is the solid-family case of the contrast pair rule below.
+The user gives only the base color. The agent that fills the theme builds the scale and applies this rule for each base color (`primary`, `danger`, `success`, `warning`). It is the solid-family case of the contrast pair rule below.
 
 | State | Rule |
 |---|---|
@@ -46,7 +46,7 @@ Steps are those of a 10-step scale, `50` (lightest) to `900` (darkest). The fami
 | Family | Background steps | Allowed content |
 |---|---|---|
 | `light` | `50`, `100`, `200` | Step `700`, `800`, or `900` of the same scale |
-| `light`, surface only | `{colors.surface}` | Same as `light`, or an accent token whose step comes from the State colors rule (`primary`, `primary-hover`, `primary-pressed`, `danger`, `focus-ring`), or `link-visited`, a generated violet |
+| `light`, surface only | `{colors.surface}` | Same as `light`, or an accent token whose step comes from the State colors rule (`primary`, `primary-hover`, `primary-pressed`, `danger`, `focus-ring`), or `link-visited`, the brand step right after `primary` |
 | `intermediate` | `300`, `400`, `500` | none: never a background behind text or icons |
 | `solid` | `600` to `900` | An `on-*` token: white by default; a theme may choose step `50` of the same scale instead |
 

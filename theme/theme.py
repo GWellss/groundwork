@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generate a DESIGN.md theme (and a contrast report) from the 8 questionnaire answers.
+"""Generate a DESIGN.md theme (and a contrast report) from the 10 questionnaire answers.
 
 Python 3 standard library only, single file. Rules come from theme/questionnaire.md,
 docs/conventions.md and the component specs in components/.
@@ -14,7 +14,7 @@ Usage (terminal):
 Usage (code execution sandbox, no shell): paste the file, then call
     main(["--brand", "#7C3AED", "--out", "DESIGN.md"])
 
-Input: one option per answer (--name --brand --danger --neutral --font --corners --density --icons).
+Input: one option per answer (--name --brand --danger --success --warning --neutral --font --corners --density --icons).
 Colors are hex codes (#RRGGBB); resolving a color name to hex is left to the caller.
 Output: DESIGN.md (use --out -  for stdout), tokens.css (default: next to the DESIGN.md; with --out -
 only if --css is given) and a contrast report on stdout. tokens.css is generated here, without the CLI.
@@ -33,6 +33,7 @@ SHARE = (0.15, 0.30, 0.50, 0.75, 0.90, 1.0, 1.0, 1.0, 0.90, 0.75)
 NEUTRAL_TINT = {"neutral": (0.0, 0), "warm": (0.010, 70), "cool": (0.010, 250)}
 WHITE = "#FFFFFF"
 ACCENT = ("primary", "primary-hover", "primary-pressed", "danger", "focus-ring", "link-visited")
+ROLES = ("brand", "danger", "success", "warning")  # one scale each; states derived by the same rule
 
 SIZES = ("sm", "md", "lg", "xl")
 FONT_SIZE = {"compact": (12, 13, 14, 16), "default": (12, 14, 16, 18), "comfortable": (13, 15, 17, 20)}
@@ -180,12 +181,6 @@ def issues(scale, d, base_chroma):
     return out
 
 
-def link_visited(surface, collides):
-    """Violet (OKLCH hue 300; green, 120, when the brand is indigo or violet) at the first lightness from 0.54 down reaching 4.5:1 on the surface."""
-    h = 120 if collides else 300
-    return next(x for x in (to_hex(0.54 - 0.02 * i, 0.15, h) for i in range(20)) if contrast(x, surface) >= 4.5)
-
-
 def proposal(hx):
     h = to_oklch(hx)[2]
     return to_hex(0.54, 0.4, h)  # to_hex reduces the chroma to the highest value that fits sRGB
@@ -195,13 +190,18 @@ def proposal(hx):
 
 def derive(a):
     """Return (colors, info). Raise ValueError (unusable color) with the message to show."""
-    bname, dname = hue_name(a.brand), hue_name(a.danger)
-    bname = "brand" if bname == dname else bname
+    names = {k: hue_name(getattr(a, k)) for k in ROLES}
+    if names["brand"] in (names["danger"], names["success"], names["warning"]):
+        names["brand"] = "brand"
+    if len({names[k] for k in ROLES}) < 4:
+        raise ValueError("The danger, success and warning colors must have different hues (got %s): give another color." %
+                         ", ".join(names[k] for k in ROLES[1:]))
     neutral = neutral_scale(a.neutral, to_oklch(a.brand)[2])
     surface = neutral[0]
-    info = {"names": {}, "idx": {}}
+    info = {"names": names, "idx": {}}
     colors = {}
-    for key, name, base in (("brand", bname, a.brand), ("danger", dname, a.danger)):
+    for key in ROLES:
+        name, base = names[key], getattr(a, key)
         scale, c = color_scale(base)
         d = default_index(scale, surface)
         problems = issues(scale, d, c)
@@ -210,7 +210,6 @@ def derive(a):
                              "Proposed alternative (same hue, lightness 0.54, highest chroma in sRGB): %s\n"
                              "Accept it or give another color." % (key, base, "; ".join(problems), proposal(base)))
         colors[name] = scale
-        info["names"][key] = name
         info["idx"][key] = d
     colors["neutral"] = neutral
     flat = {}
@@ -221,8 +220,7 @@ def derive(a):
     def ref(name, i):
         return "{colors.%s-%d}" % (name, STEPS[min(i, 9)])
 
-    b, bd = info["names"]["brand"], info["idx"]["brand"]
-    d, dd = info["names"]["danger"], info["idx"]["danger"]
+    b, bd = names["brand"], info["idx"]["brand"]
     sem = {
         "surface": "{colors.neutral-50}",
         "primary": ref(b, bd), "on-primary": WHITE,
@@ -230,15 +228,17 @@ def derive(a):
         "primary-container": ref(b, 0), "on-primary-container": None,
         "primary-container-hover": ref(b, 1), "primary-container-pressed": ref(b, 2),
         "primary-subtle-hover": ref(b, 0), "primary-subtle-pressed": ref(b, 1), "on-primary-subtle": None,
-        "danger": ref(d, dd), "on-danger": WHITE,
-        "danger-hover": ref(d, dd + 2), "danger-pressed": ref(d, dd + 4),
+        **{tok: v for k in ROLES[1:] for tok, v in (
+            (k, ref(names[k], info["idx"][k])), ("on-" + k, WHITE),
+            (k + "-hover", ref(names[k], info["idx"][k] + 2)), (k + "-pressed", ref(names[k], info["idx"][k] + 4)))},
         "outline": "{colors.neutral-500}", "disabled-container": "{colors.neutral-100}",
         "on-disabled": "{colors.neutral-500}", "focus-ring": ref(b, bd),
         "on-surface": None, "neutral-subtle-hover": "{colors.neutral-100}", "neutral-subtle-pressed": "{colors.neutral-200}",
         "inverse-surface": "{colors.neutral-900}", "on-inverse-surface": WHITE,
-        "link-visited": link_visited(surface, b in ("indigo", "violet")),
+        # visited: the brand step between default (600, the only usable default) and hover (800): distinct from default, hover and pressed
+        "link-visited": ref(b, bd + 1),
     }
-    assert len(sem) == 26
+    assert len(sem) == 34
     flat.update(sem)
     for tok, sc in (("on-primary-container", b), ("on-primary-subtle", b), ("on-surface", "neutral")):
         bgs = [resolve(flat, "{colors.%s}" % bg) for _, bg, fg in components() if fg == tok]  # darkest decides
@@ -269,9 +269,10 @@ def components():
                   ("link-visited", "link-visited"), ("link-focus-ring", "focus-ring")):
         out.append((n, "surface", fg))  # no fill: the content color moves, not the background
     out += [("badge-primary", "primary", "on-primary"), ("badge-danger", "danger", "on-danger"),
+            ("badge-success", "success", "on-success"), ("badge-warning", "warning", "on-warning"),
             ("badge-neutral", "neutral-subtle-pressed", "on-surface"), ("avatar-default", "neutral-subtle-pressed", "on-surface"),
             ("progress-primary", "surface", "primary"), ("progress-danger", "surface", "danger")]
-    assert len(out) == 38
+    assert len(out) == 40
     return out
 
 
@@ -357,11 +358,11 @@ def design_md(a, colors, info, comps):
     body = f"""
 ## Overview
 
-{a.name} is a design system theme for buttons, chips, tooltips, dividers, links, badges, avatars, progress indicators and the components built on them. It uses a {ni['brand']} brand color ({a.brand}), a {ni['danger']} danger color ({a.danger}), {a.neutral} grays, the {a.font} font, {a.corners} corners and {a.density} density. Every value lives in this file; component specs only reference tokens.
+{a.name} is a design system theme for buttons, chips, tooltips, dividers, links, badges, avatars, progress indicators and the components built on them. It uses a {ni['brand']} brand color ({a.brand}), a {ni['danger']} danger color ({a.danger}), a {ni['success']} success color ({a.success}), a {ni['warning']} warning color ({a.warning}), {a.neutral} grays, the {a.font} font, {a.corners} corners and {a.density} density. Every value lives in this file; component specs only reference tokens.
 
 ## Colors
 
-The theme has three primitive scales: {sc('brand')} for the brand, {sc('danger')} for destructive actions, and {sc('neutral')} for grays and backgrounds. State colors are semantic tokens that point to scale steps. The `default` step is the first step from 600 to 900 reaching 4.5:1 in the worse case between white and `{{colors.surface}}`; `hover` is `default` plus 2 steps and `pressed` is `default` plus 4 steps, stopped at 900. Here the brand `default` is `{ni['brand']}-{STEPS[ix['brand']]}` and the danger `default` is `{ni['danger']}-{STEPS[ix['danger']]}`. Content on a filled brand or danger color (`on-primary`, `on-danger`) is always white. Tonal containers use steps 50, 100 and 200 (enabled, hover, pressed); `on-primary-container` and `on-primary-subtle` are the first step from 700 to 900 reaching 4.5:1 on every background they serve. The neutral chip uses `surface`, `neutral-subtle-hover` and `neutral-subtle-pressed` (neutral 50, 100, 200) with `on-surface`, found by the same search on the neutral scale. The tooltip is `inverse-surface` (neutral 900) with white `on-inverse-surface`. Links, badges, avatars and progress indicators reuse these tokens: the link moves its content color (`primary`, `primary-hover`, `primary-pressed`, then its own violet `link-visited` when visited) on the surface, the avatar and the neutral badge use `neutral-subtle-pressed` with `on-surface`, and the progress indicator is `primary` or `danger` on the surface. The divider has no text and declares no pair.
+The theme has five primitive scales: {sc('brand')} for the brand, {sc('danger')} for destructive actions, {sc('success')} for success, {sc('warning')} for warnings, and {sc('neutral')} for grays and backgrounds. State colors are semantic tokens that point to scale steps. The `default` step is the first step from 600 to 900 reaching 4.5:1 in the worse case between white and `{{colors.surface}}`; `hover` is `default` plus 2 steps and `pressed` is `default` plus 4 steps, stopped at 900. Here the `default` steps are `{ni['brand']}-{STEPS[ix['brand']]}` (brand), `{ni['danger']}-{STEPS[ix['danger']]}` (danger), `{ni['success']}-{STEPS[ix['success']]}` (success) and `{ni['warning']}-{STEPS[ix['warning']]}` (warning). Content on a filled brand, danger, success or warning color (`on-primary`, `on-danger`, `on-success`, `on-warning`) is always white. Tonal containers use steps 50, 100 and 200 (enabled, hover, pressed); `on-primary-container` and `on-primary-subtle` are the first step from 700 to 900 reaching 4.5:1 on every background they serve. The neutral chip uses `surface`, `neutral-subtle-hover` and `neutral-subtle-pressed` (neutral 50, 100, 200) with `on-surface`, found by the same search on the neutral scale. The tooltip is `inverse-surface` (neutral 900) with white `on-inverse-surface`. Links, badges, avatars and progress indicators reuse these tokens: the link moves its content color (`primary`, `primary-hover`, `primary-pressed`, then `link-visited`, the brand step just after `primary`, when visited) on the surface, the status badge adds `success` and `warning` fills, the avatar and the neutral badge use `neutral-subtle-pressed` with `on-surface`, and the progress indicator is `primary` or `danger` on the surface. The divider has no text and declares no pair.
 
 ## Typography
 
@@ -429,8 +430,8 @@ def tokens_css(a, colors):
 
 def color_warnings(a, colors, info):
     out = []
-    for key in ("brand", "danger"):
-        used = resolve(colors, colors["primary" if key == "brand" else "danger"])
+    for key in ROLES:
+        used = resolve(colors, colors["primary" if key == "brand" else key])
         entered = getattr(a, key)
         if used != entered:
             out.append("Warning: %s color entered %s, buttons use %s (%s-%d): the entered color does not reach 4.5:1 "
@@ -452,7 +453,7 @@ def palettes_md():
     out = ["# Palettes", "",
            "Ready-made 10-step scales for agents that cannot run code. Pick the hue closest to the user's color and copy its steps (approximations: the exact color is not in the scale).",
            "Each step shows its contrast ratio against white and against neutral-50 (the surface, %s). The default step is the first step reaching 4.5:1 against both." % surface,
-           "Default is searched in steps 600 to 900; hover is default plus 2 steps and pressed is default plus 4 steps, stopped at 900. Rows on-subtle (backgrounds 50, 100) and on-container (backgrounds 50, 100, 200) are the first step 700 to 900 reaching 4.5:1 on all of them.",
+           "Default is searched in steps 600 to 900; hover is default plus 2 steps and pressed is default plus 4 steps, stopped at 900. Rows on-subtle (backgrounds 50, 100) and on-container (backgrounds 50, 100, 200) are the first step 700 to 900 reaching 4.5:1 on all of them. For a visited link, take the brand range step right after its default (default 600 gives 700).",
            "Generated by `theme.py --palettes`; do not edit by hand.", ""]
     for name, scale, c in [(n, s, 0.0) for n, s in tints] + named:
         d = default_index(scale, surface)
@@ -474,10 +475,6 @@ def palettes_md():
         if notes:
             out += ["", "Note: %s." % "; ".join(notes) + (" No AA step." if d is None else "")]
         out.append("")
-    out += ["## link-visited", "",
-            "Color of a visited link. Use the first row, except when the brand range is `indigo` or `violet`: then use the second row.", "",
-            "| Brand range | Token value |", "|---|---|",
-            "| any other | `%s` |" % link_visited(surface, False), "| `indigo`, `violet` | `%s` |" % link_visited(surface, True)]
     return "\n".join(out).rstrip() + "\n"
 
 
@@ -491,7 +488,8 @@ def selftest():
     assert all(hue_name(b) == n for n, b in PALETTE_BASES), "palette base hue names"
     a = parser().parse_args([])
     colors, info = derive(a)
-    assert (info["idx"]["brand"], info["idx"]["danger"]) == (6, 6), info
+    assert [info["idx"][k] for k in ROLES] == [6, 6, 6, 6], info
+    assert (colors["success-hover"], colors["warning-pressed"]) == ("{colors.green-800}", "{colors.orange-900}")
     assert colors["primary-pressed"] == "{colors.blue-900}"
     assert issues(color_scale(a.brand)[0], None, 0.1) and issues(color_scale(a.brand)[0], 7, 0.0)
     assert (colors["primary-container-pressed"], colors["primary-subtle-pressed"]) == ("{colors.blue-200}", "{colors.blue-100}")
@@ -502,12 +500,12 @@ def selftest():
     assert report(bad, components())[1] == 4
     bad = dict(colors, **{"primary-hover": "{colors.blue-600}"})  # link hover equal to enabled: must fail
     assert any(w for n, _, _, _, w in check(bad, components()) if n == "link-hover")
-    assert len(colors) - 30 == 26 and len(components()) == 38, "26 semantic colors, 38 components entries"
-    lv = resolve(colors, colors["link-visited"])
-    assert contrast(lv, colors["neutral-50"]) >= 4.5, lv
-    assert lv not in [resolve(colors, colors[k]) for k in ("primary", "on-surface", "primary-hover", "primary-pressed")], lv
-    c3, _ = derive(parser().parse_args(["--brand", "#7C3AED"]))
-    assert c3["link-visited"] != colors["link-visited"], "violet brand: visited switches to green"
+    assert len(colors) - 50 == 34 and len(components()) == 40, "34 semantic colors, 40 components entries"
+    for c in (colors, derive(parser().parse_args(["--brand", "#7C3AED"]))[0]):  # visited: a step of the primary scale, never colliding
+        lv = resolve(c, c["link-visited"])
+        assert contrast(lv, c["neutral-50"]) >= 4.5, lv
+        assert lv not in [resolve(c, c[k]) for k in ("primary", "on-surface", "primary-hover", "primary-pressed")], lv
+    assert colors["link-visited"] == "{colors.blue-700}"
     assert colors["on-surface"].startswith("{colors.neutral-") and colors["inverse-surface"] == "{colors.neutral-900}"
     text = design_md(a, colors, info, components())
     front = text.split("---")[1]
@@ -529,11 +527,13 @@ def selftest():
 
 
 def parser():
-    p = argparse.ArgumentParser(description="Generate a DESIGN.md theme and tokens.css from the 8 questionnaire answers.",
+    p = argparse.ArgumentParser(description="Generate a DESIGN.md theme and tokens.css from the 10 questionnaire answers.",
                                 formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     p.add_argument("--name", default="Design System", help="theme name")
     p.add_argument("--brand", default="#2563EB", help="hex #RRGGBB")
     p.add_argument("--danger", default="#DC2626", help="hex #RRGGBB")
+    p.add_argument("--success", default="#15803D", help="hex #RRGGBB")
+    p.add_argument("--warning", default="#B45309", help="hex #RRGGBB")
     p.add_argument("--neutral", default="neutral", choices=("neutral", "warm", "cool", "tinted"), help="gray tint")
     p.add_argument("--font", default="system-ui", help="font family; system-ui for the system UI font")
     p.add_argument("--corners", default="soft", choices=tuple(ROUNDED), help="corner style")
@@ -551,7 +551,7 @@ def main(argv=None):
     a = p.parse_args(argv)
     if a.selftest:
         return selftest()
-    for k in ("brand", "danger"):
+    for k in ROLES:
         if not re.fullmatch(r"#[0-9A-Fa-f]{6}", getattr(a, k)):
             p.error("--%s must be a hex code like #2563EB" % k)
         setattr(a, k, getattr(a, k).upper())

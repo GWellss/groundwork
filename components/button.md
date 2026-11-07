@@ -381,7 +381,7 @@ Elevation is not a token either. A floating button uses `level-3` at rest and `l
 - Activation: fires once per press. While `loading` is true, activation is ignored.
 - Loading: the `spinner` is centered and the other visible parts are hidden, but the button keeps its width so the layout does not shift.
 - Spinner motion: the spinner rotates continuously, one full turn per `spinner-turn` (behavior constant below), at constant speed, for as long as `loading` is true.
-- Reduced motion: when the user asks the platform for reduced motion, the rotation stops and the arc stays visible, static. The busy state still announces the loading.
+- Reduced motion: when the user asks the platform for reduced motion, the rotation continues but slows down: one full turn takes about 2.5 to 3 times `spinner-turn`, as for the progress indicator. The spinner is never turned into a static shape. The busy state still announces the loading.
 
 | Constant | Value | Meaning |
 |---|---|---|

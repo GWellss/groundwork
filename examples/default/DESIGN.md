@@ -21,6 +21,26 @@ colors:
   red-700: "#A8000D"
   red-800: "#810008"
   red-900: "#5D0004"
+  green-50: "#ECF9EE"
+  green-100: "#D5F0DA"
+  green-200: "#B5E2BD"
+  green-300: "#89CD98"
+  green-400: "#60B475"
+  green-500: "#3B9D58"
+  green-600: "#15803D"
+  green-700: "#006B2E"
+  green-800: "#005122"
+  green-900: "#003915"
+  orange-50: "#FFF2EC"
+  orange-100: "#FFE1D1"
+  orange-200: "#FDC7AB"
+  orange-300: "#F4A57B"
+  orange-400: "#DF8450"
+  orange-500: "#CA6728"
+  orange-600: "#B45309"
+  orange-700: "#8C3E00"
+  orange-800: "#6C2E00"
+  orange-900: "#4C1E00"
   neutral-50: "#FCFCFC"
   neutral-100: "#E8E8E8"
   neutral-200: "#D4D4D4"
@@ -47,6 +67,14 @@ colors:
   on-danger: "#FFFFFF"
   danger-hover: "{colors.red-800}"
   danger-pressed: "{colors.red-900}"
+  success: "{colors.green-600}"
+  on-success: "#FFFFFF"
+  success-hover: "{colors.green-800}"
+  success-pressed: "{colors.green-900}"
+  warning: "{colors.orange-600}"
+  on-warning: "#FFFFFF"
+  warning-hover: "{colors.orange-800}"
+  warning-pressed: "{colors.orange-900}"
   outline: "{colors.neutral-500}"
   disabled-container: "{colors.neutral-100}"
   on-disabled: "{colors.neutral-500}"
@@ -56,7 +84,7 @@ colors:
   neutral-subtle-pressed: "{colors.neutral-200}"
   inverse-surface: "{colors.neutral-900}"
   on-inverse-surface: "#FFFFFF"
-  link-visited: "#7D56B8"
+  link-visited: "{colors.blue-700}"
 typography:
   label-sm:
     fontFamily: "system-ui"
@@ -209,6 +237,12 @@ components:
   badge-danger:
     backgroundColor: "{colors.danger}"
     textColor: "{colors.on-danger}"
+  badge-success:
+    backgroundColor: "{colors.success}"
+    textColor: "{colors.on-success}"
+  badge-warning:
+    backgroundColor: "{colors.warning}"
+    textColor: "{colors.on-warning}"
   badge-neutral:
     backgroundColor: "{colors.neutral-subtle-pressed}"
     textColor: "{colors.on-surface}"
@@ -225,11 +259,11 @@ components:
 
 ## Overview
 
-Design System is a design system theme for buttons, chips, tooltips, dividers, links, badges, avatars, progress indicators and the components built on them. It uses a blue brand color (#2563EB), a red danger color (#DC2626), neutral grays, the system-ui font, soft corners and default density. Every value lives in this file; component specs only reference tokens.
+Design System is a design system theme for buttons, chips, tooltips, dividers, links, badges, avatars, progress indicators and the components built on them. It uses a blue brand color (#2563EB), a red danger color (#DC2626), a green success color (#15803D), a orange warning color (#B45309), neutral grays, the system-ui font, soft corners and default density. Every value lives in this file; component specs only reference tokens.
 
 ## Colors
 
-The theme has three primitive scales: `blue-50` to `blue-900` for the brand, `red-50` to `red-900` for destructive actions, and `neutral-50` to `neutral-900` for grays and backgrounds. State colors are semantic tokens that point to scale steps. The `default` step is the first step from 600 to 900 reaching 4.5:1 in the worse case between white and `{colors.surface}`; `hover` is `default` plus 2 steps and `pressed` is `default` plus 4 steps, stopped at 900. Here the brand `default` is `blue-600` and the danger `default` is `red-600`. Content on a filled brand or danger color (`on-primary`, `on-danger`) is always white. Tonal containers use steps 50, 100 and 200 (enabled, hover, pressed); `on-primary-container` and `on-primary-subtle` are the first step from 700 to 900 reaching 4.5:1 on every background they serve. The neutral chip uses `surface`, `neutral-subtle-hover` and `neutral-subtle-pressed` (neutral 50, 100, 200) with `on-surface`, found by the same search on the neutral scale. The tooltip is `inverse-surface` (neutral 900) with white `on-inverse-surface`. Links, badges, avatars and progress indicators reuse these tokens: the link moves its content color (`primary`, `primary-hover`, `primary-pressed`, then its own violet `link-visited` when visited) on the surface, the avatar and the neutral badge use `neutral-subtle-pressed` with `on-surface`, and the progress indicator is `primary` or `danger` on the surface. The divider has no text and declares no pair.
+The theme has five primitive scales: `blue-50` to `blue-900` for the brand, `red-50` to `red-900` for destructive actions, `green-50` to `green-900` for success, `orange-50` to `orange-900` for warnings, and `neutral-50` to `neutral-900` for grays and backgrounds. State colors are semantic tokens that point to scale steps. The `default` step is the first step from 600 to 900 reaching 4.5:1 in the worse case between white and `{colors.surface}`; `hover` is `default` plus 2 steps and `pressed` is `default` plus 4 steps, stopped at 900. Here the `default` steps are `blue-600` (brand), `red-600` (danger), `green-600` (success) and `orange-600` (warning). Content on a filled brand, danger, success or warning color (`on-primary`, `on-danger`, `on-success`, `on-warning`) is always white. Tonal containers use steps 50, 100 and 200 (enabled, hover, pressed); `on-primary-container` and `on-primary-subtle` are the first step from 700 to 900 reaching 4.5:1 on every background they serve. The neutral chip uses `surface`, `neutral-subtle-hover` and `neutral-subtle-pressed` (neutral 50, 100, 200) with `on-surface`, found by the same search on the neutral scale. The tooltip is `inverse-surface` (neutral 900) with white `on-inverse-surface`. Links, badges, avatars and progress indicators reuse these tokens: the link moves its content color (`primary`, `primary-hover`, `primary-pressed`, then `link-visited`, the brand step just after `primary`, when visited) on the surface, the status badge adds `success` and `warning` fills, the avatar and the neutral badge use `neutral-subtle-pressed` with `on-surface`, and the progress indicator is `primary` or `danger` on the surface. The divider has no text and declares no pair.
 
 ## Typography
 
