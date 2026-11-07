@@ -12,6 +12,6 @@ For human contributors: why the spec is the way it is. Agents do not need this f
 | `danger` variant with a mandatory message | The color alone must not say "failed" (WCAG 1.4.1). Success and warning variants are not covered by the kit yet |
 | Two sizes for linear, three for circular | A bar has a thickness and takes the container width; a ring has a diameter. Different dimensions justify different size sets |
 | Circular stroke `{spacing.focus-ring-width}` for `s` | The button spinner uses the same stroke at icon size, which gives the same weight at 20 px |
-| Motion kept with reduced motion | An indeterminate progress without motion is indistinguishable from a stuck one; WCAG 2.2.2 exempts essential activity. The implementation may reduce it |
+| Motion slowed, not stopped, with reduced motion | An indeterminate progress without motion is indistinguishable from a stuck one; WCAG 2.2.2 exempts essential activity. Slowing it by about 2.5 to 3 times (checked on a demo) lowers the discomfort while it still shows that work is going on |
 | Behavior constants not tokens | Same rule as the tooltip delays and the button spinner turn: invariant, never overridden by a theme |
 | Completion announced by the project | The component cannot know the result of the operation, so it asks for a polite announcement and removal |

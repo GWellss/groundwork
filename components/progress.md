@@ -193,7 +193,7 @@ Behavior constants. They are invariant, they are not theme tokens, and the theme
 
 - Indeterminate `circular`: the arc rotates continuously at constant speed.
 - Indeterminate `linear`: the segment travels from the leading edge to the trailing edge of the track, then starts again.
-- Motion is the signal that work is going on, so it is kept when the user prefers reduced motion (WCAG 2.2.2, essential activity); the implementation may reduce it but never turns an indeterminate progress into a static shape.
+- Motion is the signal that work is going on, so it is kept when the user prefers reduced motion (WCAG 2.2.2, essential activity), but slowed down: the `circular-turn` and `linear-cycle` durations become about 2.5 to 3 times longer, for both `circular` and `linear`. An indeterminate progress is never turned into a static shape.
 - Determinate: a change of `value` moves the indicator to the new value. The transition is the project's choice.
 - Value outside 0 to 100: refused or clamped and reported, never rendered silently as is.
 - A progress that finishes is removed or replaced by the result; it does not stay at 100 percent.
