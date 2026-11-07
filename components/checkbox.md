@@ -129,10 +129,10 @@ Geometry rules:
 | Property | Effect on interaction | Visual effect |
 |---|---|---|
 | `checked`, `indeterminate` | None; the control stays interactive | `selected` group; `check-icon` or `indeterminate-icon` shown |
-| `error` | None. Derived: `error-message` is non-empty | Danger border on an `unselected` control, `error-icon`, `error-message` |
+| `error` | None. Derived: `error-message` is non-empty | Danger border on an `unselected` control, or a danger ring around a `selected` control; `error-icon`, `error-message` |
 | `disabled` | No hover, no pressed, not focusable, not changeable | Disabled tokens; label and helper text included |
 
-Precedence: `disabled` overrides `error`, which overrides `selected` and `unselected`; interactive states apply on top of the resulting group. `error` is never combined with `disabled` (see Anatomy). A `selected` control in error keeps its `selected` tokens: the message and its icon still show the error.
+Precedence: `disabled` overrides `error`, which overrides `selected` and `unselected`; interactive states apply on top of the resulting group. `error` is never combined with `disabled` (see Anatomy). A `selected` control in error keeps its `selected` fill and mark and adds the error ring (see `error` ring below): the ring, the icon, and the message show the error.
 
 ## Token mapping
 
@@ -165,6 +165,18 @@ The `selected` border is `none` in every state (the width stays reserved).
 | `pressed` | `{colors.neutral-subtle-hover}` | `{colors.danger-pressed}` |
 
 `error-icon` and `error-message` use `{colors.danger}` in every state. `{colors.danger-hover}` and `{colors.danger-pressed}` are darker than `{colors.danger}`, so the 3:1 border requirement holds without its own check.
+
+### `error` ring (`selected` control only)
+
+A `selected` control in error keeps the `selected` fill and mark of its state and adds a ring drawn outside `control`, separated from it by a gap of the surface color, so the danger color never touches the brand color.
+
+| State | Ring color | Width | Gap to `control` |
+|---|---|---|---|
+| `enabled` | `{colors.danger}` | `{spacing.focus-ring-width}` | `{spacing.focus-ring-offset}` |
+| `hover` | `{colors.danger-hover}` | same | same |
+| `pressed` | `{colors.danger-pressed}` | same | same |
+
+The ring is a rounded square that follows the radius of `control`; like the focus ring it never changes the layout. Error and focus together: the error ring stays next to `control`; the focus ring moves outward and is drawn around the error ring, at `{spacing.focus-ring-offset}` from it. The result, from the inside out, is the control, a gap, the danger ring, a gap, the focus ring. The two are told apart by order and color (danger, then focus), and the error is never carried by the ring alone (`error-icon` and `error-message` stay).
 
 ### `disabled`
 
@@ -210,9 +222,9 @@ The theme must define every token below. The checkbox adds no token: every one i
 | `colors.primary-hover` | `selected` fill on hover |
 | `colors.primary-pressed` | `selected` fill on pressed |
 | `colors.on-primary` | Mark on the `selected` fill |
-| `colors.danger` | `error` border, `error-icon`, `error-message` |
-| `colors.danger-hover` | `error` border on hover |
-| `colors.danger-pressed` | `error` border on pressed |
+| `colors.danger` | `error` border and ring, `error-icon`, `error-message` |
+| `colors.danger-hover` | `error` border and ring on hover |
+| `colors.danger-pressed` | `error` border and ring on pressed |
 | `colors.neutral-subtle-hover` | `unselected` fill on pressed |
 | `colors.disabled-container` | `selected` fill when disabled |
 | `colors.on-disabled` | Disabled border, mark, and text |
@@ -242,8 +254,8 @@ The theme must define every token below. The checkbox adds no token: every one i
 | `spacing.xs` | Space between the row and its support line, and between the options of a group |
 | `spacing.sm` | Gap between `control` and `label`; space between `legend` and the first option |
 | `spacing.border-width` | Control border width |
-| `spacing.focus-ring-width` | Focus ring width |
-| `spacing.focus-ring-offset` | Gap between the control and its focus ring |
+| `spacing.focus-ring-width` | Focus ring width; `error` ring width |
+| `spacing.focus-ring-offset` | Gap between the control and its `error` ring; between the `error` ring (or the control) and the focus ring |
 
 ### Components entries (contrast checks)
 
@@ -262,7 +274,7 @@ One entry per text color and one per `selected` state, using only the standard `
 ### Non-token requirement
 
 - Icon style and library come from the `## Icons` section of DESIGN.md. `check-icon` is the library checkmark, `indeterminate-icon` its minus (remove) glyph, and `error-icon` its error glyph (a circle with an exclamation mark).
-- Border contrast (WCAG 1.4.11): the `unselected` border must reach 3:1 against `{colors.surface}`. It is `colors.outline`, the pair the theme script already checks outside the lint (row `outline` of its report; see `docs/conventions.md`); no new check is needed. The `selected` fill is `{colors.primary}`, which the State colors rule keeps at 4.5:1 or more against the surface, and the `error` border is `{colors.danger}`, at 4.5:1 or more against the surface by the same rule. No non-standard property is added to `components`.
+- Border contrast (WCAG 1.4.11): the `unselected` border must reach 3:1 against `{colors.surface}`. It is `colors.outline`, the pair the theme script already checks outside the lint (row `outline` of its report; see `docs/conventions.md`); no new check is needed. The `selected` fill is `{colors.primary}`, which the State colors rule keeps at 4.5:1 or more against the surface, and the `error` border and ring are `{colors.danger}`, at 4.5:1 or more against the surface by the same rule (the ring is surrounded by the surface, so it is never read against the `selected` fill; covered by `checkbox-error`). No non-standard property is added to `components`.
 - The checkbox has no elevation (`level-0`).
 
 ## Accessibility
@@ -276,7 +288,7 @@ One entry per text color and one per `selected` state, using only the standard `
 | Indeterminate | Set through the native `indeterminate` property of the input, so assistive technologies announce "mixed". It is never set by the user's click. |
 | Invalid | `aria-invalid="true"` on the input exactly when it is in error; in a group, on every option in error, with the group description on the `fieldset`. |
 | Required | The native `required` attribute when `required` is true. `required-marker` is hidden from assistive technologies; the form explains it in visible text. |
-| Not by color alone | The selection is shown by the fill and by `check-icon` or `indeterminate-icon` (WCAG 1.4.1). An error shows `error-icon` and `error-message` besides the danger border. |
+| Not by color alone | The selection is shown by the fill and by `check-icon` or `indeterminate-icon` (WCAG 1.4.1). An error shows `error-icon` and `error-message` besides the danger border or ring. |
 | Focus visible | The focus ring appears on keyboard focus. It must never be removed. |
 | Keyboard | `Tab` moves focus to each checkbox. `Space` toggles the focused checkbox. |
 | Disabled | Native `disabled`: out of the tab order, value not submitted. |

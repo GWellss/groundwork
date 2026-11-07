@@ -90,6 +90,7 @@ A state property that accessibility can expose is exposed there, and the style r
 | `indeterminate` (checkbox) | Native `indeterminate` property | Announced as "mixed"; never set by the user's click |
 | `value` (radio group) | Native `checked` on the selected radio, one shared `name` | Group in a `fieldset` with `role="radiogroup"` |
 | `value`, `min`, `max`, `step` (slider) | Native `input` of type `range` | `aria-valuetext` only when `value-text` is set |
+| `range` variant (slider) | Two native `input` elements of type `range` over one track, in a `group` named by `label` (or two ARIA `role="slider"` elements, with the full keyboard handled by the project) | One native range input handles one thumb only. Clamp each input to the other's value plus or minus `min-gap` and set `aria-valuemin` and `aria-valuemax` to those limits |
 | `error` (checkbox, radio group, slider) | `aria-invalid="true"` and `aria-describedby` to the message | Group description on the `fieldset`; present exactly when `error-message` is |
 | `open` (tooltip) | Rendered or not rendered | `role="tooltip"`; trigger references it with `aria-describedby` while open, as in the spec |
 | `variant`, `size`, other options | Free (attribute, prop, modifier) | No accessibility attribute exists for them |

@@ -1,14 +1,14 @@
 # Slider
 
-A slider lets the user pick one numeric value in a range by moving a thumb along a track, with a visible label, the current value, and optional help and error. This spec is theme independent: every visual value is a token reference to the DESIGN.md theme.
+A slider lets the user pick one numeric value, or a minimum and a maximum (range variant), in a bounded range by moving a thumb along a track, with a visible label, the current value, and optional help and error. This spec is theme independent: every visual value is a token reference to the DESIGN.md theme.
 
 ## At a glance
 
 | Aspect | Summary |
 |---|---|
-| Parts | `label`, `value-label`, `track`, `fill`, `thumb`, `helper-text`, `error-icon`, `error-message` |
+| Parts | `label`, `value-label`, `track`, `fill`, `thumb` (two in the range variant), `helper-text`, `error-icon`, `error-message` |
 | Configurations | with or without visible value, with or without helper text; horizontal only |
-| Variants | none; one appearance, `default` |
+| Variants | none by emphasis; one appearance, `default`; two value modes: single (one thumb) and `range` (two thumbs) |
 | Sizes | `s`, `m` |
 | Interactive states | `enabled`, `hover`, `focus`, `pressed` |
 | State properties | `disabled`, `error` (derived from `error-message`) |
@@ -19,7 +19,7 @@ A slider lets the user pick one numeric value in a range by moving a thumb along
 - Use a text field with `type` number when the user must type an exact value, or the range is very wide (see `components/text-field.md`).
 - Do not use a slider for a short list of named options: use radio buttons (see `components/radio.md`).
 - Do not use a slider for a progress that the user does not control: use a progress indicator (see `components/progress.md`).
-- A range with two thumbs (a minimum and a maximum) is not covered: see Out of scope.
+- Use the `range` variant to choose an interval, a minimum and a maximum: a price range, a date-free duration.
 
 ## Anatomy
 
@@ -30,8 +30,8 @@ A slider lets the user pick one numeric value in a range by moving a thumb along
 | `label` | Names the slider, always visible, above the track | yes | Associated with the input; provides the accessible name |
 | `value-label` | Shows the current value, at the end of the label line | no | Shown by default; see `show-value` |
 | `track` | The full path from `min` to `max` | yes | Always present; the whole slider width |
-| `fill` | The part of `track` from `min` up to the thumb | yes | Its length shows the value |
-| `thumb` | Circle the user moves | yes | The control; carries the focus ring |
+| `fill` | The part of `track` from `min` up to the thumb; in the `range` variant, only the part between the two thumbs | yes | Its length shows the value |
+| `thumb` | Circle the user moves | yes | The control; carries the focus ring. Two in the `range` variant: `thumb-min` and `thumb-max` |
 | `helper-text` | Hint under the track | no | Replaced by `error-message` while in error |
 | `error-icon` | Icon before `error-message` | with `error-message` | Decorative; the second cue besides color |
 | `error-message` | Text that says what is wrong and how to fix it | no | Present exactly when the slider is in error |
@@ -43,7 +43,7 @@ A slider lets the user pick one numeric value in a range by moving a thumb along
 | plain | `label`, `track`, `fill`, `thumb`, `value-label` | yes |
 | no-value-label | the same without `value-label` (`show-value` false) | yes |
 | with-help | any of the above plus `helper-text` or `error-message` | yes |
-| two-thumbs | a range with a minimum and a maximum thumb | no |
+| range | `label`, `track`, `fill` between the thumbs, `thumb-min`, `thumb-max`, `value-label` showing both values | yes |
 | vertical | a vertical track | no |
 | no-label | any | no |
 | error-and-disabled | `error-message` with `disabled` | no |
@@ -51,7 +51,7 @@ A slider lets the user pick one numeric value in a range by moving a thumb along
 Combination rules:
 
 - A slider always has a visible `label`.
-- The value is always one number: `min` less than or equal to the value, which is less than or equal to `max`, and a multiple of `step` from `min`.
+- The value is always one number: `min` less than or equal to the value, which is less than or equal to `max`, and a multiple of `step` from `min`. In the `range` variant the value is two numbers, `value-min` and `value-max`, each obeying that rule, with `value-min` at least one `min-gap` below `value-max` (see Range variant).
 - An error always shows `error-icon` and `error-message`. Color alone never says "error".
 - `error-message` replaces `helper-text` in the same slot.
 - `show-value` false is allowed only when the value is shown elsewhere (the project's layout) or meaningless to the user; the accessible value stays.
@@ -61,12 +61,16 @@ Combination rules:
 | Property | Values | Default | Description |
 |---|---|---|---|
 | `label` | text | none, required | Visible name of the slider; accessible name |
-| `value` | number from `min` to `max` | `min` | Current value |
+| `value` | number from `min` to `max` | `min` | Current value; single only |
+| `range` | `true`, `false` | `false` | Two thumbs: a minimum and a maximum |
+| `value-min`, `value-max` | numbers from `min` to `max` | `min`, `max` | Current values of the `range` variant |
+| `label-min`, `label-max` | text | none, required with `range` | Accessible names of the two thumbs ("Minimum price", "Maximum price"); `label` names the group |
+| `min-gap` | number, a multiple of `step`, at least `step` | `step` | Smallest allowed distance between the two thumbs; `range` only |
 | `min` | number | `0` | Lowest value |
 | `max` | number, greater than `min` | `100` | Highest value |
 | `step` | number, greater than 0 | `1` | Increment; the value snaps to it |
-| `show-value` | `true`, `false` | `true` | Shows `value-label` |
-| `value-text` | text | none | Human text of the value ("3 stars", "$20"), shown in `value-label` and read by assistive technologies instead of the bare number |
+| `show-value` | `true`, `false` | `true` | Shows `value-label` (both values in the `range` variant) |
+| `value-text` | text | none | Human text of the value ("3 stars", "$20"), shown in `value-label` and read by assistive technologies instead of the bare number; in the `range` variant, one text per thumb (`value-text-min`, `value-text-max`) |
 | `helper-text` | text | none | Hint under the track |
 | `error-message` | text | none | Non-empty puts the slider in `error` |
 | `size` | `s`, `m` | `m` | Named dimension set |
@@ -75,6 +79,18 @@ Combination rules:
 ## Variants
 
 The slider has one appearance, `default`: a thin track, a `fill` from the start to the thumb, and a round thumb. Error and disabled are states, not variants.
+
+### Range variant
+
+With `range` true, the slider has two thumbs on one `track`. It keeps every rule, token, size, and state of the single slider; only the following changes.
+
+- Names: `label` names the whole control (for example "Price"). Each thumb has its own accessible name, `label-min` and `label-max` ("Minimum price", "Maximum price"); the two are never the same text.
+- No crossing: the thumbs never cross or swap. `thumb-min` never goes above `value-max` less `min-gap`, and `thumb-max` never goes below `value-min` plus `min-gap`; the thumb being moved stops at that limit. `min-gap` is `step` by default, so the two values are never equal.
+- Press on the track: the nearest thumb moves to that position and starts the drag. On a tie, the thumb that moves in the direction of the press is the one that moves; when the press is exactly midway between the thumbs, both directions fit and `thumb-min` moves.
+- Fill: only the part of `track` between the two thumbs is colored (`fill`); the parts outside stay the `track` color.
+- Values: `value-label` shows both values at the end of the label line, minimum first, separated by a dash or a visible "to" ("$20 to $80"), or the two `value-text`.
+- Thumb states: `hover`, `pressed`, and `focus` apply to the thumb that is under the pointer, dragged, or focused; `fill` takes the color of the state when either thumb is `hover` or `pressed`. The focus ring surrounds the focused thumb only. When the thumbs are close, the focused or dragged thumb is drawn above the other.
+- Geometry: each thumb has the thumb size; the thumb centers travel between the two ends of `track` as for the single thumb. The row, as in the single slider, is the pointer hit area.
 
 ## Sizes
 
@@ -117,7 +133,7 @@ Geometry rules:
 
 | Property | Effect on interaction | Visual effect |
 |---|---|---|
-| `error` | None. Derived: `error-message` is non-empty | `fill` and `thumb` in the danger group, `error-icon`, `error-message` |
+| `error` | None. Derived: `error-message` is non-empty | `fill` and every `thumb` in the danger group, `error-icon`, `error-message` |
 | `disabled` | No hover, no pressed, not focusable, not changeable | Disabled tokens; label, value, and help included |
 
 Precedence: `disabled` overrides `error`, which overrides the `default` group; interactive states apply on top of the resulting group. `error` is never combined with `disabled` (see Anatomy).
@@ -236,14 +252,15 @@ The text entries (`checkbox`, `checkbox-muted`, `checkbox-error`, `checkbox-focu
 
 | Topic | Requirement |
 |---|---|
-| Role | Native `input` of type `range`, which exposes `role="slider"`, `aria-valuemin`, `aria-valuemax`, and `aria-valuenow` from `min`, `max`, `value`. No custom widget. |
+| Role | Native `input` of type `range`, which exposes `role="slider"`, `aria-valuemin`, `aria-valuemax`, and `aria-valuenow` from `min`, `max`, `value`. No custom widget. The `range` variant has two such sliders in one `group` named by `label` (see Range variant). |
 | Accessible name | The visible `label`, associated natively. |
+| Range thumbs | Each thumb is a slider with its own accessible name (`label-min`, `label-max`) and its own `aria-valuenow`. The bounds exposed to assistive technologies are the real limits of the thumb: `aria-valuemax` of `thumb-min` is `value-max` less `min-gap`, and `aria-valuemin` of `thumb-max` is `value-min` plus `min-gap`. |
 | Value text | When `value-text` is set, `aria-valuetext` carries it, so assistive technologies read "3 stars" instead of "3". Without it, the number is read. |
 | Description | `helper-text` or `error-message` is referenced by `aria-describedby` on the input. |
 | Invalid | `aria-invalid="true"` exactly when `error-message` is present, with the `aria-describedby` link to that message. |
 | Not by color alone | The value is shown by the position and length of `fill`, and by `value-label` when shown. An error shows `error-icon` and `error-message` besides the danger color (WCAG 1.4.1). |
 | Focus visible | The focus ring appears on `thumb` on keyboard focus. It must never be removed. |
-| Keyboard | `Tab` moves focus to the slider. `Right` and `Up` increase the value by `step`; `Left` and `Down` decrease it by `step`; `PageUp` and `PageDown` change it by a page step (about a tenth of the range, at least one `step`, a multiple of `step`); `Home` sets `min`; `End` sets `max`. |
+| Keyboard | `Tab` moves focus to the slider (in the `range` variant, to `thumb-min`, then to `thumb-max`; Shift+Tab goes back; the tab order is always minimum then maximum, even when the thumbs are close). `Right` and `Up` increase the value by `step`; `Left` and `Down` decrease it by `step`; `PageUp` and `PageDown` change it by a page step (about a tenth of the range, at least one `step`, a multiple of `step`); `Home` sets `min`; `End` sets `max`. In the `range` variant each thumb follows the same keys, stopping at the no-crossing limit: `Home` on `thumb-max` goes to `value-min` plus `min-gap`, `End` on `thumb-min` goes to `value-max` less `min-gap`. |
 | Pointer alternative | Every pointer action (press on the track, drag the thumb) has the keyboard equivalent above, with no path-based gesture required (WCAG 2.5.1, 2.5.7). |
 | Disabled | Native `disabled`: out of the tab order, value not submitted. |
 | Target size | The hit area is the row, at least 24 by 24 CSS pixels (WCAG 2.2 criterion 2.5.8): the row height of every size meets it. 44 by 44 is recommended on touch screens. |
@@ -251,7 +268,7 @@ The text entries (`checkbox`, `checkbox-muted`, `checkbox-error`, `checkbox-focu
 
 ## Behavior
 
-- Pointer: pressing on the row moves the thumb to the nearest valid value and starts a drag; dragging follows the pointer; the value snaps to `step`; release ends `pressed`. The value never leaves `min` to `max`.
+- Pointer: pressing on the row moves the thumb (in the `range` variant, the nearest thumb, see Range variant) to the nearest valid value and starts a drag; dragging follows the pointer; the value snaps to `step`; release ends `pressed`. The value never leaves `min` to `max`.
 - Change events: the component emits a change event while the user drags (the project may wait for the release to apply it) and when a key changes the value.
 - Value label: `value-label` shows `value-text` when set, otherwise the number; it updates as the value changes. It is part of the visible text and not announced at every change beyond the native slider announcement.
 - Validation: the project decides the rules (for example a minimum). Show `error-message` after the user releases the thumb or submits; clear it as soon as the value becomes valid.
@@ -267,7 +284,8 @@ The text entries (`checkbox`, `checkbox-muted`, `checkbox-error`, `checkbox-focu
 | Choose a `step` that matches the precision the user needs | Use a slider for an exact value with many digits |
 | Offer a text field when the exact value matters | Make precision depend on a pointer alone |
 | Keep the full keyboard support of the native range | Replace the native input with a custom widget that loses it |
+| Give each range thumb its own name ("Minimum price", "Maximum price") | Name both thumbs "Price" |
 
 ## Out of scope
 
-Animations, dark mode, a range with two thumbs (it needs two accessible names, a collision rule, and its own anatomy), vertical sliders, tick marks and discrete labels along the track, a value tooltip over the thumb, end labels for `min` and `max`, a centered origin for the fill, and an input field linked to the slider are not covered by this spec.
+Animations, dark mode, vertical sliders, more than two thumbs, tick marks and discrete labels along the track, a value tooltip over the thumb, end labels for `min` and `max`, a centered origin for the fill, and an input field linked to the slider are not covered by this spec.
