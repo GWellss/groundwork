@@ -242,11 +242,21 @@ def derive(a):
     }
     assert len(sem) == 35
     flat.update(sem)
+    # focus ring drawn inside a control or on a fill: 3:1 on every fill it can meet (WCAG 1.4.11); darker brand step if needed, as outline
+    sem["focus-ring"] = flat["focus-ring"] = ref(b, next((i for i in range(bd, 9) if ring_ok(flat, ref(b, i))), 9))
     for tok, sc in (("on-primary-container", b), ("on-primary-subtle", b), ("on-surface", "neutral")):
         bgs = [resolve(flat, "{colors.%s}" % bg) for _, bg, fg in components() if fg == tok]  # darkest decides
         flat[tok] = ref(sc, content_index(colors[sc], bgs) or 9)  # 900 failing is reported by check()
     check_muted(flat)
     return flat, info
+
+
+RING_FILLS = ("surface", "neutral-subtle-hover", "neutral-subtle-pressed",  # segments, tabs, chip remove, search clear: rest, hover, pressed
+              "primary-container", "primary-container-hover", "primary-container-pressed")  # selected segment
+
+
+def ring_ok(flat, ring):
+    return all(contrast(resolve(flat, ring), resolve(flat, "{colors.%s}" % f)) >= 3 for f in RING_FILLS)
 
 
 def check_muted(flat):
@@ -365,7 +375,12 @@ def report(colors, comps):
         r = contrast(resolve(colors, "{colors.%s}" % tok), resolve(colors, "{colors.surface}"))
         bad += r < 3
         lines.append("%-24s non-text on surface (3:1)           %5.2f  %s" % (tok, r, "PASS" if r >= 3 else "FAIL: below 3:1"))
-    total = len(comps) + len(NONTEXT)
+    fr = resolve(colors, "{colors.focus-ring}")
+    for f in RING_FILLS:
+        r = contrast(fr, resolve(colors, "{colors.%s}" % f))
+        bad += r < 3
+        lines.append("%-24s non-text on %-24s (3:1) %5.2f  %s" % ("focus-ring", f, r, "PASS" if r >= 3 else "FAIL: below 3:1"))
+    total = len(comps) + len(NONTEXT) + len(RING_FILLS)
     lines += ["", "%d of %d pairs pass." % (total - bad, total)]
     return "\n".join(lines), bad
 
@@ -400,7 +415,7 @@ def design_md(a, colors, info, comps):
 
 ## Colors
 
-The theme has five primitive scales: {sc('brand')} for the brand, {sc('danger')} for destructive actions, {sc('success')} for success, {sc('warning')} for warnings, and {sc('neutral')} for grays and backgrounds. State colors are semantic tokens that point to scale steps. The `default` step is the first step from 600 to 900 reaching 4.5:1 in the worse case between white and `{{colors.surface}}`; `hover` is `default` plus 2 steps and `pressed` is `default` plus 4 steps, stopped at 900. Here the `default` steps are `{ni['brand']}-{STEPS[ix['brand']]}` (brand), `{ni['danger']}-{STEPS[ix['danger']]}` (danger), `{ni['success']}-{STEPS[ix['success']]}` (success) and `{ni['warning']}-{STEPS[ix['warning']]}` (warning). Content on a filled brand, danger, success or warning color (`on-primary`, `on-danger`, `on-success`, `on-warning`) is always white. Tonal containers use steps 50, 100 and 200 (enabled, hover, pressed); `on-primary-container` and `on-primary-subtle` are the first step from 700 to 900 reaching 4.5:1 on every background they serve. The neutral chip uses `surface`, `neutral-subtle-hover` and `neutral-subtle-pressed` (neutral 50, 100, 200) with `on-surface`, found by the same search on the neutral scale. The tooltip is `inverse-surface` (neutral 900) with white `on-inverse-surface`. Links, badges, avatars and progress indicators reuse these tokens: the link moves its content color (`primary`, `primary-hover`, `primary-pressed`, then `link-visited`, the brand step just after `primary`, when visited) on the surface, the status badge adds `success` and `warning` fills, the avatar and the neutral badge use `neutral-subtle-pressed` with `on-surface`, and the progress indicator is `primary` or `danger` on the surface. The text field adds one color, `on-surface-muted` (neutral step 600, or 700 if 600 is below 4.5:1), for the placeholder, the helper text, the counter and the affixes; its value and label use `on-surface`, its error uses `danger`, and a read-only field is filled with `neutral-subtle-hover`. The field border is `outline`, kept at 3:1 or more on the surface (neutral step 500, or 600), a non-text check that the script reports and the lint cannot. The search field reuses the text field tokens. `on-surface-muted` is used on the surface only, never on a grayed fill, and the script refuses a theme where it equals `on-surface`. The checkbox, radio and switch select with `primary` (white mark), draw their unselected border in `outline` and reuse `danger` for errors; the slider track is `outline` and its fill and thumb are `primary`. Segmented controls reuse the chip tokens (`outline` for their border and dividers). Tabs show their selected tab with a `primary` indicator and keep the label on `on-surface` (quiet `on-surface-muted` for an unselected tab at rest, on the surface only); accordion headers use the neutral chip fills with `on-surface`. The divider has no text and declares no pair.
+The theme has five primitive scales: {sc('brand')} for the brand, {sc('danger')} for destructive actions, {sc('success')} for success, {sc('warning')} for warnings, and {sc('neutral')} for grays and backgrounds. State colors are semantic tokens that point to scale steps. The `default` step is the first step from 600 to 900 reaching 4.5:1 in the worse case between white and `{{colors.surface}}`; `hover` is `default` plus 2 steps and `pressed` is `default` plus 4 steps, stopped at 900. Here the `default` steps are `{ni['brand']}-{STEPS[ix['brand']]}` (brand), `{ni['danger']}-{STEPS[ix['danger']]}` (danger), `{ni['success']}-{STEPS[ix['success']]}` (success) and `{ni['warning']}-{STEPS[ix['warning']]}` (warning). Content on a filled brand, danger, success or warning color (`on-primary`, `on-danger`, `on-success`, `on-warning`) is always white. Tonal containers use steps 50, 100 and 200 (enabled, hover, pressed); `on-primary-container` and `on-primary-subtle` are the first step from 700 to 900 reaching 4.5:1 on every background they serve. The neutral chip uses `surface`, `neutral-subtle-hover` and `neutral-subtle-pressed` (neutral 50, 100, 200) with `on-surface`, found by the same search on the neutral scale. The tooltip is `inverse-surface` (neutral 900) with white `on-inverse-surface`. Links, badges, avatars and progress indicators reuse these tokens: the link moves its content color (`primary`, `primary-hover`, `primary-pressed`, then `link-visited`, the brand step just after `primary`, when visited) on the surface, the status badge adds `success` and `warning` fills, the avatar and the neutral badge use `neutral-subtle-pressed` with `on-surface`, and the progress indicator is `primary` or `danger` on the surface. The text field adds one color, `on-surface-muted` (neutral step 600, or 700 if 600 is below 4.5:1), for the placeholder, the helper text, the counter and the affixes; its value and label use `on-surface`, its error uses `danger`, and a read-only field is filled with `neutral-subtle-hover`. The field border is `outline`, kept at 3:1 or more on the surface (neutral step 500, or 600), a non-text check that the script reports and the lint cannot. The focus ring (`focus-ring`, the brand `default` step, moved to a darker step if needed) is checked the same way at 3:1 against every fill it can sit on: the surface, the neutral hover and pressed fills, and the selected container in its three states, because segments, tabs and the small round buttons draw it inside. The search field reuses the text field tokens. `on-surface-muted` is used on the surface only, never on a grayed fill, and the script refuses a theme where it equals `on-surface`. The checkbox, radio and switch select with `primary` (white mark), draw their unselected border in `outline` and reuse `danger` for errors; the slider track is `outline` and its fill and thumb are `primary`. Segmented controls reuse the chip tokens (`outline` for their border and dividers). Tabs show their selected tab with a `primary` indicator and keep the label on `on-surface` (quiet `on-surface-muted` for an unselected tab at rest, on the surface only); accordion headers use the neutral chip fills with `on-surface`. The divider has no text and declares no pair.
 
 ## Typography
 
@@ -547,6 +562,14 @@ def selftest():
     assert (colors["outline"], colors["on-surface-muted"]) == ("{colors.neutral-500}", "{colors.neutral-600}")
     bad = dict(colors, outline="{colors.neutral-300}")  # field border below 3:1 (non-text check): must fail
     assert report(bad, components())[1] == 1
+    assert ring_ok(colors, colors["focus-ring"]) and not ring_ok(dict(colors), "{colors.neutral-300}")  # weak ring must be refused
+    bad = dict(colors, **{"focus-ring": "{colors.neutral-300}"})  # ring below 3:1 on the fills: must fail (once per fill it misses)
+    assert report(bad, components())[1] >= 1
+    hues = "#FFEB3B #84CC16 #22D3EE #FACC15 #4ADE80 #E11D48 #2563EB #7C3AED #F97316 #14B8A6 #EC4899 #A3E635".split()
+    for h in hues:  # every brand color, every neutral tint: the generated ring passes on all fills
+        for tint in ("warm", "cool", "tinted"):
+            c = derive(parser().parse_args(["--brand", h, "--neutral", tint]))[0]
+            assert ring_ok(c, c["focus-ring"]) and report(c, components())[1] == 0, (h, tint)
     try:  # muted text on the same step as the main text: must raise
         check_muted(dict(colors, **{"on-surface-muted": colors["on-surface"]}))
         raise AssertionError("check_muted accepted identical on-surface and on-surface-muted")
