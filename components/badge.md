@@ -1,15 +1,17 @@
 # Badge
 
-A badge is a small count or dot attached to another element (an icon, a tab, an avatar) to signal that something is new or pending. This spec is theme independent: every visual value is a token reference to the DESIGN.md theme.
+A badge is a small, static indicator. It is either a count or a dot attached to another element (an icon, a tab, an avatar) to signal that something is new or pending, or a short text that states a status ("Paid", "Draft", "-7%"). This spec is theme independent: every visual value is a token reference to the DESIGN.md theme.
 
-A badge is not a chip. A badge is never interactive, never stands alone, and shows a number or nothing. A chip is an interactive control with a text label.
+A badge is not a chip. A badge is never interactive. A chip is an interactive control with a text label. A static data tag ("PDF 262 KB") belongs to the same static family: use a `neutral` status badge for it.
+
+The text form is named the **status badge** in this kit. Use that name in code and in conversation, so that it is never confused with a chip.
 
 ## At a glance
 
 | Aspect | Summary |
 |---|---|
 | Parts | `container`, `value` |
-| Types | `count` (number in the container), `dot` (no content) |
+| Types | `count` (number in the container), `dot` (no content), `status` (short text, autonomous) |
 | Variants | `primary`, `danger`, `neutral` |
 | Sizes | `s`, `m` |
 | Interactive states | none (never interactive) |
@@ -19,10 +21,11 @@ A badge is not a chip. A badge is never interactive, never stands alone, and sho
 
 - Use a `count` badge to show a number of unread, new, or pending items on the element they belong to ("3" on an inbox icon).
 - Use a `dot` badge to signal that something is new or needs attention when the number does not matter.
-- Use `danger` for items that need action or signal an error, `primary` for new or unread items, `neutral` for a quiet count.
-- Do not use a badge for a text label such as a status or a category: this kit has no component for it yet.
-- Do not use a badge for an action, a filter, or a removable value: use a chip.
-- Do not use a badge alone, away from the element it describes.
+- Use a `status` badge (the status badge) to state a status or an update in a short static text, next to the content it qualifies or in a table cell ("Paid", "Draft", "New", "-7%"). It stands on its own: it does not need a host.
+- Use a `neutral` status badge for a static data tag that only informs ("PDF 262 KB").
+- Use `danger` for items that need action or signal an error, `primary` for new or unread items, `neutral` for a quiet count or tag.
+- Do not use a badge for an action, a filter, a choice, or a removable value: use a chip. If the user can interact with it, it is not a badge.
+- Do not use a `count` or `dot` badge alone, away from the element it describes.
 
 ## Anatomy
 
@@ -30,10 +33,10 @@ A badge is not a chip. A badge is never interactive, never stands alone, and sho
 
 | Part | Role | Required | Notes |
 |---|---|---|---|
-| `container` | The filled shape; a circle for one digit and for `dot`, a stadium for more | yes | Always present |
-| `value` | The number | `count` only | Absent in `dot` |
+| `container` | The filled shape; a circle for one digit and for `dot`, a stadium for more digits; a rounded rectangle for `status` | yes | Always present |
+| `value` | The number, or the text of a `status` badge | `count` and `status` | Absent in `dot` |
 
-The host is the element the badge is attached to. It is not a part of the badge.
+The host is the element a `count` or `dot` badge is attached to. It is not a part of the badge. A `status` badge has no host.
 
 ### Configurations
 
@@ -42,25 +45,28 @@ The host is the element the badge is attached to. It is not a part of the badge.
 | count | `count` | yes | `primary`, `danger`, `neutral` | yes |
 | dot | `dot` | no | `primary`, `danger` | yes |
 | dot-neutral | `dot` | no | `neutral` | no |
+| status | `status` | yes, text | `primary`, `danger`, `neutral` | yes |
 | count-text | `count` | text, not a number | any | no |
-| standalone | any | any | any | no |
+| status-empty | `status` | no | any | no |
+| standalone-count | `count` or `dot` | any | any | no |
 
 Combination rules:
 
-- `value` is a whole number. Text is not allowed.
+- In a `count`, `value` is a whole number. Text is not allowed there: use `status`.
+- In a `status`, `value` is a short text, a word or two, on one line. No icon, no remove button, no number-only content (use `count`).
 - The `neutral` variant has no `dot`: its fill is too close to the surface to reach the 3:1 contrast of a shape without text (WCAG 1.4.11).
-- A badge is always attached to a host. It never appears without one.
+- A `count` or `dot` badge is always attached to a host. A `status` badge never is.
 
 ## Properties
 
 | Property | Values | Default | Description |
 |---|---|---|---|
-| `type` | `count`, `dot` | `count` | Number or dot |
-| `value` | whole number, 0 or more | none, required for `count` | The number shown |
-| `max` | whole number, 1 or more | 99 | Highest number shown; above it the badge shows `max` followed by "+" |
+| `type` | `count`, `dot`, `status` | `count` | Number, dot, or status text |
+| `value` | whole number, 0 or more (`count`); short text (`status`) | none, required for `count` and `status` | The number or the text shown |
+| `max` | whole number, 1 or more | 99 | `count` only: highest number shown; above it the badge shows `max` followed by "+" |
 | `variant` | `primary`, `danger`, `neutral` | `primary` | Color group |
 | `size` | `s`, `m` | `m` | Named dimension set |
-| `label` | text | none, required | Accessible text that says what the number or dot means ("3 unread messages") |
+| `label` | text | none, required for `count` and `dot` | Accessible text that says what the number or dot means ("3 unread messages"). Not used by `status`: its text is the accessible text |
 
 ## Variants
 
@@ -68,13 +74,15 @@ Combination rules:
 |---|---|---|---|
 | `primary` | solid brand | white | New or unread items |
 | `danger` | solid danger | white | Items that need action, or an error |
-| `neutral` | light neutral | dark neutral | A quiet count that must not draw attention |
+| `neutral` | light neutral | dark neutral | A quiet count, or a data tag, that must not draw attention |
+
+For `status`, the same three variants apply: `primary` for a new or active status ("New"), `danger` for a status that needs action or an error ("Overdue"), `neutral` for a quiet status or tag ("Draft", "PDF 262 KB"). This kit has no semantic success or warning color: see Out of scope.
 
 ## Sizes
 
 ### Decision
 
-Two sizes. `s` suits small hosts (a 20 px icon), `m` the usual hosts. The height of a `count` badge reuses an icon size token, and the dot reuses a spacing token, so density applies to badges without new tokens.
+Two sizes. `s` suits small hosts (a 20 px icon) and dense text, `m` the usual hosts. The height of a `count` badge reuses an icon size token, and the dot reuses a spacing token, so density applies to badges without new tokens. A `status` badge is taller than a `count` badge because it carries text, and always smaller than the smallest chip, so the two never look alike.
 
 ### Size table
 
@@ -83,20 +91,27 @@ Two sizes. `s` suits small hosts (a 20 px icon), `m` the usual hosts. The height
 | `s` | `{spacing.icon-sm}` | `{spacing.xs}` | `{spacing.sm}` | `{typography.label-sm}` |
 | `m` | `{spacing.icon-md}` | `{spacing.xs}` | `{spacing.md}` | `{typography.label-md}` |
 
+| Size | Status height | Status padding inline | Status typography |
+|---|---|---|---|
+| `s` | `{spacing.icon-md}` | `{spacing.sm}` | `{typography.label-sm}` |
+| `m` | `{spacing.icon-lg}` | `{spacing.sm}` | `{typography.label-md}` |
+
 Geometry rules:
 
 - A `count` badge has a fixed height. Its minimum width equals its height, so one digit gives a circle. More digits widen the container into a stadium.
-- The container is always fully rounded. This is a fixed geometry, not a theme value: a badge never follows `{rounded.control}`.
+- The container of `count` and `dot` is always fully rounded. This is a fixed geometry, not a theme value: they never follow `{rounded.control}`.
+- A `status` badge has a fixed height and no minimum width. Its radius is `{rounded.overlay}`: never a stadium, whatever the corner style, and never the chip radius `{rounded.control}`. Together with its smaller height, no border, and no icon, this keeps it visibly different from a chip, including in a theme with pill corners.
+- The `status` text is centered, on one line, never wrapped or truncated.
 - A `dot` is a circle of the dot diameter. It has no padding and no content.
 - The value is centered in the container.
-- The badge is anchored to the top-end corner of its host, centered on that corner. A round host may need a small adjustment, which belongs to the layout.
-- A badge never changes the size or the layout of its host.
+- A `count` or `dot` badge is anchored to the top-end corner of its host, centered on that corner. A round host may need a small adjustment, which belongs to the layout.
+- A `count` or `dot` badge never changes the size or the layout of its host. A `status` badge sits in the flow, aligned on the text baseline of its neighbor.
 
 ## States
 
 ### Interactive states
 
-None: a badge is never interactive and never focusable.
+None: a badge is never interactive and never focusable. This holds for the `status` badge too: no `hover`, `pressed`, or `focus` appearance, no pointer cursor, no button-like look. This is what separates it from a chip.
 
 ### State properties
 
@@ -124,11 +139,13 @@ Cell vocabulary: a token reference, or `none` (no fill, no border). A badge has 
 |---|---|---|
 | `container` | `{colors.neutral-subtle-pressed}` | `{colors.on-surface}` |
 
+The `status` badge uses the same fills and contents as the `count` badge, variant by variant. It has no border.
+
 The badge is at `level-0`: its host carries the depth.
 
 ## Token contract
 
-The theme must define every token below. The badge adds no token: every color is reused from the button and the chip.
+The theme must define every token below. The badge adds no token: every color is reused from the button and the chip, and the `status` badge reuses the same colors and the same `components` entries as the `count` badge.
 
 ### Colors
 
@@ -149,19 +166,26 @@ The theme must define every token below. The badge adds no token: every color is
 | `typography.label-sm` | Value for `s` |
 | `typography.label-md` | Value for `m` |
 
+### Rounded
+
+| Token | Role |
+|---|---|
+| `rounded.overlay` | `status` container radius |
+
 ### Spacing
 
 | Token | Role |
 |---|---|
 | `spacing.icon-sm` | Count height for `s` |
-| `spacing.icon-md` | Count height for `m` |
+| `spacing.icon-md` | Count height for `m`; status height for `s` |
+| `spacing.icon-lg` | Status height for `m` |
 | `spacing.xs` | Count padding inline |
-| `spacing.sm` | Dot diameter for `s` |
+| `spacing.sm` | Dot diameter for `s`; status padding inline |
 | `spacing.md` | Dot diameter for `m` |
 
 ### Components entries (contrast checks)
 
-One entry per variant, using only the standard `backgroundColor` and `textColor` properties. The badge has no interactive state, so the entries have no state suffix. The `primary` and `danger` fills are checked against `{colors.surface}` by the State colors rule of `docs/conventions.md`, which makes the `dot` shape visible.
+One entry per variant, shared by `count`, `dot`, and `status`, using only the standard `backgroundColor` and `textColor` properties. The badge has no interactive state, so the entries have no state suffix. The `primary` and `danger` fills are checked against `{colors.surface}` by the State colors rule of `docs/conventions.md`, which makes the `dot` shape visible.
 
 | Entry | backgroundColor | textColor |
 |---|---|---|
@@ -178,20 +202,20 @@ The badge has no icon and no elevation.
 | Topic | Requirement |
 |---|---|
 | Role | None of its own: a badge is not interactive and has no landmark role. |
-| Accessible text | `label` says what the badge means ("3 unread messages"). It is exposed as text attached to the host, for example in its accessible name or description. The visible digits are hidden from assistive technologies so that the number is not read twice. |
+| Accessible text | `count` and `dot`: `label` says what the badge means ("3 unread messages"). It is exposed as text attached to the host, for example in its accessible name or description. The visible digits are hidden from assistive technologies so that the number is not read twice. `status`: the visible text is the accessible text, in reading order next to what it qualifies; it is not hidden and has no `label`. |
 | `dot` | Has no visible text, so `label` is the only way to know about it. A `dot` without `label` is not allowed. |
-| Not by color alone | The meaning is carried by the number or by `label`, never by the color of the badge alone (WCAG 1.4.1). |
-| Updates | A change of `value` is announced politely (a polite live region) when the host is on screen and the change matters to the user. |
+| Not by color alone | The meaning is carried by the number, the text, or `label`, never by the color of the badge alone (WCAG 1.4.1). A `danger` status says what is wrong in its text. |
+| Updates | A change of `value` is announced politely (a polite live region) when the host or the badge is on screen and the change matters to the user. |
 | Focus | Never focusable; the host follows its own spec. |
 | Target size | Not applicable: not interactive. |
-| Contrast | The value reaches at least 4.5:1 against its container. Delegated to the DESIGN.md lint through the `components` entries of the Token contract. |
+| Contrast | The value (number or status text) reaches at least 4.5:1 against its container. Delegated to the DESIGN.md lint through the `components` entries of the Token contract. |
 
 ## Behavior
 
 - Overflow: a `value` above `max` shows `max` followed by "+" ("99+"). `label` keeps the real number.
-- A `count` of 0 is not rendered. A badge appears and disappears with its host.
-- The badge stays inside the host's hit area: it never intercepts pointer events meant for the host.
-- Value: single line, no wrap, no truncation.
+- A `count` of 0 is not rendered. A `count` or `dot` badge appears and disappears with its host.
+- A `count` or `dot` badge stays inside the host's hit area: it never intercepts pointer events meant for the host. A `status` badge is not part of any hit area: clicking it does nothing.
+- Value: single line, no wrap, no truncation. A `status` text that is too long is shortened by the author, never cut by the badge.
 
 ## Do and don't
 
@@ -202,7 +226,9 @@ The badge has no icon and no elevation.
 | Use `dot` when the number does not matter | Show a large number that nobody can act on |
 | Use `danger` for something that needs action | Use `danger` for plain information |
 | Use a chip for an action or a filter | Make a badge clickable |
+| Name the text form "status badge" and keep it short ("Paid") | Give a `status` badge a hover or pressed look, a border, or an icon |
+| Put the status next to the content it qualifies | Rely on the badge color alone to say "paid" or "late" |
 
 ## Out of scope
 
-Text badges (status, category), interactive badges, animations, dark mode, outline around the badge to separate it from the host, badges on a colored or image host (contrast is checked only against `{colors.surface}`, so the user retouches the colors after generation), and the exact placement on round hosts are not covered by this spec.
+Interactive badges, animations, semantic status colors (success, warning: the theme has no such role, so a `status` badge uses `primary`, `danger`, or `neutral`, and the user adds colors after generation), icons inside a status badge, multi-line status text, dark mode, outline around the badge to separate it from the host, badges on a colored or image host (contrast is checked only against `{colors.surface}`, so the user retouches the colors after generation), and the exact placement on round hosts are not covered by this spec.

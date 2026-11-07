@@ -119,10 +119,10 @@ Cell vocabulary: a token reference, or `none`. A link has no container and no bo
 | `enabled` | `{colors.primary}` |
 | `hover` | `{colors.primary-hover}` |
 | `pressed` | `{colors.primary-pressed}` |
-| `visited` | `{colors.on-surface}` |
+| `visited` | `{colors.link-visited}` |
 | `disabled` | `{colors.on-disabled}` |
 
-The state moves the content color, because there is no fill to move. Each color is darker than the previous one, and `visited` is a neutral that never equals a brand color.
+The state moves the content color, because there is no fill to move. `enabled`, `hover`, and `pressed` are each darker than the previous one. `visited` has its own color, `{colors.link-visited}`, a violet that is different from `{colors.primary}` and from `{colors.on-surface}` so that a visited link is recognizable by color in running text.
 
 ### Focus ring
 
@@ -134,7 +134,7 @@ The state moves the content color, because there is no fill to move. Each color 
 
 ## Token contract
 
-The theme must define every token below. The link adds no token: every color is reused from the button and the chip.
+The theme must define every token below. The link adds one token, `colors.link-visited`; every other color is reused from the button and the chip.
 
 ### Colors
 
@@ -144,7 +144,7 @@ The theme must define every token below. The link adds no token: every color is 
 | `colors.primary` | `enabled` content |
 | `colors.primary-hover` | `hover` content |
 | `colors.primary-pressed` | `pressed` content |
-| `colors.on-surface` | `visited` content |
+| `colors.link-visited` | `visited` content. Default: a violet reaching 4.5:1 against `colors.surface`, different from `colors.primary` and `colors.on-surface` |
 | `colors.on-disabled` | `disabled` content |
 | `colors.focus-ring` | Focus ring |
 
@@ -184,7 +184,7 @@ One entry per state that changes the content color, using only the standard `bac
 | `link` | `{colors.surface}` | `{colors.primary}` |
 | `link-hover` | `{colors.surface}` | `{colors.primary-hover}` |
 | `link-pressed` | `{colors.surface}` | `{colors.primary-pressed}` |
-| `link-visited` | `{colors.surface}` | `{colors.on-surface}` |
+| `link-visited` | `{colors.surface}` | `{colors.link-visited}` |
 | `link-focus-ring` | `{colors.surface}` | `{colors.focus-ring}` |
 
 ### Non-token requirement

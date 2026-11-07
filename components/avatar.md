@@ -1,6 +1,6 @@
 # Avatar
 
-An avatar is a small circular visual that identifies a person or an entity, with an image, initials, or a generic icon. This spec is theme independent: every visual value is a token reference to the DESIGN.md theme.
+An avatar is a small visual that identifies a person or an entity, with an image, initials, or a generic icon. This spec is theme independent: every visual value is a token reference to the DESIGN.md theme.
 
 ## At a glance
 
@@ -27,7 +27,7 @@ An avatar is a small circular visual that identifies a person or an entity, with
 
 | Part | Role | Required | Notes |
 |---|---|---|---|
-| `container` | Circular clip and fill | yes | Always present |
+| `container` | Clip and fill, shaped by `{rounded.avatar}` | yes | Always present |
 | `image` | Picture of the person or entity | no | Covers the container fully |
 | `initials` | First letters of the name | no | Shown when no image is available |
 | `fallback-icon` | Generic person icon | no | Shown when neither image nor initials are available |
@@ -77,10 +77,10 @@ Four sizes, each with its own tokens. `xs` fits dense rows and stacked lists, `l
 
 Geometry rules:
 
-- The avatar is a square box of the diameter, always clipped to a circle. This is a fixed geometry, not a theme value: an avatar never follows `{rounded.control}`.
+- The avatar is a square box of the diameter, clipped with the radius `{rounded.avatar}`. The theme sets it to the largest radius by default, so the avatar is a circle whatever the corner style of the controls. The user can change the shape after generation by editing this one value (a smaller radius gives a rounded square).
 - `image` covers the container fully and is cropped to fill it, never stretched.
 - `initials` and `fallback-icon` are centered.
-- Initials: up to two letters, the first letter of the first and of the last word of `name`, in uppercase. Size `xs` shows only the first letter. Two letters that do not fit in the circle are replaced by the first one.
+- Initials: up to two letters, the first letter of the first and of the last word of `name`, in uppercase. Size `xs` shows only the first letter. Two letters that do not fit in the container are replaced by the first one.
 - The avatar has no border and no padding.
 - Icons inherit the content color.
 
@@ -141,6 +141,12 @@ The theme must define every token below. The avatar adds no token: every color i
 | `spacing.control-md` | Diameter for `m` |
 | `spacing.control-xl` | Diameter for `l` |
 
+### Rounded
+
+| Token | Role |
+|---|---|
+| `rounded.avatar` | Container radius, applied to the image, the initials, and the icon fill alike |
+
 ### Components entries (contrast checks)
 
 One entry for the single group, using only the standard `backgroundColor` and `textColor` properties. The avatar has no interactive state, so the entry has no state suffix. The pair equals `chip-default-pressed`; the avatar still declares its own entry so that the contrast report names the avatar and a theme stays valid whatever components it includes.
@@ -183,4 +189,4 @@ Icon style and library come from the `## Icons` section of DESIGN.md. `fallback-
 
 ## Out of scope
 
-Square or rounded avatars, avatar groups, presence or status indicators, upload or edit overlays, colored fills chosen from the name, animations, dark mode, and avatars on colored or image backgrounds (contrast is checked only against `{colors.surface}`) are not covered by this spec.
+Avatar groups, presence or status indicators, upload or edit overlays, colored fills chosen from the name, animations, dark mode, and avatars on colored or image backgrounds (contrast is checked only against `{colors.surface}`) are not covered by this spec.

@@ -57,6 +57,7 @@
   --color-neutral-subtle-pressed: #D4D4D4;
   --color-inverse-surface: #2E2E2E;
   --color-on-inverse-surface: #FFFFFF;
+  --color-link-visited: #7D56B8;
   --spacing-control-xs: 28px;
   --spacing-control-sm: 32px;
   --spacing-control-md: 40px;
@@ -78,6 +79,7 @@
   --spacing-focus-ring-offset: 2px;
   --rounded-control: 4px;
   --rounded-overlay: 4px;
+  --rounded-avatar: 9999px;
   --typography-label-sm-font-family: system-ui, sans-serif;
   --typography-label-sm-font-size: 12px;
   --typography-label-sm-font-weight: 500;

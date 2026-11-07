@@ -56,6 +56,7 @@ colors:
   neutral-subtle-pressed: "{colors.neutral-200}"
   inverse-surface: "{colors.neutral-900}"
   on-inverse-surface: "#FFFFFF"
+  link-visited: "#7D56B8"
 typography:
   label-sm:
     fontFamily: "system-ui"
@@ -84,6 +85,7 @@ typography:
 rounded:
   control: 4px
   overlay: 4px
+  avatar: 9999px
 spacing:
   control-xs: 28px
   control-sm: 32px
@@ -197,7 +199,7 @@ components:
     textColor: "{colors.primary-pressed}"
   link-visited:
     backgroundColor: "{colors.surface}"
-    textColor: "{colors.on-surface}"
+    textColor: "{colors.link-visited}"
   link-focus-ring:
     backgroundColor: "{colors.surface}"
     textColor: "{colors.focus-ring}"
@@ -227,7 +229,7 @@ Design System is a design system theme for buttons, chips, tooltips, dividers, l
 
 ## Colors
 
-The theme has three primitive scales: `blue-50` to `blue-900` for the brand, `red-50` to `red-900` for destructive actions, and `neutral-50` to `neutral-900` for grays and backgrounds. State colors are semantic tokens that point to scale steps. The `default` step is the first step from 600 to 900 reaching 4.5:1 in the worse case between white and `{colors.surface}`; `hover` is `default` plus 2 steps and `pressed` is `default` plus 4 steps, stopped at 900. Here the brand `default` is `blue-600` and the danger `default` is `red-600`. Content on a filled brand or danger color (`on-primary`, `on-danger`) is always white. Tonal containers use steps 50, 100 and 200 (enabled, hover, pressed); `on-primary-container` and `on-primary-subtle` are the first step from 700 to 900 reaching 4.5:1 on every background they serve. The neutral chip uses `surface`, `neutral-subtle-hover` and `neutral-subtle-pressed` (neutral 50, 100, 200) with `on-surface`, found by the same search on the neutral scale. The tooltip is `inverse-surface` (neutral 900) with white `on-inverse-surface`. Links, badges, avatars and progress indicators reuse these tokens: the link moves its content color (`primary`, `primary-hover`, `primary-pressed`, `on-surface` when visited) on the surface, the avatar and the neutral badge use `neutral-subtle-pressed` with `on-surface`, and the progress indicator is `primary` or `danger` on the surface. The divider has no text and declares no pair.
+The theme has three primitive scales: `blue-50` to `blue-900` for the brand, `red-50` to `red-900` for destructive actions, and `neutral-50` to `neutral-900` for grays and backgrounds. State colors are semantic tokens that point to scale steps. The `default` step is the first step from 600 to 900 reaching 4.5:1 in the worse case between white and `{colors.surface}`; `hover` is `default` plus 2 steps and `pressed` is `default` plus 4 steps, stopped at 900. Here the brand `default` is `blue-600` and the danger `default` is `red-600`. Content on a filled brand or danger color (`on-primary`, `on-danger`) is always white. Tonal containers use steps 50, 100 and 200 (enabled, hover, pressed); `on-primary-container` and `on-primary-subtle` are the first step from 700 to 900 reaching 4.5:1 on every background they serve. The neutral chip uses `surface`, `neutral-subtle-hover` and `neutral-subtle-pressed` (neutral 50, 100, 200) with `on-surface`, found by the same search on the neutral scale. The tooltip is `inverse-surface` (neutral 900) with white `on-inverse-surface`. Links, badges, avatars and progress indicators reuse these tokens: the link moves its content color (`primary`, `primary-hover`, `primary-pressed`, then its own violet `link-visited` when visited) on the surface, the avatar and the neutral badge use `neutral-subtle-pressed` with `on-surface`, and the progress indicator is `primary` or `danger` on the surface. The divider has no text and declares no pair.
 
 ## Typography
 
@@ -252,7 +254,7 @@ This theme defines no shadow token: the elevation scale is this table.
 
 ## Shapes
 
-Corners are soft: `rounded.control` is 4px and `rounded.overlay` (tooltip) is 4px.
+Corners are soft: `rounded.control` is 4px and `rounded.overlay` (tooltip) is 4px. `rounded.avatar` is 9999px (a circle) whatever the corners; edit it to change the avatar shape.
 
 ## Icons
 

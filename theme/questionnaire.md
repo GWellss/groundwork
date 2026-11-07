@@ -64,7 +64,7 @@ Before asking anything, find out which tools you have. Pick the highest level th
 | `danger` | `#DC2626` | danger scale; `danger`, `on-danger`, `danger-hover`, `danger-pressed` |
 | `neutral` | neutral | neutral scale; `surface`, `on-surface`, `neutral-subtle-hover`, `neutral-subtle-pressed`, `inverse-surface`, `outline`, `disabled-container`, `on-disabled` |
 | `font` | system UI font | `fontFamily` of the typography tokens |
-| `corners` | soft | `rounded.control`, `rounded.overlay` |
+| `corners` | soft | `rounded.control`, `rounded.overlay` (`rounded.avatar` is constant, see "Rounded") |
 | `density` | default | `spacing` sizes (control, icon, gaps, paddings, `tooltip-max-width`), `fontSize` of the typography tokens |
 | `icons` | outlined, Material Symbols | `## Icons` section (no token) |
 
@@ -109,7 +109,7 @@ For the neutral scale, set `neutral-50` to lightness 0.99, so that the surface i
 
 - `on-primary-container`: content of the `tonal` variant and of the `selected` chip, on the backgrounds `primary-container`, `primary-container-hover`, and `primary-container-pressed` (brand steps `50`, `100`, `200`).
 - `on-primary-subtle`: content of the `outlined` and `text` variants on hover and pressed, on the backgrounds `primary-subtle-hover` and `primary-subtle-pressed` (brand steps `50` and `100`).
-- `on-surface`: content of the `default` chip, of the chip remove button, of the visited link, of the avatar, and of the neutral badge, on the backgrounds `surface`, `neutral-subtle-hover`, and `neutral-subtle-pressed` (neutral steps `50`, `100`, `200`: the "Surface scale" sequence of `docs/conventions.md`).
+- `on-surface`: content of the `default` chip, of the chip remove button, of the avatar, and of the neutral badge, on the backgrounds `surface`, `neutral-subtle-hover`, and `neutral-subtle-pressed` (neutral steps `50`, `100`, `200`: the "Surface scale" sequence of `docs/conventions.md`).
 
 For each of them, apply the content step search of `docs/conventions.md`: test steps `700`, `800`, then `900` of the scale of its backgrounds (brand scale for the first two, neutral scale for `on-surface`), and keep the first one that reaches 4.5:1 against every background it serves. Never change a background to make a content color pass. If no step passes for `on-surface`, report the pair to the user instead of forcing it.
 
@@ -119,7 +119,7 @@ Apply the State colors rule of `docs/conventions.md` to the brand scale and to t
 
 ### Semantic color tokens
 
-Write the colors of the token contracts of the button, the chip (new colors), and the tooltip (new colors) as references (divider, link, badge, avatar, and progress add no color) to scale steps. `<brand>` and `<danger>` are the scale names; `d` is the `default` step of the corresponding scale; `c` is the step found by the content step search above; `n` is the step found by the same search on the neutral scale for `on-surface`.
+Write the colors of the token contracts of the button, the chip (new colors), and the tooltip (new colors) as references (divider, badge, avatar, and progress add no color; the link adds only `link-visited`) to scale steps. `<brand>` and `<danger>` are the scale names; `d` is the `default` step of the corresponding scale; `c` is the step found by the content step search above; `n` is the step found by the same search on the neutral scale for `on-surface`.
 
 | Token | Value |
 |---|---|
@@ -148,6 +148,7 @@ Write the colors of the token contracts of the button, the chip (new colors), an
 | `neutral-subtle-pressed` | `{colors.neutral-200}` |
 | `inverse-surface` | `{colors.neutral-900}` |
 | `on-inverse-surface` | `#FFFFFF` |
+| `link-visited` | a hex value, no question asked: violet (OKLCH hue 300) at the first lightness from 0.54 downward, in steps of 0.02, reaching 4.5:1 on `surface`; green (hue 120) instead when the brand range is `indigo` or `violet`, so that it never looks like `primary`. At Level 3, copy it from the `link-visited` section of `theme/palettes.md` |
 
 If a pair fails, never make two states identical, never move a background back to an earlier step, and never lower the 4.5:1 threshold (see "Contrast pairs" in `docs/conventions.md`). Only the content step can change, within its search. If no step passes, report the pair to the user instead of forcing it, following "When a color cannot reach AA".
 
@@ -165,7 +166,7 @@ Fallback stack: in `tokens.css`, the font family is followed by generic fallback
 
 ### Rounded
 
-Write `rounded.control` and `rounded.overlay`. The overlay radius is moderate in every corner style, so that a multi-line overlay (the tooltip) never turns into a stadium shape.
+Write `rounded.control`, `rounded.overlay`, and `rounded.avatar`. The overlay radius is moderate in every corner style, so that a multi-line overlay (the tooltip) never turns into a stadium shape. `rounded.avatar` is `9999px` (a circle) in every corner style and is not asked: the user edits it after generation to change the avatar shape.
 
 | Answer to `corners` | `rounded.control` | `rounded.overlay` |
 |---|---|---|

@@ -32,11 +32,12 @@ LIGHT = (0.97, 0.93, 0.87, 0.79, 0.70, 0.62, 0.54, 0.46, 0.38, 0.30)
 SHARE = (0.15, 0.30, 0.50, 0.75, 0.90, 1.0, 1.0, 1.0, 0.90, 0.75)
 NEUTRAL_TINT = {"neutral": (0.0, 0), "warm": (0.010, 70), "cool": (0.010, 250)}
 WHITE = "#FFFFFF"
-ACCENT = ("primary", "primary-hover", "primary-pressed", "danger", "focus-ring")
+ACCENT = ("primary", "primary-hover", "primary-pressed", "danger", "focus-ring", "link-visited")
 
 SIZES = ("sm", "md", "lg", "xl")
 FONT_SIZE = {"compact": (12, 13, 14, 16), "default": (12, 14, 16, 18), "comfortable": (13, 15, 17, 20)}
 ROUNDED = {"sharp": "0px", "soft": "4px", "rounded": "8px", "pill": "9999px"}
+AVATAR_RADIUS = "9999px"  # rounded.avatar: round by default whatever the corners; the user edits it after generation
 OVERLAY = {**ROUNDED, "pill": "8px"}  # never a stadium shape
 SPACING = {  # token: (compact, default, comfortable)
     "control-xs": (24, 28, 32), "control-sm": (28, 32, 40), "control-md": (32, 40, 48),
@@ -179,6 +180,12 @@ def issues(scale, d, base_chroma):
     return out
 
 
+def link_visited(surface, collides):
+    """Violet (OKLCH hue 300; green, 120, when the brand is indigo or violet) at the first lightness from 0.54 down reaching 4.5:1 on the surface."""
+    h = 120 if collides else 300
+    return next(x for x in (to_hex(0.54 - 0.02 * i, 0.15, h) for i in range(20)) if contrast(x, surface) >= 4.5)
+
+
 def proposal(hx):
     h = to_oklch(hx)[2]
     return to_hex(0.54, 0.4, h)  # to_hex reduces the chroma to the highest value that fits sRGB
@@ -229,8 +236,9 @@ def derive(a):
         "on-disabled": "{colors.neutral-500}", "focus-ring": ref(b, bd),
         "on-surface": None, "neutral-subtle-hover": "{colors.neutral-100}", "neutral-subtle-pressed": "{colors.neutral-200}",
         "inverse-surface": "{colors.neutral-900}", "on-inverse-surface": WHITE,
+        "link-visited": link_visited(surface, b in ("indigo", "violet")),
     }
-    assert len(sem) == 25
+    assert len(sem) == 26
     flat.update(sem)
     for tok, sc in (("on-primary-container", b), ("on-primary-subtle", b), ("on-surface", "neutral")):
         bgs = [resolve(flat, "{colors.%s}" % bg) for _, bg, fg in components() if fg == tok]  # darkest decides
@@ -258,7 +266,7 @@ def components():
     out.append(("chip-focus-ring", "surface", "focus-ring"))
     out.append(("tooltip-plain", "inverse-surface", "on-inverse-surface"))
     for n, fg in (("link", "primary"), ("link-hover", "primary-hover"), ("link-pressed", "primary-pressed"),
-                  ("link-visited", "on-surface"), ("link-focus-ring", "focus-ring")):
+                  ("link-visited", "link-visited"), ("link-focus-ring", "focus-ring")):
         out.append((n, "surface", fg))  # no fill: the content color moves, not the background
     out += [("badge-primary", "primary", "on-primary"), ("badge-danger", "danger", "on-danger"),
             ("badge-neutral", "neutral-subtle-pressed", "on-surface"), ("avatar-default", "neutral-subtle-pressed", "on-surface"),
@@ -336,7 +344,7 @@ def design_md(a, colors, info, comps):
     for s, px in zip(SIZES, sizes):
         y += ["  label-" + s + ":", "    fontFamily: " + q(a.font), "    fontSize: %dpx" % px, "    fontWeight: 500",
               "    lineHeight: %dpx" % math.floor(px * 1.25 + 0.5), "    letterSpacing: 0px"]
-    y += ["rounded:", "  control: " + ROUNDED[a.corners], "  overlay: " + OVERLAY[a.corners], "spacing:"]
+    y += ["rounded:", "  control: " + ROUNDED[a.corners], "  overlay: " + OVERLAY[a.corners], "  avatar: " + AVATAR_RADIUS, "spacing:"]
     y += ["  %s: %dpx" % (k, v[di]) for k, v in SPACING.items()]
     y += ["  border-width: 1px", "  focus-ring-width: 2px", "  focus-ring-offset: 2px", "components:"]
     for n, bg, fg in comps:
@@ -353,7 +361,7 @@ def design_md(a, colors, info, comps):
 
 ## Colors
 
-The theme has three primitive scales: {sc('brand')} for the brand, {sc('danger')} for destructive actions, and {sc('neutral')} for grays and backgrounds. State colors are semantic tokens that point to scale steps. The `default` step is the first step from 600 to 900 reaching 4.5:1 in the worse case between white and `{{colors.surface}}`; `hover` is `default` plus 2 steps and `pressed` is `default` plus 4 steps, stopped at 900. Here the brand `default` is `{ni['brand']}-{STEPS[ix['brand']]}` and the danger `default` is `{ni['danger']}-{STEPS[ix['danger']]}`. Content on a filled brand or danger color (`on-primary`, `on-danger`) is always white. Tonal containers use steps 50, 100 and 200 (enabled, hover, pressed); `on-primary-container` and `on-primary-subtle` are the first step from 700 to 900 reaching 4.5:1 on every background they serve. The neutral chip uses `surface`, `neutral-subtle-hover` and `neutral-subtle-pressed` (neutral 50, 100, 200) with `on-surface`, found by the same search on the neutral scale. The tooltip is `inverse-surface` (neutral 900) with white `on-inverse-surface`. Links, badges, avatars and progress indicators reuse these tokens: the link moves its content color (`primary`, `primary-hover`, `primary-pressed`, `on-surface` when visited) on the surface, the avatar and the neutral badge use `neutral-subtle-pressed` with `on-surface`, and the progress indicator is `primary` or `danger` on the surface. The divider has no text and declares no pair.
+The theme has three primitive scales: {sc('brand')} for the brand, {sc('danger')} for destructive actions, and {sc('neutral')} for grays and backgrounds. State colors are semantic tokens that point to scale steps. The `default` step is the first step from 600 to 900 reaching 4.5:1 in the worse case between white and `{{colors.surface}}`; `hover` is `default` plus 2 steps and `pressed` is `default` plus 4 steps, stopped at 900. Here the brand `default` is `{ni['brand']}-{STEPS[ix['brand']]}` and the danger `default` is `{ni['danger']}-{STEPS[ix['danger']]}`. Content on a filled brand or danger color (`on-primary`, `on-danger`) is always white. Tonal containers use steps 50, 100 and 200 (enabled, hover, pressed); `on-primary-container` and `on-primary-subtle` are the first step from 700 to 900 reaching 4.5:1 on every background they serve. The neutral chip uses `surface`, `neutral-subtle-hover` and `neutral-subtle-pressed` (neutral 50, 100, 200) with `on-surface`, found by the same search on the neutral scale. The tooltip is `inverse-surface` (neutral 900) with white `on-inverse-surface`. Links, badges, avatars and progress indicators reuse these tokens: the link moves its content color (`primary`, `primary-hover`, `primary-pressed`, then its own violet `link-visited` when visited) on the surface, the avatar and the neutral badge use `neutral-subtle-pressed` with `on-surface`, and the progress indicator is `primary` or `danger` on the surface. The divider has no text and declares no pair.
 
 ## Typography
 
@@ -373,7 +381,7 @@ This theme defines no shadow token: the elevation scale is this table.
 
 ## Shapes
 
-Corners are {a.corners}: `rounded.control` is {ROUNDED[a.corners]} and `rounded.overlay` (tooltip) is {OVERLAY[a.corners]}.
+Corners are {a.corners}: `rounded.control` is {ROUNDED[a.corners]} and `rounded.overlay` (tooltip) is {OVERLAY[a.corners]}. `rounded.avatar` is {AVATAR_RADIUS} (a circle) whatever the corners; edit it to change the avatar shape.
 
 ## Icons
 
@@ -409,7 +417,8 @@ def tokens_css(a, colors):
     v += ["  --color-%s: %s;" % (k, resolve(colors, c)) for k, c in colors.items()]
     v += ["  --spacing-%s: %dpx;" % (k, x[di]) for k, x in SPACING.items()]
     v += ["  --spacing-border-width: 1px;", "  --spacing-focus-ring-width: 2px;", "  --spacing-focus-ring-offset: 2px;"]
-    v += ["  --rounded-control: %s;" % ROUNDED[a.corners], "  --rounded-overlay: %s;" % OVERLAY[a.corners]]
+    v += ["  --rounded-control: %s;" % ROUNDED[a.corners], "  --rounded-overlay: %s;" % OVERLAY[a.corners],
+          "  --rounded-avatar: %s;" % AVATAR_RADIUS]
     for s, px in zip(SIZES, FONT_SIZE[a.density]):
         t = "  --typography-label-%s-" % s
         v += [t + "font-family: %s;" % font_stack(a.font), t + "font-size: %dpx;" % px, t + "font-weight: 500;",
@@ -465,6 +474,10 @@ def palettes_md():
         if notes:
             out += ["", "Note: %s." % "; ".join(notes) + (" No AA step." if d is None else "")]
         out.append("")
+    out += ["## link-visited", "",
+            "Color of a visited link. Use the first row, except when the brand range is `indigo` or `violet`: then use the second row.", "",
+            "| Brand range | Token value |", "|---|---|",
+            "| any other | `%s` |" % link_visited(surface, False), "| `indigo`, `violet` | `%s` |" % link_visited(surface, True)]
     return "\n".join(out).rstrip() + "\n"
 
 
@@ -489,16 +502,21 @@ def selftest():
     assert report(bad, components())[1] == 4
     bad = dict(colors, **{"primary-hover": "{colors.blue-600}"})  # link hover equal to enabled: must fail
     assert any(w for n, _, _, _, w in check(bad, components()) if n == "link-hover")
-    assert len(colors) - 30 == 25 and len(components()) == 38, "25 semantic colors, 38 components entries"
+    assert len(colors) - 30 == 26 and len(components()) == 38, "26 semantic colors, 38 components entries"
+    lv = resolve(colors, colors["link-visited"])
+    assert contrast(lv, colors["neutral-50"]) >= 4.5, lv
+    assert lv not in [resolve(colors, colors[k]) for k in ("primary", "on-surface", "primary-hover", "primary-pressed")], lv
+    c3, _ = derive(parser().parse_args(["--brand", "#7C3AED"]))
+    assert c3["link-visited"] != colors["link-visited"], "violet brand: visited switches to green"
     assert colors["on-surface"].startswith("{colors.neutral-") and colors["inverse-surface"] == "{colors.neutral-900}"
     text = design_md(a, colors, info, components())
     front = text.split("---")[1]
     assert not re.search(r"shadow|elevation", front, re.I), "no shadow key in the front matter or in components"
     rows = re.findall(r"^\| `(level-\d)` \|.*\| (.+) \|$", text, re.M)
     assert [r[0] for r in rows] == ["level-%d" % i for i in range(6)] and rows[0][1] == "none", rows
-    assert "  overlay: 4px" in front and "  tooltip-max-width: 240px" in front
+    assert "  overlay: 4px" in front and "  avatar: 9999px" in front and "  tooltip-max-width: 240px" in front
     css = tokens_css(a, colors)
-    for pre in ("--color-primary:", "--color-blue-600:", "--spacing-control-md:", "--rounded-control:",
+    for pre in ("--color-primary:", "--color-blue-600:", "--spacing-control-md:", "--rounded-control:", "--rounded-avatar: 9999px;",
                 "--typography-label-md-font-size:", "--typography-label-md-font-family: system-ui, sans-serif;",
                 "--typography-label-xl-letter-spacing:", "--elevation-level-0: none;", "--elevation-level-5:"):
         assert "  " + pre in css, pre
