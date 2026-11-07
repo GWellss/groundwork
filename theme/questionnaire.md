@@ -340,7 +340,7 @@ A brand, danger, success or warning color is unusable as it stands in any of the
 
 - No step from `600` to `900` of its scale reaches 4.5:1 against the `on-*` color and `surface`.
 - For the brand color, no step from `700` to `900` reaches 4.5:1 against every background of `on-primary-container` or `on-primary-subtle`.
-- The `default` step is `700` or later: hover and pressed would collapse onto the same step.
+- For the brand and danger colors (the only ones with solid hover and pressed), the `default` step is `700` or later: hover and pressed would collapse onto the same step.
 - At the `default` step, the chroma is below half of the base chroma: the color has turned muddy and no longer looks like the brand.
 
 Do this:

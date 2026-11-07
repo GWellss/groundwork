@@ -29,9 +29,9 @@ The user gives only the base color. The agent that fills the theme builds the sc
 | hover | default plus 2 steps |
 | pressed | default plus 4 steps |
 | scale end | If a step goes past the end of the scale, stop at the last step |
-| distinct states | If hover and pressed land on the same step after the stop, the color is unusable: report it, never merge two states |
+| distinct states | For brand and danger (success and warning have no solid hover or pressed): if hover and pressed land on the same step after the stop, the color is unusable: report it, never merge two states |
 
-Consequence of the scale end: if default is step `700` or later, hover (+2) and pressed (+4) both land on `900` and become identical. The color is then declared unusable, the theme script exits with code 2 and proposes an alternative color, and the theme agent follows "When a color cannot reach AA" in `theme/questionnaire.md`.
+Consequence of the scale end: for brand and danger, if default is step `700` or later, hover (+2) and pressed (+4) both land on `900` and become identical. The color is then declared unusable, the theme script exits with code 2 and proposes an alternative color, and the theme agent follows "When a color cannot reach AA" in `theme/questionnaire.md`.
 
 Example (illustrative): white on `blue-500` gives 3.68:1, which fails, and `500` is not a solid step anyway. Default is therefore `blue-600`, hover `blue-800`, and pressed `blue-900` (capped at the last step).
 

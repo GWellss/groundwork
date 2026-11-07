@@ -172,11 +172,11 @@ def content_index(scale, bgs):
     return next((i for i in (7, 8, 9) if all(contrast(scale[i], x) >= 4.5 for x in bgs)), None)
 
 
-def issues(scale, d, base_chroma):
+def issues(scale, d, base_chroma, states=True):  # states: the role has solid hover and pressed (brand, danger)
     if d is None:
         return ["no step from 600 to 900 reaches 4.5:1 against white and the surface"]
     out = []
-    if min(d + 2, 9) == min(d + 4, 9):
+    if states and min(d + 2, 9) == min(d + 4, 9):
         out.append("default step is %d: hover and pressed would collapse onto the same step" % STEPS[d])
     if to_oklch(scale[d])[1] < base_chroma / 2:
         out.append("chroma at the default step is below half of the base chroma (muddy color)")
@@ -206,7 +206,7 @@ def derive(a):
         name, base = names[key], getattr(a, key)
         scale, c = color_scale(base)
         d = default_index(scale, surface)
-        problems = issues(scale, d, c)
+        problems = issues(scale, d, c, key in ("brand", "danger"))
         if problems:
             raise ValueError("The %s color %s cannot give accessible buttons with white text: %s.\n"
                              "Proposed alternative (same hue, lightness 0.54, highest chroma in sRGB): %s\n"
@@ -565,6 +565,9 @@ def selftest():
     assert [info["idx"][k] for k in ROLES] == [6, 6, 6, 6], info
     assert (colors["danger-hover"], colors["danger-pressed"]) == ("{colors.red-800}", "{colors.red-900}") and "success-hover" not in colors and "warning-pressed" not in colors
     assert colors["primary-pressed"] == "{colors.blue-900}"
+    sc = color_scale(a.success)[0]  # default at 700: refused where hover and pressed exist, accepted for success and warning
+    assert any("collapse" in m for m in issues(sc, 7, 0.0, True)) and not any("collapse" in m for m in issues(sc, 7, 0.0, False))
+    assert derive(parser().parse_args(["--success", "#14532D"]))
     assert issues(color_scale(a.brand)[0], None, 0.1) and issues(color_scale(a.brand)[0], 7, 0.0)
     assert (colors["primary-container-pressed"], colors["primary-subtle-pressed"]) == ("{colors.blue-200}", "{colors.blue-100}")
     assert report(colors, components())[1] == 0
