@@ -1,6 +1,6 @@
 # Theme questionnaire
 
-This file is for an AI agent. Follow it to produce a valid DESIGN.md theme from the fewest possible answers from the user. Token names come from the Token contract of every component spec in `components/` (`button.md`, `chip.md`, `tooltip.md`, `divider.md`, `link.md`, `badge.md`, `avatar.md`, `progress.md`); conventions come from `docs/conventions.md`. Both take precedence over this file if they differ. The contrast rule is defined once, in the "State colors" and "Contrast pairs" sections of `docs/conventions.md`; this file applies it and does not restate it.
+This file is for an AI agent. Follow it to produce a valid DESIGN.md theme from the fewest possible answers from the user. Token names come from the Token contract of every component spec in `components/` (`button.md`, `chip.md`, `tooltip.md`, `divider.md`, `link.md`, `badge.md`, `avatar.md`, `progress.md`, `text-field.md`, `search-field.md`); conventions come from `docs/conventions.md`. Both take precedence over this file if they differ. The contrast rule is defined once, in the "State colors" and "Contrast pairs" sections of `docs/conventions.md`; this file applies it and does not restate it.
 
 ## Step 0: identify your level
 
@@ -32,7 +32,7 @@ Before asking anything, find out which tools you have. Pick the highest level th
 - You do: ask the questions. Replace the `brand`, `danger`, `success` and `warning` questions with "Choose the range closest to your brand color" among the 14 ranges of `theme/palettes.md`. If the user gives a hex code, propose the closest range and say that the match is approximate. For the `neutral` question, map the answer to a range of `theme/palettes.md`: neutral → `gray`, warm → `warm-gray`, cool → `cool-gray`. Do not offer the "tinted with the brand color" option at this level, because no precomputed range exists for it: propose only the other three, and if the user wants a tinted gray, say that it requires Level 1 or Level 2. Take density, corners, and typography from the default tables below. Copy the precomputed steps (`default`, `hover`, `pressed`, and the other steps of the range) into the DESIGN.md. For the neutral-derived colors, use the range chosen for `neutral` (`gray`, `warm-gray`, or `cool-gray`): `on-surface` is the `on-container` row of that range (step `700`, searched against steps `50`, `100`, `200`, which are `surface`, `neutral-subtle-hover`, and `neutral-subtle-pressed`); `neutral-subtle-hover` is step `100`, `neutral-subtle-pressed` is step `200`, `inverse-surface` is step `900`, and `on-inverse-surface` is white. Name the copied scale `neutral` in the DESIGN.md. If a value needed here is missing from `theme/palettes.md`, say so to the user instead of computing it.
 - Elevation: copy the default table of "Elevation" below; it needs no computation.
 - `tokens.css`: no script writes it at this level. If code is to be generated, write it by copying the values of the DESIGN.md under the variable names of `docs/implementation.md`, semantic colors resolved to the hex of their step, and the font family followed by the fallback stack of "Typography" below. Copy only; never compute.
-- You delegate: the final check, to the user, with an online contrast checker such as WebAIM Contrast Checker (https://webaim.org/resources/contrastchecker/). List the key pairs to check, each with its two hex values: every `components` entry that pairs a background with a text color (including the `chip-*`, `link-*`, `badge-*`, `avatar-default`, `progress-*` entries and `tooltip-plain`), and at least the `primary` on `surface` pair. Neutral-derived values (`on-surface`, `neutral-subtle-hover`, `neutral-subtle-pressed`, `inverse-surface`) come from the range chosen for `neutral`, as described in "Semantic color tokens".
+- You delegate: the final check, to the user, with an online contrast checker such as WebAIM Contrast Checker (https://webaim.org/resources/contrastchecker/). List the key pairs to check, each with its two hex values: every `components` entry that pairs a background with a text color (including the `chip-*`, `link-*`, `badge-*`, `avatar-default`, `progress-*`, `text-field*`, `search-field-clear*` entries and `tooltip-plain`), and at least the `primary` on `surface` pair. Neutral-derived values (`on-surface`, `on-surface-muted`, `neutral-subtle-hover`, `neutral-subtle-pressed`, `inverse-surface`) come from the range chosen for `neutral`, as described in "Semantic color tokens".
 - Done when: the DESIGN.md is delivered, the list of pairs to check is given, and you have said that the contrast was copied from precomputed values and not verified in this conversation.
 
 ## Principle
@@ -66,7 +66,7 @@ Before asking anything, find out which tools you have. Pick the highest level th
 | `danger` | `#DC2626` | danger scale; `danger`, `on-danger`, `danger-hover`, `danger-pressed` |
 | `success` | `#15803D` | success scale; `success`, `on-success`, `success-hover`, `success-pressed` |
 | `warning` | `#B45309` | warning scale; `warning`, `on-warning`, `warning-hover`, `warning-pressed` |
-| `neutral` | neutral | neutral scale; `surface`, `on-surface`, `neutral-subtle-hover`, `neutral-subtle-pressed`, `inverse-surface`, `outline`, `disabled-container`, `on-disabled` |
+| `neutral` | neutral | neutral scale; `surface`, `on-surface`, `neutral-subtle-hover`, `neutral-subtle-pressed`, `inverse-surface`, `outline`, `on-surface-muted`, `disabled-container`, `on-disabled` |
 | `font` | system UI font | `fontFamily` of the typography tokens |
 | `corners` | soft | `rounded.control`, `rounded.overlay` (`rounded.avatar` is constant, see "Rounded") |
 | `density` | default | `spacing` sizes (control, icon, gaps, paddings, `tooltip-max-width`), `fontSize` of the typography tokens |
@@ -117,13 +117,18 @@ For the neutral scale, set `neutral-50` to lightness 0.99, so that the surface i
 
 For each of them, apply the content step search of `docs/conventions.md`: test steps `700`, `800`, then `900` of the scale of its backgrounds (brand scale for the first two, neutral scale for `on-surface`), and keep the first one that reaches 4.5:1 against every background it serves. Never change a background to make a content color pass. If no step passes for `on-surface`, report the pair to the user instead of forcing it.
 
+Two more colors come from the neutral scale and follow their own rule:
+
+- `on-surface-muted`: placeholder, helper text, counter, affixes, and icons of the text field, on `surface` only. It is the first step of `600`, then `700`, reaching 4.5:1 against `surface`, and it must differ from `on-surface` (if `600` fails and `700` equals `on-surface`, report it to the user).
+- `outline`: the field border (and the chip border). It is the first step of `500`, then `600`, reaching 3:1 (not 4.5:1: WCAG 1.4.11, non-text) against `surface`. The DESIGN.md lint cannot check this pair; the script does (`outline` row of its report). At Level 3, compute it by hand and list it among the pairs to check.
+
 ### State colors
 
 Apply the State colors rule of `docs/conventions.md` to the brand, danger, success and warning scales separately: `default` is searched from `600` to `900` against the `on-*` color and against `surface`; `hover` is `default` plus 2 steps; `pressed` is `default` plus 4 steps, stopping at `900`. Compute contrast with the WCAG 2.x relative luminance formula.
 
 ### Semantic color tokens
 
-Write the colors of the token contracts of the button, the chip (new colors), and the tooltip (new colors) as references (divider, avatar, and progress add no color; the badge adds the `success` and `warning` colors; the link adds only `link-visited`) to scale steps. `<brand>`, `<danger>`, `<success>` and `<warning>` are the scale names; `d` is the `default` step of the corresponding scale; `c` is the step found by the content step search above; `n` is the step found by the same search on the neutral scale for `on-surface`.
+Write the colors of the token contracts of the button, the chip (new colors), and the tooltip (new colors) as references (divider, avatar, progress, and search field add no color; the badge adds the `success` and `warning` colors; the link adds only `link-visited`; the text field adds only `on-surface-muted`) to scale steps. `<brand>`, `<danger>`, `<success>` and `<warning>` are the scale names; `d` is the `default` step of the corresponding scale; `c` is the step found by the content step search above; `n` is the step found by the same search on the neutral scale for `on-surface`.
 
 | Token | Value |
 |---|---|
@@ -151,7 +156,8 @@ Write the colors of the token contracts of the button, the chip (new colors), an
 | `on-warning` | `#FFFFFF` |
 | `warning-hover` | warning scale, `default` + 2 steps |
 | `warning-pressed` | warning scale, `default` + 4 steps |
-| `outline` | `{colors.neutral-500}` |
+| `outline` | `{colors.neutral-500}`, or `{colors.neutral-600}` if `500` is below 3:1 on `surface` |
+| `on-surface-muted` | `{colors.neutral-m}`: step `600`, or `700` if `600` is below 4.5:1 on `surface` |
 | `disabled-container` | `{colors.neutral-100}` |
 | `on-disabled` | `{colors.neutral-500}` |
 | `focus-ring` | same step as `primary` |
@@ -230,6 +236,8 @@ Write every `components` entry listed in the Token contract of each component sp
 | `components/badge.md` | `badge-primary`, `badge-danger`, `badge-success`, `badge-warning`, `badge-neutral` |
 | `components/avatar.md` | `avatar-default` |
 | `components/progress.md` | `progress-primary`, `progress-danger` |
+| `components/text-field.md` | `text-field`, `text-field-muted`, `text-field-error`, `text-field-read-only`, `text-field-focus-ring` |
+| `components/search-field.md` | `search-field-clear`, `search-field-clear-hover`, `search-field-clear-pressed` |
 
 ### Elevation
 

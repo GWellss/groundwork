@@ -46,7 +46,7 @@ Steps are those of a 10-step scale, `50` (lightest) to `900` (darkest). The fami
 | Family | Background steps | Allowed content |
 |---|---|---|
 | `light` | `50`, `100`, `200` | Step `700`, `800`, or `900` of the same scale |
-| `light`, surface only | `{colors.surface}` | Same as `light`, or an accent token whose step comes from the State colors rule (`primary`, `primary-hover`, `primary-pressed`, `danger`, `focus-ring`), or `link-visited`, the brand step right after `primary` |
+| `light`, surface only | `{colors.surface}` | Same as `light`, or an accent token whose step comes from the State colors rule (`primary`, `primary-hover`, `primary-pressed`, `danger`, `focus-ring`), `link-visited`, the brand step right after `primary`, or `on-surface-muted`, neutral step `600` (or `700`), the quieter text of the text field |
 | `intermediate` | `300`, `400`, `500` | none: never a background behind text or icons |
 | `solid` | `600` to `900` | An `on-*` token: white by default; a theme may choose step `50` of the same scale instead |
 
@@ -65,7 +65,7 @@ The background moves first, the content follows.
 
 A variant with fewer states uses the first columns of its row.
 
-Fill-less exception: a component with no fill at all (the link) keeps `{colors.surface}` as the background of every state. Its content color moves instead, each state darker than the previous one (State colors rule: `primary`, `primary-hover`, `primary-pressed`), and the script checks the content order for these entries.
+Fill-less exception: a component with no fill at all (the link, the text field) keeps `{colors.surface}` as the background of every state. Its content color moves instead, each state darker than the previous one (State colors rule: `primary`, `primary-hover`, `primary-pressed`), and the script checks the content order for these entries. The text field has no fill and no text that should change on hover, so its border moves instead (a non-text part, not a pair); its text entries are unchanged between states.
 
 Surface scale: `{colors.surface}` is step `50` of the neutral scale. When the variant without fill takes its hover and pressed backgrounds from the scale of `{colors.surface}`, step `50` would equal the enabled background, so the sequence shifts by one step: surface, `100`, `200`. It stays in the `light` family, and the three backgrounds are distinct and each darker than the previous one.
 
@@ -108,6 +108,7 @@ Contrast is checked only against `{colors.surface}`; on an image or a dark backg
 
 - The DESIGN.md contrast rule (`contrast-ratio`) checks only the entries of the `components` key.
 - The kit never adds non-standard properties to `components`. It only declares standard `backgroundColor` and `textColor` entries, one per variant and active state, so the DESIGN.md lint checks contrast.
+- Non-text contrast (WCAG 1.4.11, 3:1) cannot be declared in `components`: a pair would be checked at 4.5:1, and a border property would be non-standard. The one such pair of the kit, the field border (`colors.outline` against `colors.surface`, see `components/text-field.md`), is checked by `theme/theme.py` and listed in its report; without the script, compute it by hand.
 - Disabled-state pairs are never declared in `components`, because WCAG 1.4.3 exempts inactive components and the lint would otherwise flag them. The disabled token mapping stays described in the component spec, and the `on-disabled` and `disabled-container` tokens stay in the colors token contract.
 - Theme validation criterion: 0 errors and 0 `contrast-ratio` warnings. `orphaned-tokens` warnings on unused primitive palette steps are expected and tolerated; no other warning is.
 

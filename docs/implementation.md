@@ -84,6 +84,8 @@ A state property that accessibility can expose is exposed there, and the style r
 | `loading` (button) | `aria-busy` | Not native disabled: the button stays focusable; activation is ignored by script |
 | `visited` (link) | Native `:visited`, color only | Not exposed to assistive technologies; the platform may not provide it |
 | `value` (progress) | `aria-valuenow`, absent when indeterminate | `role="progressbar"`, see `components/progress.md` |
+| `error` (text field) | `aria-invalid="true"` and `aria-describedby` to the error message | Present exactly when `error-message` is present; helper text is referenced the same way otherwise |
+| `required`, `read-only` (text field) | Native `required`, native `readonly` | Native attributes, never a parallel class |
 | `open` (tooltip) | Rendered or not rendered | `role="tooltip"`; trigger references it with `aria-describedby` while open, as in the spec |
 | `variant`, `size`, other options | Free (attribute, prop, modifier) | No accessibility attribute exists for them |
 
@@ -96,11 +98,11 @@ Optional. A demo page may force a state (for example to show `hover` statically)
 - The dimensions of a spec are outer dimensions: the border is included. A height of `{spacing.control-md}` is the full height, border included. This is the `box-sizing: border-box` model: height and width include the border.
 - The padding of a spec is measured inside the border: the border sits outside the padding and is part of the total height and width.
 - Every variant reserves the border width `{spacing.border-width}`, transparent when the variant has no border. All variants of one size therefore share the same outer geometry, and a state change never moves the content.
-- The focus ring is drawn outside the box at `{spacing.focus-ring-offset}` and never changes the layout. Exception: the chip `remove-button` (see `components/chip.md`).
+- The focus ring is drawn outside the box at `{spacing.focus-ring-offset}` and never changes the layout. Exception: the chip `remove-button` and the search `clear-button` (see `components/chip.md`, `components/search-field.md`).
 
 ## Target size
 
-- Requirement: hit area at least 24 by 24 CSS pixels (WCAG 2.2 criterion 2.5.8) for every interactive element, the chip `remove-button` included; 44 by 44 for a floating button.
+- Requirement: hit area at least 24 by 24 CSS pixels (WCAG 2.2 criterion 2.5.8) for every interactive element, the chip `remove-button` and the search `clear-button` included; 44 by 44 for a floating button.
 - Principle: when the rendered size is smaller, the hit area is extended invisibly, without changing the visual size and without overlapping the hit area of a neighbor.
 - Technique: free (padding, pseudo-element, transparent overlay, platform hit slop).
 - If the layout leaves no room to extend without overlap, report it to the user instead of shrinking the requirement.
@@ -108,7 +110,7 @@ Optional. A demo page may force a state (for example to show `hover` statically)
 ## Icons
 
 - Library and style: exactly those named in the `## Icons` section of DESIGN.md (for example Material Symbols, outlined). Never another style of the same library (filled instead of outlined), never another library.
-- Glyphs: those named by the spec (`check-icon`: the library checkmark; `remove-button`: the library close icon).
+- Glyphs: those named by the spec (`check-icon`: the library checkmark; `remove-button` and search `clear-button`: the library close icon; text field `error-icon`: the library error icon; `search-icon`: the library search icon).
 - Size: the `--spacing-icon-*` variable given by the size table of the spec.
 - Defaults when `## Icons` does not state them: weight 400, no fill (fill 0), and optical size aligned with the icon size if the library supports an optical size axis. `## Icons` wins when it states a value.
 - License: if the library carries a license (for example Material Symbols, Apache-2.0), respect its terms.
@@ -141,5 +143,5 @@ Recommendations only; the project conventions win.
 
 - One file per component, plus `tokens.css` kept as generated.
 - Plain CSS: BEM class names derived from the spec names: block = component, element = part, modifier = variant or size (for example `chip`, `chip__remove-button`, `button--tonal`, `button--size-m`).
-- Framework: one component per spec, named after it (Button, Chip, Tooltip, Divider, Link, Badge, Avatar, Progress).
+- Framework: one component per spec, named after it (Button, Chip, Tooltip, Divider, Link, Badge, Avatar, Progress, TextField, SearchField).
 - Demo pages stay apart from component files.
