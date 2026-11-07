@@ -103,6 +103,8 @@
   --spacing-xl: 20px;
   --spacing-2xl: 24px;
   --spacing-tooltip-max-width: 240px;
+  --spacing-menu-min-width: 160px;
+  --spacing-floating-max-width: 320px;
   --spacing-border-width: 1px;
   --spacing-focus-ring-width: 2px;
   --spacing-focus-ring-offset: 2px;

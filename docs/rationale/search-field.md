@@ -11,5 +11,5 @@ For human contributors: why the spec is the way it is. Agents do not need this f
 | Own clear button, native one hidden | Browsers draw a clear control only in some engines and cannot be named or themed; one controlled button works everywhere |
 | Clear button reuses the chip remove pattern | Same fills, same circular hover, same ring without offset; three entries named for the search field so the contrast report names it |
 | Clear does not submit; `Escape` clears | Emptying a field is a local edit; submitting an empty query is the project's choice |
-| Suggestions left to a later menu spec | Suggestions need a list, keyboard navigation inside it, and live announcements: that is the menu pattern, not a field property |
+| Suggestions left to the select listbox | Suggestions need a list, keyboard navigation inside it, and live announcements: that is the listbox pattern of `components/select.md` (role `listbox`, not `menu`), not a field property |
 | Explicit submit only | Instant filtering needs a debounce and a result announcement strategy that depend on the project |

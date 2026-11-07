@@ -27,3 +27,7 @@
 **Questionnaire**: the list of questions an agent asks the user to fill the theme.
 
 **Component spec**: the document describing a component independently of any theme: anatomy, sizes, variant by state matrix, accessibility, behavior.
+
+**Floating surface**: a panel that opens next to a trigger and floats above the page. Example: a tooltip, a menu, a select list, a popover.
+
+**Trigger**: the element that opens a floating surface. Example: the button of a menu.

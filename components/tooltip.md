@@ -1,6 +1,6 @@
 # Tooltip
 
-A tooltip shows a short text description of an element when the element is hovered or focused. This spec is theme independent: every visual value is a token reference to the DESIGN.md theme.
+A tooltip shows a short text description of an element when the element is hovered or focused. This spec is theme independent: every visual value is a token reference to the DESIGN.md theme. It is a floating surface: placement, flipping, offset, viewport padding, radius, and elevation follow "Floating surface" in `docs/conventions.md`; this spec states its dark fill, its size, and its non-interactive behavior.
 
 ## At a glance
 
@@ -20,7 +20,7 @@ A tooltip shows a short text description of an element when the element is hover
 
 - Use a tooltip to name or briefly describe an element whose purpose is not obvious, typically an icon-only button.
 - Use it for supplementary information only: the interface must stay usable without it, including on touch screens where hover does not exist.
-- Do not use a tooltip for interactive content (links, buttons, inputs): use a popover or a dialog.
+- Do not use a tooltip for interactive content (links, buttons, inputs): use a popover (see `components/popover.md`) or a dialog.
 - Do not use a tooltip for errors, validation messages, or anything the user must read: show it inline.
 - Do not use a tooltip on a disabled element: a disabled element cannot be focused, so keyboard users never see it.
 
@@ -209,7 +209,7 @@ Behavior constants. They are invariant, they are not theme tokens, and the theme
 
 - Closing: the tooltip closes as soon as neither the trigger nor the tooltip is hovered and the trigger is not focused. The gap of the offset counts as part of the hover area, so moving the pointer onto the tooltip does not close it.
 - Activation: pressing or activating the trigger closes the tooltip.
-- Placement: the tooltip opens on `placement`. If it does not fit there, it flips to the opposite side; if it fits on neither, it keeps `placement` and shifts to stay inside the viewport.
+- Placement: the tooltip opens on `placement`, aligned center, with the flip and shift rules of "Floating surface" in `docs/conventions.md`.
 - Single tooltip: opening a tooltip closes any other open tooltip.
 - Text: wraps at `max-width`, never truncated.
 

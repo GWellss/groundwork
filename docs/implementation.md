@@ -96,6 +96,9 @@ A state property that accessibility can expose is exposed there, and the style r
 | `selected` (tab), `value` (tabs) | `aria-selected` on a button with `role="tab"`; `aria-controls` and `aria-labelledby` link tab and panel | Roving `tabindex`: the selected tab is the only tab stop; see `components/tabs.md` |
 | `expanded` (accordion item) | `aria-expanded` and `aria-controls` on the header button | Hidden panel when collapsed; see `components/accordion.md` |
 | `open` (tooltip) | Rendered or not rendered | `role="tooltip"`; trigger references it with `aria-describedby` while open, as in the spec |
+| `open` (menu, select list, popover) | Rendered or not rendered | Trigger with `aria-expanded` and `aria-controls`, and `aria-haspopup` (`menu`, `listbox`, or `dialog`), as in each spec |
+| `checked` (menu item) | `aria-checked` on `menuitemcheckbox` or `menuitemradio` | Roles `menu`, `menuitem`; `aria-disabled` for a disabled item, never native `disabled` |
+| `value` (select) | Native `select` when it suffices; otherwise `role="combobox"` on the field with `aria-activedescendant`, and `aria-selected` on the chosen `option` | See `components/select.md` |
 | `variant`, `size`, other options | Free (attribute, prop, modifier) | No accessibility attribute exists for them |
 
 ### Forced states for demonstration
@@ -119,7 +122,7 @@ Optional. A demo page may force a state (for example to show `hover` statically)
 ## Icons
 
 - Library and style: exactly those named in the `## Icons` section of DESIGN.md (for example Material Symbols, outlined). Never another style of the same library (filled instead of outlined), never another library.
-- Glyphs: those named by the spec (`check-icon`: the library checkmark; `remove-button` and search `clear-button`: the library close icon; text field `error-icon`: the library error icon; `search-icon`: the library search icon; checkbox `check-icon`: the library checkmark; checkbox `indeterminate-icon`: the library minus glyph; checkbox, radio group, and slider `error-icon`: the library error icon; segmented control `check-icon`: the library checkmark; accordion `chevron`: the library chevron-down glyph, turned up when expanded).
+- Glyphs: those named by the spec (`check-icon`: the library checkmark; `remove-button` and search `clear-button`: the library close icon; text field `error-icon`: the library error icon; `search-icon`: the library search icon; checkbox `check-icon`: the library checkmark; menu `check-icon` and select `check-icon`: the library checkmark; select `chevron`: the library chevron-down glyph, optionally turned up while open; popover `close-button`: the library close icon; checkbox `indeterminate-icon`: the library minus glyph; checkbox, radio group, and slider `error-icon`: the library error icon; segmented control `check-icon`: the library checkmark; accordion `chevron`: the library chevron-down glyph, turned up when expanded).
 - Size: the `--spacing-icon-*` variable given by the size table of the spec.
 - Defaults when `## Icons` does not state them: weight 400, no fill (fill 0), and optical size aligned with the icon size if the library supports an optical size axis. `## Icons` wins when it states a value.
 - License: if the library carries a license (for example Material Symbols, Apache-2.0), respect its terms.
@@ -134,6 +137,12 @@ Optional. A demo page may force a state (for example to show `hover` statically)
 - The agent tells the user which fonts to load: the family of each typography token in use, and the icon font of `## Icons`, with the weights and styles the specs use. It does not add a font file, a CDN link, or a package on its own.
 - Until the fonts are loaded, the fallback stack of the font family variable applies.
 
+## Floating surfaces
+
+- Menu, select list, and popover follow "Floating surface" in `docs/conventions.md`. Where the platform has a native mechanism, use it rather than script: the HTML `popover` attribute (top layer, `Escape`, press outside), and CSS anchor positioning for the placement, with script only to flip and shift when it is not available.
+- Focus management stays in script: where focus goes on open, and its return to the trigger on `Escape` (see each spec's Accessibility section).
+- A native `select` is preferred to the custom select (see `components/select.md`); its closed field takes the text field tokens, its open list stays the platform's.
+
 ## Target browsers
 
 Recent evergreen browsers. Modern selectors such as `:has()` are allowed. If the project targets older browsers, the agent adapts the code and tells the user.
@@ -142,7 +151,7 @@ Recent evergreen browsers. Modern selectors such as `:has()` are allowed. If the
 
 Some behaviors of the specs need script. They are requirements, not options.
 
-Every Behavior requirement of a spec that is not implemented must be listed in the agent's report, by spec and by behavior (keyboard and dismissal requirements of its Accessibility section included, for example `Delete` and `Backspace` on the chip `remove-button`, or `Escape` on the tooltip). This applies in particular when the requested output is static (for example HTML and CSS without script). Never omit one silently.
+Every Behavior requirement of a spec that is not implemented must be listed in the agent's report, by spec and by behavior (keyboard and dismissal requirements of its Accessibility section included, for example `Delete` and `Backspace` on the chip `remove-button`, or `Escape` on the tooltip, the menu, the select list, and the popover). This applies in particular when the requested output is static (for example HTML and CSS without script). Never omit one silently.
 
 Static output also drops the attributes that depend on the open state. For example, without script the tooltip is never open, so the trigger has no `aria-describedby`. Such attributes are omitted and listed as not implemented, with the behaviors above.
 
@@ -152,5 +161,5 @@ Recommendations only; the project conventions win.
 
 - One file per component, plus `tokens.css` kept as generated.
 - Plain CSS: BEM class names derived from the spec names: block = component, element = part, modifier = variant or size (for example `chip`, `chip__remove-button`, `button--tonal`, `button--size-m`).
-- Framework: one component per spec, named after it (Button, Chip, Tooltip, Divider, Link, Badge, Avatar, Progress, TextField, SearchField, Checkbox, Radio, Switch, Slider, SegmentedControl, Tabs, Accordion); the checkbox and radio groups are CheckboxGroup and RadioGroup.
+- Framework: one component per spec, named after it (Button, Chip, Tooltip, Divider, Link, Badge, Avatar, Progress, TextField, SearchField, Checkbox, Radio, Switch, Slider, SegmentedControl, Tabs, Accordion, Menu, Select, Popover); the checkbox and radio groups are CheckboxGroup and RadioGroup.
 - Demo pages stay apart from component files.

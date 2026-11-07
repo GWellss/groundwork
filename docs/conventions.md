@@ -50,6 +50,8 @@ Steps are those of a 10-step scale, `50` (lightest) to `900` (darkest). The fami
 | `intermediate` | `300`, `400`, `500` | none: never a background behind text or icons |
 | `solid` | `600` to `900` | An `on-*` token: white by default; a theme may choose step `50` of the same scale instead |
 
+One extension covers the destructive menu item (see `components/menu.md`): `danger-hover` is allowed on `neutral-subtle-hover`, and `danger-pressed` on `neutral-subtle-pressed`, and no other accent content is allowed on a grayed fill. They are the darker steps of the State colors rule, chosen because `danger` itself reaches 4.5:1 on `{colors.surface}` only. The script checks the pairing and the 4.5:1 ratio.
+
 ### State changes
 
 The background moves first, the content follows.
@@ -137,7 +139,7 @@ The scale follows the Material 3 model: six levels, named after their relative d
 |---|---|---|
 | `level-0` | At rest, in the page flow, flat on the surface, no shadow | Every component that declares no level |
 | `level-1` | At rest, slightly raised, still in the page flow | Raised containers (no kit component yet) |
-| `level-2` | At rest, overlay tied to a trigger, shown for a short time | Tooltip; later menu, popover |
+| `level-2` | At rest, overlay tied to a trigger | Tooltip, menu, select list, popover |
 | `level-3` | At rest, floating above the content while it scrolls | Floating button |
 | `level-4` | Interaction only, one step above a resting level | Hover of the floating button |
 | `level-5` | Interaction only, highest | Dragged element (no kit component yet) |
@@ -177,6 +179,39 @@ The section may open with one short sentence, followed by exactly this table. Th
 - In Token mapping, elevation has its own short table, one row per state, when the level changes with the state; otherwise one line stating the level.
 - In Token contract, elevation is listed under "Non-token requirement", next to the icon style.
 - A spec that declares no level is at `level-0` in every state.
+
+## Floating surface
+
+A floating surface is a panel that opens next to a trigger and floats above the page: the tooltip, the menu, the select list, and the popover. It is defined once, here. Each spec states only what it adds or changes and never repeats this section.
+
+### Common look
+
+| Aspect | Rule |
+|---|---|
+| Fill | `{colors.surface}`; the tooltip alone is dark (`{colors.inverse-surface}`, see `components/tooltip.md`) |
+| Border | `{spacing.border-width}` in `{colors.neutral-subtle-pressed}`; the tooltip has none |
+| Radius | `{rounded.overlay}` |
+| Elevation | `level-2` while open; never `level-4` or `level-5` (the surface itself is never an interaction state) |
+| Offset | `{spacing.xs}` between the trigger and the surface; with an arrow, to the tip of the arrow |
+| Viewport padding | `{spacing.sm}`, the minimum distance kept to the edge of the viewport |
+
+The fill of the menu, the select list, and the popover is `{colors.surface}`, so every rule that is bound to the surface still holds on them: `on-surface-muted` is allowed on it, and contrast is checked against it (see Muted text). Items that sit on a grayed fill (hover, pressed) take `on-surface`, as everywhere else. The border and the shadow set the surface apart from the page for sighted users; no information depends on them, so the 3:1 non-text rule does not apply to the border.
+
+### Placement
+
+- `placement` is the preferred side of the trigger: `top`, `right`, `bottom`, or `left`. `align` is the alignment along that side: `start`, `center`, or `end`. The tooltip is always `center`.
+- If the surface does not fit on the preferred side, it flips to the opposite side. If it fits on neither, it keeps the preferred side and shifts along the side to respect the viewport padding.
+- A surface taller or wider than the viewport minus twice the viewport padding does not grow beyond it: it scrolls inside. The scroll never closes it.
+- Width comes from the content, between the minimum and the maximum of the component. Tokens: `{spacing.menu-min-width}` (menu), `{spacing.floating-max-width}` (menu, select list, popover), `{spacing.tooltip-max-width}` (tooltip).
+- The surface sits above the page content. Which element is drawn on top of what stays a layout choice (see Elevation); the platform top layer is preferred to a stacking number.
+
+### Opening and closing
+
+- An interactive surface (menu, select list, popover) opens on activation of its trigger, never on hover alone. The trigger exposes `aria-expanded` and `aria-controls`, and `aria-haspopup` with the role of the surface.
+- It closes on `Escape`, on a pointer press outside the surface and its trigger, and on activation of the trigger again. Each spec adds its own closes (activating an item, leaving by `Tab`).
+- `Escape` returns focus to the trigger when focus was inside the surface. A press outside closes the surface without moving focus: it stays where the user pressed.
+- At most one interactive surface is open at a time: opening one closes the other. A tooltip closes when its trigger is activated.
+- Motion: the opening and closing transitions, if any, are the project's choice and are removed under reduced motion (see Motion).
 
 ## Sizes
 

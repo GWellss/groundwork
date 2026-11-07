@@ -19,7 +19,7 @@ A search field is a single-line text field dedicated to a search query, with a s
 - Use a search field to let the user type a query and submit it: a site search, a filter box above a list.
 - Do not use a search field for free text that is not a query: use a text field.
 - Do not use it for a choice among known values: use a choice control.
-- Suggestions, autocomplete lists, and recent searches are not part of this spec. They will build on the future menu spec (lot C5) and are not defined here.
+- Suggestions, autocomplete lists, and recent searches are not part of this spec. They build on the listbox of `components/select.md` (a combobox is a text input that drives that list) and are not defined here.
 
 ## Anatomy
 
