@@ -298,7 +298,7 @@ def derive_dark(a, light, info):
     scale = lambda n: [palette["%s-%d" % (n, s)] for s in STEPS]
     ref = lambda n, i: "{colors.%s-%d}" % (n, STEPS[min(max(i, 0), 9)])
     # accent default: first step from 300 to 600 searched from the lightest, 4.5:1 on level-5 and against its content (step 900);
-    # from 300, hover (default - 2) and pressed (default - 4, stopped at 50) are distinct
+    # from 300 (a brand lighter than 300 is never kept), hover (default - 1) and pressed (default - 2, stopped at 50) are distinct, one step at a time
     ok = lambda sc, i: i >= 3 and contrast(sc[i], top) >= 4.5 and contrast(sc[i], sc[9]) >= 4.5
     note = ""
     for key in ROLES:
@@ -324,13 +324,13 @@ def derive_dark(a, light, info):
     sem = {
         "surface": surf[0],
         "primary": ref(b, idx["brand"]), "on-primary": ref(b, 9),
-        "primary-hover": ref(b, idx["brand"] - 2), "primary-pressed": ref(b, idx["brand"] - 4),
+        "primary-hover": ref(b, idx["brand"] - 1), "primary-pressed": ref(b, idx["brand"] - 2),
         "primary-container": ref(b, 9), "on-primary-container": None,
         "primary-container-hover": ref(b, 8), "primary-container-pressed": ref(b, 7),
         "primary-subtle-hover": ref(b, 9), "primary-subtle-pressed": ref(b, 8), "on-primary-subtle": None,
         **{tok: v for k in ROLES[1:] for tok, v in (
             (k, ref(names[k], idx[k])), ("on-" + k, ref(names[k], 9)))},
-        "danger-hover": ref(names["danger"], idx["danger"] - 2), "danger-pressed": ref(names["danger"], idx["danger"] - 4),
+        "danger-hover": ref(names["danger"], idx["danger"] - 1), "danger-pressed": ref(names["danger"], idx["danger"] - 2),
         **{tok: v for k in ROLES[1:] for tok, v in (
             (k + "-container", ref(names[k], 9)), (k + "-container-hover", ref(names[k], 8)),
             (k + "-container-pressed", ref(names[k], 7)), ("on-%s-container" % k, None))},
@@ -631,7 +631,7 @@ Dark mode of {a.name}, applied under `data-theme="dark"`. It has the same role n
 
 ## Colors
 
-The five primitive scales are the same as in DESIGN.md, except `neutral-900`, darker here so that `scrim` (`neutral-900`, as in DESIGN.md) dims the dark page; each role takes the step that suits the dark mode. Surfaces are {tint}: `surface` is {colors['surface']} and each level is a notch lighter, up to `surface-level-5` ({colors['surface-level-5']}). The accent `default` step is the first step from 300 to 600 searched from the lightest, reaching 4.5:1 on `surface-level-5` and against its content: here `{ni['brand']}-{STEPS[ix['brand']]}` (brand), `{ni['danger']}-{STEPS[ix['danger']]}` (danger), `{ni['success']}-{STEPS[ix['success']]}` (success) and `{ni['warning']}-{STEPS[ix['warning']]}` (warning). Hover is `default` minus 2 steps and pressed is `default` minus 4 steps, stopped at 50: each state is lighter than the previous one. Content on an accent fill (`on-primary`, `on-danger`, `on-success`, `on-warning`) is step 900 of the same scale. Tonal containers use steps 900, 800 and 700 (enabled, hover, pressed), with content searched among steps 200, 100 and 50. Text is `on-surface`, a neutral step 200, 100 or 50; `on-surface-muted` and `outline` (3:1) are checked on `surface-level-5`. The tooltip is inverted: `inverse-surface` is a light neutral step with a dark `on-inverse-surface`. `scrim` is the veil behind the dialog.{(chr(10) + chr(10) + "Brand note: " + dinfo['note'] + ".") if dinfo['note'] else ""}
+The five primitive scales are the same as in DESIGN.md, except `neutral-900`, darker here so that `scrim` (`neutral-900`, as in DESIGN.md) dims the dark page; each role takes the step that suits the dark mode. Surfaces are {tint}: `surface` is {colors['surface']} and each level is a notch lighter, up to `surface-level-5` ({colors['surface-level-5']}). The accent `default` step is the first step from 300 to 600 searched from the lightest, reaching 4.5:1 on `surface-level-5` and against its content: here `{ni['brand']}-{STEPS[ix['brand']]}` (brand), `{ni['danger']}-{STEPS[ix['danger']]}` (danger), `{ni['success']}-{STEPS[ix['success']]}` (success) and `{ni['warning']}-{STEPS[ix['warning']]}` (warning). Hover is `default` minus 1 step and pressed is `default` minus 2 steps, stopped at 50: each state is lighter than the previous one. Content on an accent fill (`on-primary`, `on-danger`, `on-success`, `on-warning`) is step 900 of the same scale. Tonal containers use steps 900, 800 and 700 (enabled, hover, pressed), with content searched among steps 200, 100 and 50. Text is `on-surface`, a neutral step 200, 100 or 50; `on-surface-muted` and `outline` (3:1) are checked on `surface-level-5`. The tooltip is inverted: `inverse-surface` is a light neutral step with a dark `on-inverse-surface`. `scrim` is the veil behind the dialog.{(chr(10) + chr(10) + "Brand note: " + dinfo['note'] + ".") if dinfo['note'] else ""}
 
 ## Elevation & Depth
 
@@ -819,7 +819,7 @@ def selftest():
         add_dark_roles(light)
         assert list(light) == list(dark) and len(dark) == 50 + 43 + 6, "same roles in both files"
         assert report(light, components())[1] == 0 and report(dark, dark_components(), dark=True)[1] == 0, tint
-        assert dinfo["idx"]["brand"] == 4 and dark["primary-hover"] == "{colors.blue-200}" and dark["primary-pressed"] == "{colors.blue-50}"
+        assert dinfo["idx"]["brand"] == 4 and dark["primary-hover"] == "{colors.blue-300}" and dark["primary-pressed"] == "{colors.blue-200}"
         assert resolve(dark, "{colors.scrim}") != resolve(dark, dark["surface"]) and lum(resolve(dark, "{colors.scrim}")) < lum(dark["surface"])
         ls = [lum(dark[k]) for k in ("surface",) + LEVELS]
         assert ls == sorted(set(ls)), "surface levels strictly lighter"

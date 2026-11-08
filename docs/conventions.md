@@ -154,7 +154,7 @@ Rules marked "to confirm by the trial of lot D4" are proposals, not measured res
 - The light theme is the existing DESIGN.md. The dark theme is a second file in the DESIGN.md format, specific to the project, named `DESIGN.dark.md`.
 - Both files use the same role names, with different values. A role exists in both, or in neither.
 - Each file is validated separately by the lint, with the criterion of "Lint and contrast". The dark file declares its own `components` entries, because the lint checks only these entries.
-- The dark file carries what depends on the mode: `colors`, the `components` pairs, and `## Elevation & Depth`. Spacing, rounded, typography and `## Icons` stay in the light file. To confirm in lot D2: the dark file must remain valid on its own, so it may only reference tokens it defines.
+- The dark file carries what depends on the mode: `colors`, the `components` pairs, and `## Elevation & Depth`. Spacing, rounded and `## Icons` stay in the light file; their absence from the dark file only raises plain infos, which are tolerated. The dark file repeats the `typography` block: without it the lint emits a `missing-typography` warning, against the criterion of 0 warning. The dark file must remain valid on its own, so it may only reference tokens it defines.
 - The Google DESIGN.md spec is never modified. If DESIGN.md adds `modes` (see issue 13 of `google-labs-code/design.md`), the two files are merged into one; the roles and values do not change.
 
 ### Color derivation
@@ -169,16 +169,16 @@ Provisional, to confirm by the trial of lot D4.
 
 | Family | Background | Allowed content |
 |---|---|---|
-| `dark` | The surface roles (see below), and steps `800` and `900` of a scale | Step `50`, `100`, or `200` of the same scale, or `on-surface` |
+| `dark` | The surface roles (see below), and steps `700` to `900` of a scale (the three tonal container states `900`, `800`, `700`) | Step `50`, `100`, or `200` of the same scale, or `on-surface` |
 | `bright` | The accent fills of the State colors rule in dark mode | An `on-*` token: step `900` of the same scale by default |
-| `intermediate` | The steps between the two families above | none: never a background behind text or icons |
+| `intermediate` | Steps `300` to `600` of a scale, between the two families above | none: never a background behind text or icons |
 
 The ban on an `intermediate` background and on content on it holds in both modes.
 
 ### State changes in dark mode
 
 - Each state is lighter than the previous one: the background moves first and the content follows, as in "State changes". The four forbidden cases of that section hold, with the direction reversed: two states with the same background, darkening a background or moving it back to an earlier step to pass contrast, lowering the 4.5:1 threshold, content on an `intermediate` background.
-- State colors: default is the first step, searched from the lightest side of the accent range, reaching 4.5:1 against its content color and against the most unfavorable surface (see below). Hover is default minus 2 steps and pressed default minus 4 steps, stopping at step `50` if the scale starts there. Distinct states still hold: if two states land on the same step, the color is unusable and is reported. The search range and the offsets are to confirm by the trial of lot D4.
+- State colors: default is the first step, searched from the lightest side of the accent range, reaching 4.5:1 against its content color and against the most unfavorable surface (see below). Hover is default minus 1 step and pressed default minus 2 steps (toward the lighter end, capped at step `50`), instead of the 2 and 4 steps of the light mode: with a default at `300`, 2 and 4 steps gave a pressed at `50`, almost white. The states move step by step, as in the Radix model. Distinct states still hold: if two states land on the same step, the color is unusable and is reported. The search range and the offsets are to confirm by the trial of lot D4.
 - Fill-less components keep their surface as the background of every state, and their content color lightens from one state to the next.
 - Content step search: test the content steps from the darkest to the lightest of the allowed set (`200`, then `100`, then `50`), keep the first reaching 4.5:1 against every background of the set. The lightest background of the set decides. At the scale end there is no further step: the pair fails and is reported, as in "Content step search".
 
@@ -186,7 +186,7 @@ The ban on an `intermediate` background and on content on it holds in both modes
 
 The brand color is never modified without the user's agreement.
 
-1. If the brand color reaches the contrast required in dark mode on `{colors.surface-level-5}`, it is kept as is.
+1. If the brand color reaches the contrast required in dark mode on `{colors.surface-level-5}` and its step is at least `300`, it is kept as is. Below `300`, hover and pressed would have no lighter step left (for example a very bright yellow gets a proposal).
 2. Otherwise the kit proposes the nearest step of the brand palette that passes, with its measured ratio.
 3. The user accepts or refuses. On refusal, the pair is reported as failing (see "When a color cannot reach AA" in `theme/questionnaire.md`). The kit never substitutes silently.
 
@@ -204,6 +204,7 @@ In dark mode there is no shadow. Each elevation level has its own surface, a not
 | `level-5` | `{colors.surface-level-5}` |
 
 - Each surface is strictly lighter than the previous one, from `{colors.surface}` to `{colors.surface-level-5}`.
+- Values retained by the implementation, to confirm by the trial of lot D4: `{colors.surface}` at about 0.18 lightness (OKLCH), +0.025 per level (`surface-level-5` at about 0.305), and a constant tint chroma of 0.010. Other roles: `on-surface` is `neutral-200`, `on-surface-muted` is `neutral-400`, `outline` is `neutral-500`. In the dark file, the pairs on a surface are checked against `{colors.surface-level-5}`.
 - Tint option, asked by the questionnaire:
   - `slightly tinted` (default): gray with a weak tint of the theme color. The tint is constant at every level, and never grows with the elevation (the Material 3 approach that was dropped).
   - `neutral`: pure gray, as in Carbon and Atlassian.
@@ -213,8 +214,9 @@ In dark mode there is no shadow. Each elevation level has its own surface, a not
 
 ### Tooltip and scrim
 
-- The tooltip is inverted in dark mode: a light background and a dark content. It is the one component that reverses with the mode: `{colors.inverse-surface}` resolves to a light step in the dark file, and its content token to a dark step of the same scale. The pair is checked at 4.5:1 like any other.
-- The scrim of the dialog is its own role, `{colors.scrim}`, in both files, so that it no longer depends on the tooltip. Its opacity remains a behavior constant of the dialog spec. Its dark mode value is to confirm by the trial of lot D4.
+- The tooltip is inverted in dark mode: a light background and a dark content. It is the one component that reverses with the mode: `{colors.inverse-surface}` resolves to a light step in the dark file (`neutral-100`), and its content token to a dark step of the same scale (`neutral-900`). The pair is checked at 4.5:1 like any other.
+- The scrim of the dialog is its own role, `{colors.scrim}`, in both files, so that it no longer depends on the tooltip. Its opacity remains a behavior constant of the dialog spec. It is an alias of `neutral-900` in both modes. Value to confirm by the trial of lot D4.
+- Lint tolerance: a role defined as a raw hex value that no component references is reported `orphaned-tokens`; only aliases of tokens in use are exempt. This is why the `text-on-level-1` to `text-on-level-4` pairs exist, and why the scrim is an alias of `neutral-900`. `neutral-900` is redefined darker in the dark file only: it is the one palette step that differs between the two files.
 
 ### Floating surface and overlay panel
 
@@ -225,14 +227,14 @@ In dark mode there is no shadow. Each elevation level has its own surface, a not
 
 | Role | Mode | Use |
 |---|---|---|
-| `surface-level-1` to `surface-level-5` | Dark; light value to confirm in lot D2 | Fill of a component at that elevation level. `level-0` keeps `{colors.surface}` |
+| `surface-level-1` to `surface-level-5` | Dark; see the open point below | Fill of a component at that elevation level. `level-0` keeps `{colors.surface}` |
 | `scrim` | Both | Color of the veil behind the dialog |
 
-Open for lot D2: in the light file, `surface-level-1` to `surface-level-5` may resolve to `{colors.surface}` so that both files hold the same roles, or exist only in the dark file. The choice depends on the `orphaned-tokens` tolerance of the lint, which covers primitive palette steps only. `inverse-surface` and its content token keep their names and exist in both files.
+When the dark option is enabled, the light file `DESIGN.md` also holds `surface-level-1` to `surface-level-5`, each an alias of `{colors.surface}`, so that both files hold the same roles. Without the dark option, the light file is unchanged. The lint does not report these roles, because aliases are not counted as orphaned (see "Tooltip and scrim"). `inverse-surface` and its content token keep their names and exist in both files.
 
 ### Automatic check
 
-The theme script checks the dark file the same way as the light file, with the dark families and directions above: every `components` pair at 4.5:1, the distinct and lighter states, the families, the `outline` and focus ring pairs at 3:1, and the strict order of the surface roles. This is the work of lot D2.
+The theme script checks the dark file the same way as the light file, with the dark families and directions above: every `components` pair at 4.5:1, the distinct and lighter states, the families, the `outline` and focus ring pairs at 3:1, and the strict order of the surface roles (lot D2).
 
 ## Motion
 
