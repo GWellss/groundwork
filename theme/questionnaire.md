@@ -4,7 +4,7 @@ This file is for an AI agent. Follow it to produce a valid DESIGN.md theme from 
 
 ## Step 0: identify your level
 
-Before asking anything, find out which tools you have. Pick the highest level that applies. The level decides how you derive colors and how you validate the result; the questions stay the same, except the color questions at Level 3.
+Before asking anything, find out which tools you have. Pick the highest level that applies. The level decides how you derive colors and how you validate the result; the questions stay the same, except the color questions and the dark mode questions at Level 3.
 
 | Level | Name | You can | Derivation | Validation |
 |---|---|---|---|---|
@@ -16,14 +16,15 @@ Before asking anything, find out which tools you have. Pick the highest level th
 
 - You do: ask the questions, run `python3 theme/theme.py` with one option per answer (for example `python3 theme/theme.py --name Acme --brand "#7C3AED" --corners pill --out DESIGN.md`; run it with `--help` to list the options), read the contrast report, run the lint, and fix what they report. The script also writes `tokens.css` next to DESIGN.md; `--css <path>` chooses another path.
 - You delegate: the color math and the contrast checks, to the script. Do not compute colors by hand.
-- Script exit codes: `0` all pairs pass; `1` at least one pair fails; `2` a color is unusable and the script proposes an alternative (follow "When a color cannot reach AA").
+- Dark mode: only if the user answered yes to `dark`, add `--dark`, `--dark-tint slightly-tinted|neutral` (answer to `dark-tint`), and `--dark-out <path>` to choose the path of `DESIGN.dark.md`. Follow "Dark mode" below for `--dark-brand`.
+- Script exit codes: `0` all pairs pass; `1` at least one pair fails; `2` a color is unusable and the script proposes an alternative (follow "When a color cannot reach AA"; in dark mode, follow "Dark mode").
 - Done when: exit code `0`, and the lint reports 0 errors and 0 `contrast-ratio` warnings (see the Output procedure).
 
 ### Level 2: code execution
 
 - You do: ask the questions, paste the content of `theme/theme.py` into the sandbox, call its `main([...])` function with the same options as Level 1, read the contrast report, and give the resulting DESIGN.md and `tokens.css` to the user.
 - You delegate: the color math and the contrast checks, to the script. The lint CLI is not available, so the script report is the validation.
-- Same exit codes as Level 1.
+- Same exit codes and same dark mode options as Level 1 (`DESIGN.dark.md` is given to the user as a second file).
 - Done when: exit code `0` and the report shows every pair passing. Tell the user that the lint was not run, and that they can run it later with a terminal.
 
 ### Level 3: no tools
@@ -31,6 +32,7 @@ Before asking anything, find out which tools you have. Pick the highest level th
 - Never compute a color, a contrast ratio, or a scale yourself, even approximately. Every color value comes from `theme/palettes.md`.
 - You do: ask the questions. Replace the `brand`, `danger`, `success` and `warning` questions with "Choose the range closest to your brand color" among the 14 ranges of `theme/palettes.md`. If the user gives a hex code, propose the closest range and say that the match is approximate. For the `neutral` question, map the answer to a range of `theme/palettes.md`: neutral → `gray`, warm → `warm-gray`, cool → `cool-gray`. Do not offer the "tinted with the brand color" option at this level, because no precomputed range exists for it: propose only the other three, and if the user wants a tinted gray, say that it requires Level 1 or Level 2. Take density, corners, and typography from the default tables below. Copy the precomputed steps (`default`, `hover`, `pressed`, and the other steps of the range) into the DESIGN.md. For the neutral-derived colors, use the range chosen for `neutral` (`gray`, `warm-gray`, or `cool-gray`): `on-surface` is the `on-container` row of that range (step `700`, searched against steps `50`, `100`, `200`, which are `surface`, `neutral-subtle-hover`, and `neutral-subtle-pressed`); `neutral-subtle-hover` is step `100`, `neutral-subtle-pressed` is step `200`, `inverse-surface` is step `900`, and `on-inverse-surface` is white. Name the copied scale `neutral` in the DESIGN.md. If a value needed here is missing from `theme/palettes.md`, say so to the user instead of computing it.
 - Elevation: copy the default table of "Elevation" below; it needs no computation.
+- Dark mode: ask `dark` only. If the answer is yes, do not ask `dark-tint` and do not write `DESIGN.dark.md`: no dark surface or dark step can be copied without a script. Tell the user that the full dark theme requires Level 1 or Level 2, and use the dark mode blocks of `theme/palettes.md` to tell the user which accent colors will suit a dark mode. Each color range has the blocks "Dark mode (slightly-tinted)" and "Dark mode (neutral)"; the gray ranges (`gray`, `cool-gray`, `warm-gray`) have a single block "Dark mode". They give the contrasts on `surface-level-5` (rows `default`, `hover`, `pressed`, `on-default`, `on-container`, plus `outline` and `on-surface-muted` for the grays), not the values of the surfaces of each level. Copy from them, never compute, and if a value is missing there, say so. Give the activation point of "Dark mode" below.
 - `tokens.css`: no script writes it at this level. If code is to be generated, write it by copying the values of the DESIGN.md under the variable names of `docs/implementation.md`, semantic colors resolved to the hex of their step, and the font family followed by the fallback stack of "Typography" below. Copy only; never compute.
 - You delegate: the final check, to the user, with an online contrast checker such as WebAIM Contrast Checker (https://webaim.org/resources/contrastchecker/). List the key pairs to check, each with its two hex values: every `components` entry that pairs a background with a text color (including the `chip-*`, `link-*`, `badge-*`, `avatar-default`, `progress-*`, `text-field*`, `search-field-clear*`, `checkbox*`, `radio-selected*`, `switch-on*`, `slider*`, `tab*`, `accordion*`, `menu-*`, `popover`, `dialog`, `alert-*`, `toast*`, `card*` entries and `tooltip-plain`), and at least the `primary` on `surface` pair. Neutral-derived values (`on-surface`, `on-surface-muted`, `neutral-subtle-hover`, `neutral-subtle-pressed`, `inverse-surface`) come from the range chosen for `neutral`, as described in "Semantic color tokens".
 - Done when: the DESIGN.md is delivered, the list of pairs to check is given, and you have said that the contrast was copied from precomputed values and not verified in this conversation.
@@ -41,7 +43,7 @@ Before asking anything, find out which tools you have. Pick the highest level th
 - Every question comes with a default value. Show it, and let the user accept it with a single word ("ok", "default").
 - Skip a question when the user already answered it, or when the answer can be deduced (for example a brand color given in the first message).
 - If the user says "use defaults for the rest", stop asking and apply the remaining defaults.
-- Never ask about anything that the derivation rules below settle. Ask 10 questions at most.
+- Never ask about anything that the derivation rules below settle. Ask 10 questions at most, or 12 if the user wants a dark mode (`dark-tint` is asked only after a yes to `dark`).
 - Do not mention token names to the user. Speak in design terms (color, corners, density).
 
 ## Questions
@@ -58,6 +60,8 @@ Before asking anything, find out which tools you have. Pick the highest level th
 | `corners` | How rounded should corners be: sharp, soft, rounded, or pill? (default: soft) |
 | `density` | How dense should controls be: compact, default, or comfortable? (default: default) |
 | `icons` | Which icon style and library? For example outlined, filled, or rounded, from Material Symbols or Lucide. (default: outlined, Material Symbols) |
+| `dark` | Do you also want a dark mode? (default: no) |
+| `dark-tint` | Only if `dark` is yes: should dark backgrounds be slightly tinted with your theme color, or neutral gray? (default: slightly tinted) |
 
 | Id | Default | Feeds |
 |---|---|---|
@@ -71,6 +75,8 @@ Before asking anything, find out which tools you have. Pick the highest level th
 | `corners` | soft | `rounded.control`, `rounded.overlay` (`rounded.avatar` is constant, see "Rounded") |
 | `density` | default | `spacing` sizes (control, icon, gaps, paddings, `tooltip-max-width`, `dialog-max-width`), `fontSize` of the typography tokens |
 | `icons` | outlined, Material Symbols | `## Icons` section (no token) |
+| `dark` | no | `DESIGN.dark.md` and the dark block of `tokens.css` (only if yes) |
+| `dark-tint` | slightly tinted | the dark surfaces (`surface` and `surface-level-1` to `surface-level-5`) |
 
 ## Derivation rules
 
@@ -285,6 +291,15 @@ Elevation is never a YAML key and never a `components` property (see "Elevation"
 
 Write a `## Icons` section stating the icon style and the icon library from the answer to `icons`. Do not create an `icons` key in the YAML.
 
+### Dark mode
+
+Applies only if the user answered yes to `dark`; otherwise nothing changes and no dark file exists. The rules are in the "Dark mode" section of `docs/conventions.md`, which takes precedence; this section only tells you how to run the option.
+
+- Surfaces: `slightly-tinted` (default) gives dark backgrounds with a weak, constant tint of the theme color; `neutral` gives pure gray. Do not describe the levels in numbers to the user: say "backgrounds get a little lighter at each elevation level".
+- Brand color: never change it without the user's agreement. If the script reports that the brand color does not pass in dark mode (exit code `2`, with a proposed palette step), show the proposal to the user in plain words, with both hex codes, and offer two choices: accept it (`--dark-brand accept`) or keep their color (`--dark-brand keep`). With `keep`, the script reports the failing pairs: relay them to the user, never hide them. Wait for the answer before running again.
+- Activation: the kit does not switch between light and dark. Tell the user that the dark mode applies under the attribute `data-theme="dark"`, which their application sets (and removes) itself. Without the attribute, the light values apply.
+- Files: `DESIGN.md` stays the light theme; `DESIGN.dark.md` holds the dark values, with the same role names. `tokens.css` gets a second block under `[data-theme="dark"]`.
+
 ## Output procedure
 
 1. Identify your level (Step 0), then ask the questions (skip those already answered).
@@ -305,7 +320,7 @@ Write a `## Icons` section stating the icon style and the icon library from the 
 The `## Icons` section may sit anywhere; place it right after Shapes.
 
 4. Validate, by level:
-   - Level 1: read the script contrast report, then run `npx @google/design.md@0.4.0 lint <path to DESIGN.md>`.
+   - Level 1: read the script contrast report, then run `npx @google/design.md@0.4.0 lint <path to DESIGN.md>` (and on `DESIGN.dark.md` if there is a dark mode: each file is linted separately).
    - Level 2: read the script contrast report. The lint is not available.
    - Level 3: give the user the list of pairs to check with an online contrast checker (see Level 3).
 5. Fix every error and every failed pair, then validate again. Repeat until the criterion is met: Level 1, 0 lint errors and 0 `contrast-ratio` warnings; Level 2, script exit code `0`; Level 3, no iteration possible, deliver and state that the check is left to the user. `orphaned-tokens` warnings on unused palette steps are tolerated; any other warning must be fixed. Fixes follow the contrast rule of `docs/conventions.md`. After 5 runs without success, stop and give the user the remaining findings as they are.
@@ -331,6 +346,7 @@ Summary template:
 | Alert | tonal fill (50-200) with dark content, by severity; information uses the brand tonal fill |
 | Card | outlined or elevated, on the surface; clickable cards gray on hover |
 | Elevation | six levels generated by default, editable afterwards |
+| Dark mode | only if asked: tinted or neutral dark backgrounds, brand color kept or adjusted, activated by `data-theme="dark"` |
 
 Add one line on the validation: Level 1, the lint passed (0 errors, 0 contrast warnings); Level 2, the script report passed and the lint was not run; Level 3, the contrast was not verified and the pairs to check are listed.
 
