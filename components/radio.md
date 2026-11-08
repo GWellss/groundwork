@@ -168,4 +168,4 @@ Everything in the checkbox Accessibility table applies, except the rows about in
 
 ## Out of scope
 
-Animations, dark mode, radio buttons rendered as cards (for a segmented look, see `components/segmented-control.md`), option descriptions, a deselect action, and a horizontal-wrapping layout rule are not covered by this spec.
+Animations, radio buttons rendered as cards (for a segmented look, see `components/segmented-control.md`), option descriptions, a deselect action, and a horizontal-wrapping layout rule are not covered by this spec.

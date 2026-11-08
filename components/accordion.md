@@ -249,4 +249,4 @@ One entry per `enabled`, `hover`, and `pressed` state, plus the focus ring, usin
 
 ## Out of scope
 
-Animations other than the optional toggle transition, dark mode, a leading icon or a badge in the header, nested accordions, arrow-key navigation between headers, an "expand all" control, a bordered or card look, and a `chevron` placed at the start are not covered by this spec.
+Animations other than the optional toggle transition, a leading icon or a badge in the header, nested accordions, arrow-key navigation between headers, an "expand all" control, a bordered or card look, and a `chevron` placed at the start are not covered by this spec.

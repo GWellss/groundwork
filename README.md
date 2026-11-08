@@ -21,6 +21,7 @@ This kit complements [Google's DESIGN.md](https://github.com/google-labs-code/de
 - W3C DTCG 2025.10 JSON is only an optional export format.
 - Icon style is recorded in a free `## Icons` section of DESIGN.md, not as a token.
 - The kit does not use the `css-vars` export (it does not cover `typography`): the theme script generates `tokens.css` itself, with fixed variable names (see `docs/implementation.md`).
+- Optional dark mode: a second theme file, `DESIGN.dark.md`, and a `[data-theme="dark"]` block in `tokens.css`; the application decides when to apply it (see "Dark mode" in `docs/conventions.md`).
 - Theme validation: 0 errors and 0 `contrast-ratio` warnings; `orphaned-tokens` warnings on unused palette steps are tolerated.
 
 ## How an agent uses the kit

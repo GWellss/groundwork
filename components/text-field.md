@@ -324,4 +324,4 @@ One entry per text color, using only the standard `backgroundColor` and `textCol
 
 ## Out of scope
 
-Animations, dark mode, an icon and an affix on the same side, icons and affixes in a multiline field, floating or inside labels, filled field appearance, password reveal, number steppers, input masks, auto-growing height, rich text, inline clear button (see `components/search-field.md`), and suggestion lists are not covered by this spec.
+Animations, an icon and an affix on the same side, icons and affixes in a multiline field, floating or inside labels, filled field appearance, password reveal, number steppers, input masks, auto-growing height, rich text, inline clear button (see `components/search-field.md`), and suggestion lists are not covered by this spec.

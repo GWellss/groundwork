@@ -251,4 +251,4 @@ The badge has no icon and no elevation.
 
 ## Out of scope
 
-Interactive badges, animations, `success` and `warning` on `count` and `dot` badges, other semantic roles (info), light (tonal) status badges, icons inside a status badge, multi-line status text, dark mode, outline around the badge to separate it from the host, badges on a colored or image host (contrast is checked only against `{colors.surface}`, so the user retouches the colors after generation), and the exact placement on round hosts are not covered by this spec.
+Interactive badges, animations, `success` and `warning` on `count` and `dot` badges, other semantic roles (info), light (tonal) status badges, icons inside a status badge, multi-line status text, outline around the badge to separate it from the host, badges on a colored or image host (contrast is checked only against `{colors.surface}`, so the user retouches the colors after generation), and the exact placement on round hosts are not covered by this spec.

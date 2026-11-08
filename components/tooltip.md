@@ -131,6 +131,8 @@ Cell vocabulary: a token reference, or `none` (no fill, no border).
 
 The tooltip is at `level-2` when `open`; `closed` is not rendered. `open` is a resting level: the tooltip is never interactive, so it never uses `level-4` or `level-5`.
 
+In dark mode the tooltip is inverted (light fill, dark content) and has no shadow (see Dark mode in `docs/conventions.md`).
+
 - With `arrow`, the shadow follows the combined outline of container and arrow when the platform can cast a shadow from a shape.
 - Otherwise, the shadow on the container alone is accepted, and the arrow has no shadow.
 - In both cases, no shadow is drawn between the arrow and the container: they read as one fill, without a visible seam.
@@ -226,4 +228,4 @@ Behavior constants. They are invariant, they are not theme tokens, and the theme
 
 ## Out of scope
 
-Rich tooltips (title, body, actions), animations, dark mode, touch-specific triggers such as long press, and tooltips that follow the pointer are not covered by this spec; contrast is checked only against `{colors.surface}`, so on an image or a dark background the user retouches the tooltip colors after generation.
+Rich tooltips (title, body, actions), animations, touch-specific triggers such as long press, and tooltips that follow the pointer are not covered by this spec; contrast is checked only against `{colors.surface}`, so on an image or a dark background the user retouches the tooltip colors after generation.

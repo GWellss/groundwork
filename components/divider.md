@@ -160,4 +160,4 @@ None. The divider has no icon and no elevation.
 
 ## Out of scope
 
-Dividers with a label or an icon, dashed or dotted lines, thickness variants, animations, dark mode, and the spacing around the divider (which belongs to the layout) are not covered by this spec.
+Dividers with a label or an icon, dashed or dotted lines, thickness variants, animations, and the spacing around the divider (which belongs to the layout) are not covered by this spec.

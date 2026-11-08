@@ -137,18 +137,18 @@ Cell vocabulary: a token reference, or `none` (no fill, no border).
 | Part | Fill | Content | Border |
 |---|---|---|---|
 | `container` | `{colors.surface}` | `{colors.on-surface}` | `{colors.neutral-subtle-pressed}` |
-| `scrim` | `{colors.inverse-surface}` at `scrim-opacity` | `none` | `none` |
+| `scrim` | `{colors.scrim}` at `scrim-opacity` | `none` | `none` |
 | `title`, `body` | `none` | `{colors.on-surface}` | `none` |
 
 The elements inside (buttons, fields, links) take the tokens of their own specs. Any text of the `body` that sits on the surface may use `{colors.on-surface-muted}`; on a grayed fill it takes `{colors.on-surface}`.
 
 ### Elevation
 
-`container` is at `level-3` when `open`; `closed` is not rendered. `scrim` is flat.
+`container` is at `level-3` when `open`; `closed` is not rendered. `scrim` is flat. In dark mode the `container` has no shadow and takes the `surface-level-3` fill (see Dark mode in `docs/conventions.md`).
 
 ## Token contract
 
-The theme must define every token below. The dialog adds one spacing token, its maximum width, and no color: the scrim reuses `inverse-surface`.
+The theme must define every token below. The dialog adds one spacing token, its maximum width, and one color, `scrim`, its own role (see Dark mode in `docs/conventions.md`).
 
 ### Colors
 
@@ -157,7 +157,7 @@ The theme must define every token below. The dialog adds one spacing token, its 
 | `colors.surface` | `container` fill |
 | `colors.on-surface` | `title`, `body` |
 | `colors.neutral-subtle-pressed` | `container` border |
-| `colors.inverse-surface` | `scrim` fill (with the fixed opacity of Behavior) |
+| `colors.scrim` | `scrim` fill (with the fixed opacity of Behavior) |
 
 ### Typography
 
@@ -230,7 +230,7 @@ The buttons and fields inside declare their own entries. The scrim carries no te
 
 | Constant | Value | Meaning |
 |---|---|---|
-| `scrim-opacity` | 50% | Opacity of the `inverse-surface` color over the page; invariant, not a theme token |
+| `scrim-opacity` | 50% | Opacity of the `scrim` color over the page; invariant, not a theme token |
 
 ## Do and don't
 
@@ -247,4 +247,4 @@ The buttons and fields inside declare their own entries. The scrim carries no te
 
 ## Out of scope
 
-Nested dialogs, non-modal dialogs, full-screen dialogs and bottom sheets on small screens, drawers and side panels, a dialog wider than `md`, a draggable or resizable dialog, a confirmation before closing a form with unsaved changes (the project's logic), animations, dark mode, and a dialog on an image or a tinted fill are not covered by this spec; contrast is checked only against `{colors.surface}`, so the user retouches the dialog colors after generation if the fill changes.
+Nested dialogs, non-modal dialogs, full-screen dialogs and bottom sheets on small screens, drawers and side panels, a dialog wider than `md`, a draggable or resizable dialog, a confirmation before closing a form with unsaved changes (the project's logic), animations, and a dialog on an image or a tinted fill are not covered by this spec; contrast is checked only against `{colors.surface}`, so the user retouches the dialog colors after generation if the fill changes.

@@ -210,7 +210,7 @@ The danger content darkens as its fill darkens, like a link: `danger` reaches 4.
 
 ### Elevation
 
-`container` is at `level-2` when `open`; `closed` is not rendered. Items have no elevation.
+`container` is at `level-2` when `open`; `closed` is not rendered. Items have no elevation. In dark mode there is no shadow: the `container` takes the `surface-level-2` fill and keeps its border (see Dark mode in `docs/conventions.md`).
 
 ## Token contract
 
@@ -334,4 +334,4 @@ Keyboard:
 
 ## Out of scope
 
-Submenus (they need a pointer-direction safety area and left and right key rules, so they are not simple enough to include), context menus opened by right click or long press, menu bars, an item with both an icon and a checkable mark, item descriptions and avatars, search inside a menu, items that are links to pages, animations, dark mode, and the choice of the trigger (a button, see `components/button.md`) are not covered by this spec; contrast is checked only against `{colors.surface}`, so on an image or a dark background the user retouches the menu colors after generation.
+Submenus (they need a pointer-direction safety area and left and right key rules, so they are not simple enough to include), context menus opened by right click or long press, menu bars, an item with both an icon and a checkable mark, item descriptions and avatars, search inside a menu, items that are links to pages, animations, and the choice of the trigger (a button, see `components/button.md`) are not covered by this spec; contrast is checked only against `{colors.surface}`, so on an image or a dark background the user retouches the menu colors after generation.

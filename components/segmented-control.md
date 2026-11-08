@@ -258,4 +258,4 @@ The border of `group` and the `divider` lines are `colors.outline`, which reache
 
 ## Out of scope
 
-Animations (a sliding selection), dark mode, multiple selection, icon-only segments, more than five segments, vertical orientation, a badge or a description inside a segment, a full-width layout rule, and a group that scrolls are not covered by this spec.
+Animations (a sliding selection), multiple selection, icon-only segments, more than five segments, vertical orientation, a badge or a description inside a segment, a full-width layout rule, and a group that scrolls are not covered by this spec.

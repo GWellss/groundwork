@@ -407,4 +407,4 @@ Elevation is not a token either. A floating button uses `level-3` at rest and `l
 
 ## Out of scope
 
-Animations other than the spinner rotation, dark mode, button groups, split buttons, semantic color variants other than `danger` (such as success or warning), icon-only buttons with two icons, floating button menus (speed dial), extended floating buttons that collapse to icon-only on scroll, and the placement of the floating button on the page are not covered by this spec; contrast is checked only against `{colors.surface}`, so on an image or a dark background the user retouches the floating button colors after generation.
+Animations other than the spinner rotation, button groups, split buttons, semantic color variants other than `danger` (such as success or warning), icon-only buttons with two icons, floating button menus (speed dial), extended floating buttons that collapse to icon-only on scroll, and the placement of the floating button on the page are not covered by this spec; contrast is checked only against `{colors.surface}`, so on an image or a dark background the user retouches the floating button colors after generation.

@@ -319,4 +319,4 @@ One entry per text color and one per `selected` state, using only the standard `
 
 ## Out of scope
 
-Animations, dark mode, checkboxes without a visible label (table row selection), a nested tree of checkboxes, option descriptions inside a group, a "select all" helper, and custom marks are not covered by this spec.
+Animations, checkboxes without a visible label (table row selection), a nested tree of checkboxes, option descriptions inside a group, a "select all" helper, and custom marks are not covered by this spec.

@@ -345,10 +345,12 @@ def derive_dark(a, light, info):
         "on-surface": None, "on-surface-muted": ref("neutral", next((i for i in (4, 3, 2) if contrast(nu[i], top) >= 4.5), 2)),
         "neutral-subtle-hover": "{colors.neutral-800}", "neutral-subtle-pressed": "{colors.neutral-700}",
         "inverse-surface": "{colors.neutral-100}", "on-inverse-surface": "{colors.neutral-900}",  # tooltip inverted: light fill, dark content
-        "link-visited": ref(b, idx["brand"] - 1),
+        "link-visited": None,
     }
     assert len(sem) == 43
     flat.update(sem)
+    L, C, h = to_oklch(resolve(flat, sem["primary"]))  # visited: the default step with half its chroma, distinct from hover (default - 1) at the same contrast
+    flat["link-visited"] = sem["link-visited"] = to_hex(L, C / 2, h)
     fi = idx["brand"]  # ring: lightest side moves up from the default until 3:1 on every fill
     flat["focus-ring"] = sem["focus-ring"] = ref(b, next((i for i in range(fi, -1, -1) if ring_ok(flat, ref(b, i), DARK_FILLS)), 0))
     for tok, sc in (("on-primary-container", b), ("on-primary-subtle", b), ("on-surface", "neutral"),

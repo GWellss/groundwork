@@ -217,4 +217,4 @@ Everything in the text field Accessibility table applies, except the rows about 
 
 ## Out of scope
 
-Animations, dark mode, a multiline field, a prefix or a suffix, an error or read-only state, suggestions, autocomplete lists, recent searches, voice input, filters and scopes inside the field, instant filtering rules, and a field that expands or collapses are not covered by this spec.
+Animations, a multiline field, a prefix or a suffix, an error or read-only state, suggestions, autocomplete lists, recent searches, voice input, filters and scopes inside the field, instant filtering rules, and a field that expands or collapses are not covered by this spec.

@@ -201,6 +201,7 @@ Cell vocabulary: a level name.
 
 - `level-4` is an interaction level, used on hover only. `pressed` returns to the resting level, as the floating button does: the press reads as pushing the card back.
 - Elevation never carries state feedback alone: the hover and pressed fills do.
+- In dark mode there is no shadow: the `elevated` card takes the surface role of its level as fill (see Dark mode in `docs/conventions.md`).
 
 ## Token contract
 
@@ -296,4 +297,4 @@ Elevation is not a token. The `elevated` card uses `level-1` and `level-4` of th
 
 ## Out of scope
 
-Horizontal cards, expandable or collapsible cards, selectable cards (a checkbox or radio drawn as a card), draggable cards, an action menu in the header (put the trigger button in `actions`), a card with a title bar of its own, a card on an image or a tinted fill, a row or grid layout, a card with a `status` badge or avatar built in (the project places them in `body`), animations, and dark mode are not covered by this spec; contrast is checked only against `{colors.surface}`.
+Horizontal cards, expandable or collapsible cards, selectable cards (a checkbox or radio drawn as a card), draggable cards, an action menu in the header (put the trigger button in `actions`), a card with a title bar of its own, a card on an image or a tinted fill, a row or grid layout, a card with a `status` badge or avatar built in (the project places them in `body`), and animations are not covered by this spec; contrast is checked only against `{colors.surface}`.

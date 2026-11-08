@@ -269,4 +269,4 @@ The `indicator` and the focus ring are `{colors.primary}`, at 4.5:1 or more agai
 
 ## Out of scope
 
-Animations (a sliding indicator), dark mode, vertical tabs, closable and draggable tabs, an overflow menu or scroll buttons, tabs that stretch to fill the width, filled or pill-shaped tabs, a secondary emphasis, nested tabs, tabs that mirror the URL, icon-only tabs, and a status badge in a tab are not covered by this spec.
+Animations (a sliding indicator), vertical tabs, closable and draggable tabs, an overflow menu or scroll buttons, tabs that stretch to fill the width, filled or pill-shaped tabs, a secondary emphasis, nested tabs, tabs that mirror the URL, icon-only tabs, and a status badge in a tab are not covered by this spec.

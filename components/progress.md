@@ -210,4 +210,4 @@ Behavior constants. They are invariant, they are not theme tokens, and the theme
 
 ## Out of scope
 
-The button `spinner` (see `components/button.md`), buffer bars, steppers, a percentage label inside the indicator, success and warning variants, skeleton loaders, animations other than the indeterminate motion above, dark mode, and progress on colored or image backgrounds (contrast is checked only against `{colors.surface}`) are not covered by this spec.
+The button `spinner` (see `components/button.md`), buffer bars, steppers, a percentage label inside the indicator, success and warning variants, skeleton loaders, animations other than the indeterminate motion above, and progress on colored or image backgrounds (contrast is checked only against `{colors.surface}`) are not covered by this spec.

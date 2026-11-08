@@ -55,6 +55,16 @@ The font family variable holds a fallback stack: the font entered by the user fi
 - Primitive scale steps (for example `--color-blue-600`) exist in `tokens.css` but component code uses semantic tokens only, as the Token mapping of each spec does.
 - Framework: use the same CSS variables. If the technology cannot read CSS variables (for example a native or canvas renderer), generate a token object from `tokens.css` with a 1:1 mapping (one entry per variable, same name, same value) and document the mapping in the project. Never retype values by hand.
 
+## Dark mode
+
+Applies only when the theme has the dark option (see "Dark mode" in `docs/conventions.md`, which takes precedence).
+
+- `tokens.css` then holds two blocks: `:root` with `color-scheme: light`, then `[data-theme="dark"]` with `color-scheme: dark`, where every elevation variable is `none`. Same variable names in both blocks; only the values differ.
+- The kit does not switch modes. The application sets `data-theme="dark"` (system preference, user setting, or anything else), on the root element or on an ancestor to scope it. Without the attribute, the light values apply.
+- Component code is the same in both modes: it reads the same variables and never tests the mode.
+- A component whose fill is `{colors.surface}` at `level-n` reads `--color-surface-level-n` instead (`level-0` keeps `--color-surface`). When the theme has the dark option, `tokens.css` defines `--color-surface-level-1` to `--color-surface-level-5` in `:root` too, equal to `--color-surface`, so the code needs no condition. Without the dark option these variables do not exist: a theme without it uses `--color-surface` only.
+- No shadow in dark mode: depth comes from the surface step and the border, so keep the border of floating surfaces and overlay panels.
+
 ## Component API
 
 - Property names and values are those of each spec's Properties table, unchanged. No synonym, no extra value.
@@ -154,7 +164,7 @@ Optional. A demo page may force a state (for example to show `hover` statically)
 
 - Menu, select list, and popover follow "Floating surface" in `docs/conventions.md`. Where the platform has a native mechanism, use it rather than script: the HTML `popover` attribute (top layer, `Escape`, press outside), and CSS anchor positioning for the placement, with script only to flip and shift when it is not available.
 - Focus management stays in script: where focus goes on open, and its return to the trigger on `Escape` (see each spec's Accessibility section).
-- Dialog and toast follow "Overlay panel" in `docs/conventions.md`. For the dialog, use the native `dialog` element with its modal method: it provides the top layer, the inert page, the focus trap, `Escape`, and the `::backdrop` that carries the scrim (the `inverse-surface` color at the constant opacity of the spec). Script only sets the initial focus, returns focus to the trigger, and applies the `loading` and `confirmation` rules of the spec. Lock the scroll of the page while it is open.
+- Dialog and toast follow "Overlay panel" in `docs/conventions.md`. For the dialog, use the native `dialog` element with its modal method: it provides the top layer, the inert page, the focus trap, `Escape`, and the `::backdrop` that carries the scrim (the `scrim` color at the constant opacity of the spec). Script only sets the initial focus, returns focus to the trigger, and applies the `loading` and `confirmation` rules of the spec. Lock the scroll of the page while it is open.
 - The toast region is a plain element in the page, present from the start, in the top layer or above the page by layout; the toasts are inserted into it. Give it `role="region"` and the name "Notifications". The timer, its pause and its cancellation on focus, the stack, the wait while a dialog is open, and the `F6` / `Shift+F6` keys that move focus into and out of the region are script (document `F6` in the product's keyboard help).
 - A native `select` is preferred to the custom select (see `components/select.md`); its closed field takes the text field tokens, its open list stays the platform's.
 

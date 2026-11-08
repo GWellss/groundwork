@@ -289,4 +289,4 @@ The text entries (`checkbox`, `checkbox-muted`, `checkbox-error`, `checkbox-focu
 
 ## Out of scope
 
-Animations, dark mode, vertical sliders, more than two thumbs, tick marks and discrete labels along the track, a value tooltip over the thumb, end labels for `min` and `max`, a centered origin for the fill, and an input field linked to the slider are not covered by this spec.
+Animations, vertical sliders, more than two thumbs, tick marks and discrete labels along the track, a value tooltip over the thumb, end labels for `min` and `max`, a centered origin for the fill, and an input field linked to the slider are not covered by this spec.

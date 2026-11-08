@@ -79,7 +79,7 @@ A `warning` toast does not exist: a warning is something the user may need to re
 | `success` | A task is done | the library check-in-circle glyph | `{colors.success}` |
 | `danger` | A task failed | the library error glyph | `{colors.danger}` |
 
-The container, border, text, and controls are the same in the three variants. The container follows the active theme mode: the `surface` tokens give a light panel in light mode, and will give a dark one in a dark mode (this kit has none yet). Only the icon changes: the toast never takes a tonal or solid fill, so that its contrast stays that of the surface.
+The container, border, text, and controls are the same in the three variants. The container follows the active theme mode: the `surface` tokens give a light panel in light mode, and give a dark one in dark mode (see Dark mode in `docs/conventions.md`). Only the icon changes: the toast never takes a tonal or solid fill, so that its contrast stays that of the surface.
 
 ## Sizes
 
@@ -141,7 +141,7 @@ Cell vocabulary: a token reference, or `none` (no fill, no border).
 
 ### Elevation
 
-`container` is at `level-3` when `open`: it floats above the content while the page scrolls. `closed` is not rendered. The toast never rises on hover.
+`container` is at `level-3` when `open`: it floats above the content while the page scrolls. `closed` is not rendered. The toast never rises on hover. In dark mode there is no shadow: the `container` takes the `surface-level-3` fill and keeps its border (see Dark mode in `docs/conventions.md`).
 
 ## Token contract
 
@@ -246,4 +246,4 @@ The buttons inside declare their own entries.
 
 ## Out of scope
 
-Toasts with a title, several actions, a link, a progress bar, or a custom content, a `warning` toast, a toast that takes focus by itself, swipe to dismiss, a toast tied to an element (use a popover), a toast that survives page navigation (the project's choice), notification centers and history, a stack taller than `visible-count`, animations, dark mode, and a toast on an image or a tinted fill are not covered by this spec; contrast is checked only against `{colors.surface}`, which is the toast fill in the active mode.
+Toasts with a title, several actions, a link, a progress bar, or a custom content, a `warning` toast, a toast that takes focus by itself, swipe to dismiss, a toast tied to an element (use a popover), a toast that survives page navigation (the project's choice), notification centers and history, a stack taller than `visible-count`, animations, and a toast on an image or a tinted fill are not covered by this spec; contrast is checked only against `{colors.surface}`, which is the toast fill in the active mode.

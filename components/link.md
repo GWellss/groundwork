@@ -144,7 +144,7 @@ The theme must define every token below. The link adds one token, `colors.link-v
 | `colors.primary` | `enabled` content |
 | `colors.primary-hover` | `hover` content |
 | `colors.primary-pressed` | `pressed` content |
-| `colors.link-visited` | `visited` content. Default: the `primary` scale step right after the `primary` step, reaching 4.5:1 against `colors.surface`, different from `colors.primary`, `colors.primary-hover` and `colors.primary-pressed` |
+| `colors.link-visited` | `visited` content. Default: the `primary` scale step right after the `primary` step, reaching 4.5:1 against `colors.surface`, different from `colors.primary`, `colors.primary-hover` and `colors.primary-pressed`. In dark mode: the same step as `colors.primary`, desaturated (the lightness and hue of `primary` with half of its chroma), see Dark mode in `docs/conventions.md` |
 | `colors.on-disabled` | `disabled` content |
 | `colors.focus-ring` | Focus ring |
 
@@ -223,4 +223,4 @@ Icon style and library come from the `## Icons` section of DESIGN.md. The extern
 
 ## Out of scope
 
-Animations, dark mode, an icon in an inline link, link on a colored or image background (contrast is checked only against `{colors.surface}`, so the user retouches the link colors after generation), links that look like buttons, breadcrumbs, and semantic color variants (danger, success) are not covered by this spec.
+Animations, an icon in an inline link, link on a colored or image background (contrast is checked only against `{colors.surface}`, so the user retouches the link colors after generation), links that look like buttons, breadcrumbs, and semantic color variants (danger, success) are not covered by this spec.

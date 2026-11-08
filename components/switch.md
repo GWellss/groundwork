@@ -198,4 +198,4 @@ Everything in the checkbox Accessibility table applies, except the rows about gr
 
 ## Out of scope
 
-Animations (the thumb movement included), dark mode, icons inside the thumb, a label placed before the track (a layout choice), switches in a group, an error state, and a loading state are not covered by this spec.
+Animations (the thumb movement included), icons inside the thumb, a label placed before the track (a layout choice), switches in a group, an error state, and a loading state are not covered by this spec.

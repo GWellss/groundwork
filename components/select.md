@@ -195,7 +195,7 @@ The select declares no entry of its own. It reuses `text-field`, `text-field-mut
 
 - Icon style and library come from the `## Icons` section of DESIGN.md. `chevron` is the library chevron-down glyph; `check-icon` is the library checkmark; `error-icon` is the library error glyph.
 - Border contrast (WCAG 1.4.11): the field border is `colors.outline`, already checked at 3:1 by `theme/theme.py` (see `docs/conventions.md`).
-- Elevation is not a token. `listbox` uses `level-2` of the elevation table in the `## Elevation & Depth` section of DESIGN.md. The field has no elevation (`level-0`).
+- Elevation is not a token. `listbox` uses `level-2` of the elevation table in the `## Elevation & Depth` section of DESIGN.md. The field has no elevation (`level-0`). In dark mode `listbox` has no shadow and takes the `surface-level-2` fill (see Dark mode in `docs/conventions.md`).
 
 ## Accessibility
 
@@ -249,4 +249,4 @@ Keyboard:
 
 ## Out of scope
 
-Multiple selection (it needs a list that stays open, a summary of several values in `field`, and checkable rows), a filterable select (combobox), option groups, option descriptions, a clear button, a read-only field, animations, dark mode, and creating new options are not covered by this spec. A filterable select, and the suggestions of the search field (see `components/search-field.md`), will reuse `listbox`, its options, its tokens, and its geometry unchanged; what they add is a text input with the `combobox` role, `aria-controls` on `listbox`, `aria-activedescendant` for the active option, filtering of the options, and a polite announcement of the number of results. None of that is defined here.
+Multiple selection (it needs a list that stays open, a summary of several values in `field`, and checkable rows), a filterable select (combobox), option groups, option descriptions, a clear button, a read-only field, animations, and creating new options are not covered by this spec. A filterable select, and the suggestions of the search field (see `components/search-field.md`), will reuse `listbox`, its options, its tokens, and its geometry unchanged; what they add is a text input with the `combobox` role, `aria-controls` on `listbox`, `aria-activedescendant` for the active option, filtering of the options, and a polite announcement of the number of results. None of that is defined here.

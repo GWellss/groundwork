@@ -322,4 +322,4 @@ Icon style and library come from the `## Icons` section of DESIGN.md, as for the
 
 ## Out of scope
 
-Animations, dark mode, single-choice chip sets, arrow-key navigation inside a chip group, editable chips, chips that are both selectable and removable, a leading icon together with an avatar, read-only display tags, and semantic color variants (success, warning, danger) are not covered by this spec.
+Animations, single-choice chip sets, arrow-key navigation inside a chip group, editable chips, chips that are both selectable and removable, a leading icon together with an avatar, read-only display tags, and semantic color variants (success, warning, danger) are not covered by this spec.

@@ -296,4 +296,4 @@ One entry per severity and per `enabled`, `hover`, `pressed` fill, using only th
 
 ## Out of scope
 
-Alerts on a dark or tinted background, a sticky or floating banner, an alert with several actions or a form, links inside the message, light and outlined variants, a solid (filled) alert, a collapsible alert, a title-only alert, a countdown or auto-dismiss, a `banner` that follows the scroll, animations, and dark mode are not covered by this spec. The `info` severity uses the brand color: a theme whose brand hue is close to the danger or warning hue may blur the two, so the user checks it after generation.
+Alerts on a dark or tinted background, a sticky or floating banner, an alert with several actions or a form, links inside the message, light and outlined variants, a solid (filled) alert, a collapsible alert, a title-only alert, a countdown or auto-dismiss, a `banner` that follows the scroll, and animations are not covered by this spec. The `info` severity uses the brand color: a theme whose brand hue is close to the danger or warning hue may blur the two, so the user checks it after generation.

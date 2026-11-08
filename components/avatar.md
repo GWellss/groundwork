@@ -189,4 +189,4 @@ Icon style and library come from the `## Icons` section of DESIGN.md. `fallback-
 
 ## Out of scope
 
-Avatars that show several contents together or none, avatar groups, presence or status indicators, upload or edit overlays, colored fills chosen from the name, animations, dark mode, and avatars on colored or image backgrounds (contrast is checked only against `{colors.surface}`) are not covered by this spec.
+Avatars that show several contents together or none, avatar groups, presence or status indicators, upload or edit overlays, colored fills chosen from the name, animations, and avatars on colored or image backgrounds (contrast is checked only against `{colors.surface}`) are not covered by this spec.

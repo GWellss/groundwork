@@ -143,7 +143,7 @@ The elements inside (buttons, fields, links) take the tokens of their own specs.
 
 ### Elevation
 
-`container` is at `level-2` when `open`; `closed` is not rendered. With `arrow`, the shadow follows the same rule as the tooltip: the combined outline of container and arrow when the platform can, otherwise the container alone, and never a shadow between arrow and container.
+`container` is at `level-2` when `open`; `closed` is not rendered. With `arrow`, the shadow follows the same rule as the tooltip: the combined outline of container and arrow when the platform can, otherwise the container alone, and never a shadow between arrow and container. In dark mode there is no shadow: the `container` takes the `surface-level-2` fill and keeps its border (see Dark mode in `docs/conventions.md`).
 
 ## Token contract
 
@@ -232,4 +232,4 @@ The buttons and fields inside declare their own entries.
 
 ## Out of scope
 
-Modal behavior and focus trapping (see `components/dialog.md`), popovers that open on hover or on a long press, popovers inside popovers, a menu or select opened inside a popover, a popover on a dark or tinted fill, a popover that follows the pointer, a full-screen sheet on small screens, animations, and dark mode are not covered by this spec; contrast is checked only against `{colors.surface}`, so on an image or a dark background the user retouches the popover colors after generation.
+Modal behavior and focus trapping (see `components/dialog.md`), popovers that open on hover or on a long press, popovers inside popovers, a menu or select opened inside a popover, a popover on a dark or tinted fill, a popover that follows the pointer, a full-screen sheet on small screens, and animations are not covered by this spec; contrast is checked only against `{colors.surface}`, so on an image or a dark background the user retouches the popover colors after generation.
