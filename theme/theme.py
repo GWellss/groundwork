@@ -8,6 +8,7 @@ Usage (terminal):
     python3 theme.py --out DESIGN.md                      # all defaults
     python3 theme.py --name Acme --brand "#7C3AED" --corners pill --out DESIGN.md
     python3 theme.py --out DESIGN.md --css tokens.css     # explicit CSS path
+    python3 theme.py --dark --out DESIGN.md               # also DESIGN.dark.md and a two-block tokens.css
     python3 theme.py --palettes --out palettes.md         # palette reference for agents without tools
     python3 theme.py --selftest
 
@@ -18,6 +19,9 @@ Input: one option per answer (--name --brand --danger --success --warning --neut
 Colors are hex codes (#RRGGBB); resolving a color name to hex is left to the caller.
 Output: DESIGN.md (use --out -  for stdout), tokens.css (default: next to the DESIGN.md; with --out -
 only if --css is given) and a contrast report on stdout. tokens.css is generated here, without the CLI.
+Dark mode (option --dark, off by default): also writes DESIGN.dark.md (--dark-out), and tokens.css gets a :root block
+(light) plus a [data-theme="dark"] block. --dark-tint slightly-tinted|neutral picks the surface tint; --dark-brand
+accept|keep answers the proposal made when the brand color fails in dark mode (without it the script stops, exit 2).
 Exit code: 0 ok, 1 a components pair fails 4.5:1, 2 unusable color (nothing written, proposal printed).
 """
 import argparse
@@ -35,6 +39,10 @@ WHITE = "#FFFFFF"
 ACCENT = ("primary", "primary-hover", "primary-pressed", "danger", "focus-ring", "link-visited", "on-surface-muted", "success")
 ON_FILL = {"danger-hover": "neutral-subtle-hover", "danger-pressed": "neutral-subtle-pressed"}  # destructive menu item: danger content darkens on the grayed fill it meets
 ROLES = ("brand", "danger", "success", "warning")  # one scale each; states derived by the same rule
+LEVELS = tuple("surface-level-%d" % i for i in range(1, 6))  # dark mode: level-0 is `surface`
+LEVEL5 = LEVELS[-1]  # the lightest surface, the most unfavorable one for light content
+DARK_L0, DARK_STEP, DARK_CHROMA = 0.18, 0.025, 0.010  # OKLCH lightness of the dark surface, gain per level, constant tint
+BRIGHT_BG = ("primary", "primary-hover", "primary-pressed", "danger", "danger-hover", "danger-pressed", "success", "warning")
 
 SIZES = ("sm", "md", "lg", "xl")
 FONT_SIZE = {"compact": (12, 13, 14, 16), "default": (12, 14, 16, 18), "comfortable": (13, 15, 17, 20)}
@@ -259,13 +267,115 @@ def derive(a):
     return flat, info
 
 
+def dark_surfaces(a):
+    """Level-0 to level-5 surface hex: OKLCH lightness up by DARK_STEP per level, tint constant at every level."""
+    if a.dark_tint == "neutral":
+        c, h = 0.0, 0
+    elif a.neutral in ("warm", "cool"):
+        c, h = NEUTRAL_TINT[a.neutral]
+    else:
+        c, h = DARK_CHROMA, to_oklch(a.brand)[2]
+    return [to_hex(DARK_L0 + i * DARK_STEP, c, h) for i in range(6)]
+
+
+def dark_components():
+    """The light pairs (checked on level-5 by lvl) plus the text on levels 1 to 4, so every surface role is used (the lint flags unreferenced hex tokens)."""
+    return components() + [("text-on-level-%d" % i, "surface-level-%d" % i, "on-surface") for i in range(1, 5)]
+
+
+def derive_dark(a, light, info):
+    """Dark colors by role correspondence (docs/conventions.md, Dark mode). Same palettes, other steps per role.
+    Raise ValueError (nothing written) when the brand needs the user's answer or a color is unusable."""
+    names, idx = info["names"], {}
+    palette = dict(list(light.items())[:50])
+    _, c, h = to_oklch(palette["neutral-900"])  # neutral-900 is the one shared step that changes: darker than every dark surface, so that scrim
+    palette["neutral-900"] = to_hex(0.10, c, h)  # (neutral-900 in both files) dims the page; the lint flags a scrim that no component uses unless it aliases a used step
+    flat = dict(palette)
+    surf = dark_surfaces(a)
+    flat["surface"] = surf[0]
+    flat.update(zip(LEVELS, surf[1:]))
+    top = surf[5]
+    scale = lambda n: [palette["%s-%d" % (n, s)] for s in STEPS]
+    ref = lambda n, i: "{colors.%s-%d}" % (n, STEPS[min(max(i, 0), 9)])
+    # accent default: first step from 300 to 600 searched from the lightest, 4.5:1 on level-5 and against its content (step 900);
+    # from 300, hover (default - 2) and pressed (default - 4, stopped at 50) are distinct
+    ok = lambda sc, i: i >= 3 and contrast(sc[i], top) >= 4.5 and contrast(sc[i], sc[9]) >= 4.5
+    note = ""
+    for key in ROLES:
+        sc = scale(names[key])
+        d = next((i for i in range(3, 7) if ok(sc, i)), None)
+        if key == "brand":
+            bi = sc.index(a.brand)
+            if ok(sc, bi):
+                d = bi  # the brand color passes: kept as is
+            elif d is not None:
+                p = min((i for i in range(3, 7) if ok(sc, i)), key=lambda i: (abs(i - bi), i))
+                if a.dark_brand is None:
+                    raise ValueError("The brand color %s does not pass in dark mode (%.2f:1 on %s, 4.5:1 needed; its palette step must also keep distinct hover and pressed steps).\n"
+                                     "Nearest step of its palette that passes: %s-%d %s (%.2f:1 on %s).\n"
+                                     "Accept it with --dark-brand accept, or refuse with --dark-brand keep (the failing pairs are then reported)." %
+                                     (a.brand, contrast(a.brand, top), top, names[key], STEPS[p], sc[p], contrast(sc[p], top), top))
+                d = p if a.dark_brand == "accept" else bi
+                note = "brand %s: %s" % (a.brand, "proposed step %s-%d accepted" % (names[key], STEPS[p]) if d == p else "refused, kept as is")
+        if d is None:
+            raise ValueError("The %s color has no step from 300 to 600 reaching 4.5:1 on the dark surface and against its content: give another color." % key)
+        idx[key] = d
+    b, nu = names["brand"], scale("neutral")
+    sem = {
+        "surface": surf[0],
+        "primary": ref(b, idx["brand"]), "on-primary": ref(b, 9),
+        "primary-hover": ref(b, idx["brand"] - 2), "primary-pressed": ref(b, idx["brand"] - 4),
+        "primary-container": ref(b, 9), "on-primary-container": None,
+        "primary-container-hover": ref(b, 8), "primary-container-pressed": ref(b, 7),
+        "primary-subtle-hover": ref(b, 9), "primary-subtle-pressed": ref(b, 8), "on-primary-subtle": None,
+        **{tok: v for k in ROLES[1:] for tok, v in (
+            (k, ref(names[k], idx[k])), ("on-" + k, ref(names[k], 9)))},
+        "danger-hover": ref(names["danger"], idx["danger"] - 2), "danger-pressed": ref(names["danger"], idx["danger"] - 4),
+        **{tok: v for k in ROLES[1:] for tok, v in (
+            (k + "-container", ref(names[k], 9)), (k + "-container-hover", ref(names[k], 8)),
+            (k + "-container-pressed", ref(names[k], 7)), ("on-%s-container" % k, None))},
+        "outline": ref("neutral", next((i for i in (6, 5, 4) if contrast(nu[i], top) >= 3), 3)),  # 3:1 on level-5, darkest step that passes
+        "disabled-container": "{colors.neutral-800}",
+        "on-disabled": "{colors.neutral-500}", "focus-ring": None,
+        "on-surface": None, "on-surface-muted": ref("neutral", next((i for i in (4, 3, 2) if contrast(nu[i], top) >= 4.5), 2)),
+        "neutral-subtle-hover": "{colors.neutral-800}", "neutral-subtle-pressed": "{colors.neutral-700}",
+        "inverse-surface": "{colors.neutral-100}", "on-inverse-surface": "{colors.neutral-900}",  # tooltip inverted: light fill, dark content
+        "link-visited": ref(b, idx["brand"] - 1),
+    }
+    assert len(sem) == 43
+    flat.update(sem)
+    fi = idx["brand"]  # ring: lightest side moves up from the default until 3:1 on every fill
+    flat["focus-ring"] = sem["focus-ring"] = ref(b, next((i for i in range(fi, -1, -1) if ring_ok(flat, ref(b, i), DARK_FILLS)), 0))
+    for tok, sc in (("on-primary-container", b), ("on-primary-subtle", b), ("on-surface", "neutral"),
+                    *(("on-%s-container" % k, names[k]) for k in ROLES[1:])):
+        bgs = [resolve(flat, "{colors.%s}" % lvl(bg)) for _, bg, fg in components() if fg == tok]  # lightest decides
+        sca = scale(sc)
+        flat[tok] = ref(sc, next((i for i in (2, 1, 0) if all(contrast(sca[i], x) >= 4.5 for x in bgs)), 0))  # 200, 100, then 50; failure reported by check()
+    check_muted(flat)
+    flat["scrim"] = "{colors.neutral-900}"
+    return {k: flat[k] for k in (*palette, *list(light)[50:], *LEVELS, "scrim")}, {"idx": idx, "note": note}
+
+
+def add_dark_roles(light):
+    """Light file of a theme with a dark mode: same roles as the dark file. surface-level-n equals surface, the scrim keeps the light dialog veil."""
+    light.update({**{l: "{colors.surface}" for l in LEVELS}, "scrim": "{colors.neutral-900}"})
+
+
 RING_FILLS = ("surface", "neutral-subtle-hover", "neutral-subtle-pressed",  # segments, tabs, chip remove, search clear: rest, hover, pressed
               "primary-container", "primary-container-hover", "primary-container-pressed",  # selected segment, info alert controls
               *("%s-container%s" % (k, s) for k in ROLES[1:] for s in ("", "-hover", "-pressed")))  # alert controls, other severities
 
 
-def ring_ok(flat, ring):
-    return all(contrast(resolve(flat, ring), resolve(flat, "{colors.%s}" % f)) >= 3 for f in RING_FILLS)
+DARK_FILLS = tuple(LEVEL5 if f == "surface" else f for f in RING_FILLS)
+
+
+def lvl(bg):
+    """Dark mode checks contrast on the most unfavorable surface: a pair that passes on level-5 passes on every lower level."""
+    return LEVEL5 if bg == "surface" else bg
+
+
+def ring_ok(flat, ring, fills=RING_FILLS):
+    return all(contrast(resolve(flat, ring), resolve(flat, "{colors.%s}" % f)) >= 3 for f in fills)
 
 
 def check_muted(flat):
@@ -349,20 +459,31 @@ def step_of(colors, tok):
     while v.startswith("{colors."):
         tok = v[8:-1]
         v = colors[tok]
-        m = re.fullmatch(r"(.+)-(\d+)", tok)
+        m = None if tok in LEVELS else re.fullmatch(r"(.+)-(\d+)", tok)  # surface-level-n is a role, not a palette step
         found = (m.group(1), int(m.group(2))) if m else found
     return found
 
 
-def check(colors, comps):
-    """Every components entry: 4.5:1, background family, content step, states distinct and darker. Returns rows."""
+def check(colors, comps, dark=False):
+    """Every components entry: 4.5:1, background family, content step, states distinct and darker (lighter in dark mode). Returns rows."""
     rows, prev = [], {}
+    worse = (lambda x, y: x <= y) if dark else (lambda x, y: x >= y)
+    way = "lighter" if dark else "darker"
     for name, bg, fg in comps:
-        a, b = resolve(colors, "{colors.%s}" % bg), resolve(colors, "{colors.%s}" % fg)
-        r, sb, sf, why = contrast(a, b), step_of(colors, bg), step_of(colors, fg), []
+        a, b = resolve(colors, "{colors.%s}" % bg), resolve(colors, "{colors.%s}" % fg)  # a: fill, for the order of states
+        r = contrast(resolve(colors, "{colors.%s}" % (lvl(bg) if dark else bg)), b)
+        sb, sf, why = step_of(colors, bg), step_of(colors, fg), []
         if r < 4.5:
             why.append("below 4.5:1")
-        if sb and 300 <= sb[1] <= 500:
+        if dark and bg != "inverse-surface":  # the tooltip is the one component that keeps the light rules, inverted
+            if bg in BRIGHT_BG:  # bright: step 900 of the same scale
+                if not (sf and sf == (sb[0], 900)):
+                    why.append("content on a bright fill is not step 900 of its scale")
+            elif sb and sb[1] < 700:
+                why.append("intermediate background")
+            elif not (fg == "on-surface" or (sf and sb and sf[0] == sb[0] and sf[1] <= 200) or (bg == "surface" and fg in ACCENT) or ON_FILL.get(fg) == bg):
+                why.append("content is not step 50-200 of the background scale or on-surface")  # dark: surface roles, steps 700-900
+        elif sb and 300 <= sb[1] <= 500:
             why.append("intermediate background")
         elif sb and sb[1] <= 200:  # light: steps 700-900 of the same scale; accent token on surface only
             if not (sf and sf[0] == sb[0] and sf[1] >= 700) and not (bg == "surface" and fg in ACCENT) and ON_FILL.get(fg) != bg:
@@ -372,11 +493,11 @@ def check(colors, comps):
         group = re.sub(r"-(hover|pressed)$", "", name)
         if group in prev:
             pa, pb, pbg = prev[group]
-            if bg == pbg == "surface":  # fill-less component (link): the content moves, each state darker
-                if lum(b) >= lum(pb):
-                    why.append("content not darker than the previous state")
-            elif lum(a) >= lum(pa):
-                why.append("background not darker than the previous state")
+            if bg == pbg == "surface":  # fill-less component (link): the content moves, each state darker (lighter in dark mode)
+                if worse(lum(b), lum(pb)):
+                    why.append("content not %s than the previous state" % way)
+            elif worse(lum(a), lum(pa)):
+                why.append("background not %s than the previous state" % way)
         prev[group] = (a, b, bg)
         rows.append((name, sb, sf, r, why))
     return rows
@@ -385,28 +506,43 @@ def check(colors, comps):
 NONTEXT = ("outline",)  # tokens that draw a component boundary: 3:1 on the surface (WCAG 1.4.11); the lint cannot check them
 
 
-def report(colors, comps):
-    lines = ["Contrast report (WCAG 2.x, threshold 4.5:1, families and states checked)", ""]
+def report(colors, comps, dark=False):
+    lines = ["Contrast report (WCAG 2.x, threshold 4.5:1, families and states checked)" + (", dark mode, on %s" % LEVEL5 if dark else ""), ""]
     bad = 0
     fmt = lambda t: "%s-%d" % t if t else "white/other"
-    for name, sb, sf, r, why in check(colors, comps):
+    surf, fills = (LEVEL5, DARK_FILLS) if dark else ("surface", RING_FILLS)
+    for name, sb, sf, r, why in check(colors, comps, dark):
         bad += bool(why)
         lines.append("%-24s bg %-12s text %-12s %5.2f  %s" % (name, fmt(sb), fmt(sf), r, "PASS" if not why else "FAIL: " + "; ".join(why)))
     for tok in NONTEXT:
-        r = contrast(resolve(colors, "{colors.%s}" % tok), resolve(colors, "{colors.surface}"))
+        r = contrast(resolve(colors, "{colors.%s}" % tok), resolve(colors, "{colors.%s}" % surf))
         bad += r < 3
-        lines.append("%-24s non-text on surface (3:1)           %5.2f  %s" % (tok, r, "PASS" if r >= 3 else "FAIL: below 3:1"))
+        lines.append("%-24s non-text on %-24s%5.2f  %s" % (tok, "%s (3:1)" % surf, r, "PASS" if r >= 3 else "FAIL: below 3:1"))
     fr = resolve(colors, "{colors.focus-ring}")
-    for f in RING_FILLS:
+    for f in fills:
         r = contrast(fr, resolve(colors, "{colors.%s}" % f))
         bad += r < 3
         lines.append("%-24s non-text on %-24s (3:1) %5.2f  %s" % ("focus-ring", f, r, "PASS" if r >= 3 else "FAIL: below 3:1"))
-    total = len(comps) + len(NONTEXT) + len(RING_FILLS)
+    total = len(comps) + len(NONTEXT) + len(fills)
+    if dark:  # each surface strictly lighter than the previous one
+        ls = [lum(resolve(colors, "{colors.%s}" % t)) for t in ("surface",) + LEVELS]
+        order = all(x < y for x, y in zip(ls, ls[1:]))
+        bad, total = bad + (not order), total + 1
+        lines.append("%-24s strictly lighter from level-0 to level-5          %s" % ("surface levels", "PASS" if order else "FAIL: not strictly lighter"))
     lines += ["", "%d of %d pairs pass." % (total - bad, total)]
     return "\n".join(lines), bad
 
 
-def design_md(a, colors, info, comps):
+def typography_yaml(a):
+    q = json.dumps
+    y = ["typography:"]
+    for s, px in zip(SIZES, FONT_SIZE[a.density]):
+        y += ["  label-" + s + ":", "    fontFamily: " + q(a.font), "    fontSize: %dpx" % px, "    fontWeight: 500",
+              "    lineHeight: %dpx" % math.floor(px * 1.25 + 0.5), "    letterSpacing: 0px"]
+    return y
+
+
+def design_md(a, colors, info, comps, dark=False):
     q = json.dumps
     ni, ix = info["names"], info["idx"]
     di = DENSITIES.index(a.density)
@@ -415,10 +551,7 @@ def design_md(a, colors, info, comps):
     style, lib = style.strip(), lib.strip() or "an icon library of your choice"
     y = ["---", "name: " + q(a.name), "colors:"]
     y += ["  %s: %s" % (k, q(v)) for k, v in colors.items()]
-    y.append("typography:")
-    for s, px in zip(SIZES, sizes):
-        y += ["  label-" + s + ":", "    fontFamily: " + q(a.font), "    fontSize: %dpx" % px, "    fontWeight: 500",
-              "    lineHeight: %dpx" % math.floor(px * 1.25 + 0.5), "    letterSpacing: 0px"]
+    y += typography_yaml(a)
     y += ["rounded:", "  control: " + ROUNDED[a.corners], "  overlay: " + OVERLAY[a.corners], "  avatar: " + AVATAR_RADIUS, "spacing:"]
     y += ["  %s: %dpx" % (k, v[di]) for k, v in SPACING.items()]
     y += ["  border-width: 1px", "  focus-ring-width: 2px", "  focus-ring-offset: 2px", "components:"]
@@ -473,6 +606,45 @@ The `components` entries declare one `backgroundColor` and `textColor` pair per 
 - Don't add non-standard properties to `components`.
 - Don't declare disabled pairs in `components`.
 """
+    if dark:
+        body = body.replace("\n\n## Typography", " The theme has a dark mode (DESIGN.dark.md, applied under `data-theme=\"dark\"`): `surface-level-1` to `surface-level-5` equal `surface` here and only differ in dark mode, and `scrim`, the veil behind the dialog, is `neutral-900`.\n\n## Typography", 1)
+    return "\n".join(y) + "\n" + body
+
+
+def design_md_dark(a, colors, info, dinfo):
+    """DESIGN.dark.md: same role names as DESIGN.md, other values. Valid alone: it defines every token it references."""
+    q = json.dumps
+    ni, ix = info["names"], dinfo["idx"]
+    y = ["---", "name: " + q(a.name + " (dark)"), "colors:"]
+    y += ["  %s: %s" % (k, q(v)) for k, v in colors.items()]
+    y += typography_yaml(a)  # the lint warns (missing-typography) on a file without typography tokens
+    y.append("components:")
+    for n, bg, fg in dark_components():
+        y += ["  %s:" % n, "    backgroundColor: " + q("{colors.%s}" % lvl(bg)), "    textColor: " + q("{colors.%s}" % fg)]
+    y.append("---")
+    tint = "pure gray" if a.dark_tint == "neutral" else "gray with a weak, constant tint of the theme color"
+    elev = "\n".join("| `level-%d` | `%s` |" % (i, "surface" if i == 0 else "surface-level-%d" % i) for i in range(6))
+    body = f"""
+## Overview
+
+Dark mode of {a.name}, applied under `data-theme="dark"`. It has the same role names as DESIGN.md and other values; spacing, rounded and icons stay in DESIGN.md; typography is repeated because the lint warns on a file without it. Each pair of `components` is checked against `surface-level-5`, the lightest surface.
+
+## Colors
+
+The five primitive scales are the same as in DESIGN.md, except `neutral-900`, darker here so that `scrim` (`neutral-900`, as in DESIGN.md) dims the dark page; each role takes the step that suits the dark mode. Surfaces are {tint}: `surface` is {colors['surface']} and each level is a notch lighter, up to `surface-level-5` ({colors['surface-level-5']}). The accent `default` step is the first step from 300 to 600 searched from the lightest, reaching 4.5:1 on `surface-level-5` and against its content: here `{ni['brand']}-{STEPS[ix['brand']]}` (brand), `{ni['danger']}-{STEPS[ix['danger']]}` (danger), `{ni['success']}-{STEPS[ix['success']]}` (success) and `{ni['warning']}-{STEPS[ix['warning']]}` (warning). Hover is `default` minus 2 steps and pressed is `default` minus 4 steps, stopped at 50: each state is lighter than the previous one. Content on an accent fill (`on-primary`, `on-danger`, `on-success`, `on-warning`) is step 900 of the same scale. Tonal containers use steps 900, 800 and 700 (enabled, hover, pressed), with content searched among steps 200, 100 and 50. Text is `on-surface`, a neutral step 200, 100 or 50; `on-surface-muted` and `outline` (3:1) are checked on `surface-level-5`. The tooltip is inverted: `inverse-surface` is a light neutral step with a dark `on-inverse-surface`. `scrim` is the veil behind the dialog.{(chr(10) + chr(10) + "Brand note: " + dinfo['note'] + ".") if dinfo['note'] else ""}
+
+## Elevation & Depth
+
+This theme has no shadow in dark mode: each elevation level has its own surface, a notch lighter than the previous level.
+
+| Level | Surface role |
+|---|---|
+{elev}
+
+## Components
+
+The `components` entries are the same as in DESIGN.md, with `surface-level-5` in place of `surface` as background, so the lint checks the most unfavorable surface; four `text-on-level-<n>` entries add the text pair on `surface-level-1` to `surface-level-4`. Disabled pairs are exempt (WCAG 1.4.3) and are not declared.
+"""
     return "\n".join(y) + "\n" + body
 
 
@@ -483,12 +655,14 @@ def font_stack(font):
     return ", ".join(([f] if f.lower() in generic else ['"%s"' % f]) + [g for g in ("system-ui", "sans-serif") if g != f.lower()])
 
 
-def tokens_css(a, colors):
-    """Fixed-name CSS custom properties, one :root block, values resolved (no nested references)."""
+def tokens_css(a, colors, dark=None):
+    """Fixed-name CSS custom properties, values resolved (no nested references). One :root block; with a dark mode, a second block under data-theme="dark"."""
     di = DENSITIES.index(a.density)
     v = ["/* %s - generated by theme.py, do not edit by hand." % a.name,
          "   Names: --color-<token>, --spacing-<token>, --rounded-<token>, --typography-<token>-<property>, --elevation-level-<0-5>.",
-         "   All values are resolved (no nested references): semantic colors hold the hex of the step they point to. */", ":root {"]
+         "   All values are resolved (no nested references): semantic colors hold the hex of the step they point to." +
+         ("\n   Dark mode: the [data-theme=\"dark\"] block overrides the colors and removes the shadows. */" if dark else " */"), ":root {"]
+    v += ["  color-scheme: light;"] * bool(dark)
     v += ["  --color-%s: %s;" % (k, resolve(colors, c)) for k, c in colors.items()]
     v += ["  --spacing-%s: %dpx;" % (k, x[di]) for k, x in SPACING.items()]
     v += ["  --spacing-border-width: 1px;", "  --spacing-focus-ring-width: 2px;", "  --spacing-focus-ring-offset: 2px;"]
@@ -499,7 +673,13 @@ def tokens_css(a, colors):
         v += [t + "font-family: %s;" % font_stack(a.font), t + "font-size: %dpx;" % px, t + "font-weight: 500;",
               t + "line-height: %dpx;" % math.floor(px * 1.25 + 0.5), t + "letter-spacing: 0px;"]
     v += ["  --elevation-%s: %s;" % (l, sh) for l, _, sh in ELEVATION]
-    return "\n".join(v + ["}"]) + "\n"
+    v.append("}")
+    if dark:  # no shadow in dark mode: the surface levels carry the depth
+        v += ["", '[data-theme="dark"] {', "  color-scheme: dark;"]
+        v += ["  --color-%s: %s;" % (k, resolve(dark, c)) for k, c in dark.items()]
+        v += ["  --elevation-%s: none;" % l for l, _, _ in ELEVATION]
+        v.append("}")
+    return "\n".join(v) + "\n"
 
 
 def color_warnings(a, colors, info):
@@ -626,6 +806,43 @@ def selftest():
         assert "  " + pre in css, pre
     assert all("--elevation-level-%d:" % i in css for i in range(6)) and css.count(":root") == 1 and "var(" not in css
     assert font_stack("Inter") == '"Inter", system-ui, sans-serif'
+    ad = parser().parse_args(["--dark"])  # dark mode: the brand needs an answer, then both files hold the same roles and pass
+    try:
+        derive_dark(ad, colors, info)
+        raise AssertionError("a failing brand was accepted silently in dark mode")
+    except ValueError as e:
+        assert "--dark-brand" in str(e)
+    for tint in ("slightly-tinted", "neutral"):
+        ad = parser().parse_args(["--dark", "--dark-brand", "accept", "--dark-tint", tint])
+        dark, dinfo = derive_dark(ad, colors, info)
+        light = dict(colors)
+        add_dark_roles(light)
+        assert list(light) == list(dark) and len(dark) == 50 + 43 + 6, "same roles in both files"
+        assert report(light, components())[1] == 0 and report(dark, dark_components(), dark=True)[1] == 0, tint
+        assert dinfo["idx"]["brand"] == 4 and dark["primary-hover"] == "{colors.blue-200}" and dark["primary-pressed"] == "{colors.blue-50}"
+        assert resolve(dark, "{colors.scrim}") != resolve(dark, dark["surface"]) and lum(resolve(dark, "{colors.scrim}")) < lum(dark["surface"])
+        ls = [lum(dark[k]) for k in ("surface",) + LEVELS]
+        assert ls == sorted(set(ls)), "surface levels strictly lighter"
+        if tint == "neutral":
+            assert len({dark[k][1:3] for k in ("surface",) + LEVELS} | {dark[k][3:5] for k in ("surface",) + LEVELS}) == 6, "pure gray"
+        bad = dict(dark, **{"primary-hover": dark["primary"]})  # same background as default: must fail (states distinct, lighter)
+        assert report(bad, dark_components(), dark=True)[1] > 0
+        bad = dict(dark, **{"surface-level-3": dark["surface-level-2"]})  # levels not strictly lighter: must fail
+        assert report(bad, dark_components(), dark=True)[1] > 0
+        bad = dict(dark, outline="{colors.neutral-700}")  # 3:1 on level-5: must fail
+        assert report(bad, dark_components(), dark=True)[1] > 0
+        bad = dict(dark, **{"on-primary": "{colors.blue-600}"})  # content on a bright fill below step 900: must fail
+        assert report(bad, dark_components(), dark=True)[1] > 0
+        css = tokens_css(a, light, dark)
+        assert css.count("{") == 2 and "  color-scheme: light;" in css and "  color-scheme: dark;" in css and '[data-theme="dark"] {' in css
+        assert css.split('[data-theme="dark"]')[1].count("--elevation-level-") == 6 and "--elevation-level-5: none;" in css
+        assert "var(" not in css and tokens_css(a, colors) == tokens_css(a, colors, None) and "color-scheme" not in tokens_css(a, colors)
+    kept = parser().parse_args(["--dark", "--brand", "#93C5FD"])  # a light brand reaches 4.5:1 on level-5: kept without a question
+    kc, ki = derive(kept)
+    assert derive_dark(kept, kc, ki)[1]["note"] == ""
+    refused = parser().parse_args(["--dark", "--dark-brand", "keep"])
+    rd, _ = derive_dark(refused, colors, info)
+    assert report(rd, dark_components(), dark=True)[1] > 0, "a refused brand is reported failing"
     a2 = parser().parse_args(["--danger", "#E11D48"])
     c2, i2 = derive(a2)
     assert color_warnings(a2, c2, i2) and not color_warnings(a, colors, info)
@@ -645,6 +862,10 @@ def parser():
     p.add_argument("--corners", default="soft", choices=tuple(ROUNDED), help="corner style")
     p.add_argument("--density", default="default", choices=DENSITIES, help="control and font sizes")
     p.add_argument("--icons", default="outlined, Material Symbols", help='"<style>, <library>"')
+    p.add_argument("--dark", action="store_true", help="also generate the dark mode: DESIGN.dark.md and a tokens.css with a dark block")
+    p.add_argument("--dark-tint", default="slightly-tinted", choices=("slightly-tinted", "neutral"), help="dark surfaces: weak tint of the theme color, or pure gray")
+    p.add_argument("--dark-brand", choices=("accept", "keep"), help="brand color failing in dark mode: accept the proposed palette step, or refuse (pairs reported failing)")
+    p.add_argument("--dark-out", help="DESIGN.dark.md path (next to the DESIGN.md if not given; none with --out -)")
     p.add_argument("--out", help="output file, - for stdout (DESIGN.md, or palettes.md with --palettes if not given)")
     p.add_argument("--css", help="tokens.css path (tokens.css next to the DESIGN.md if not given; none with --out -)")
     p.add_argument("--palettes", action="store_true", help="generate the palette reference instead of a theme")
@@ -670,13 +891,32 @@ def main(argv=None):
         except ValueError as e:
             print(e)
             return 2
+        dark = dinfo = None
+        if a.dark:
+            try:
+                dark, dinfo = derive_dark(a, colors, info)
+            except ValueError as e:
+                print(e)
+                return 2
+            add_dark_roles(colors)
         comps = components()
         rep, bad = report(colors, comps)
-        text, rc = design_md(a, colors, info, comps), int(bad > 0)
+        text = design_md(a, colors, info, comps, bool(dark))
+        if dark:
+            drep, dbad = report(dark, dark_components(), dark=True)
+            rep, bad = rep + "\n\n" + drep, bad + dbad
+            dout = a.dark_out or (None if out == "-" else re.sub(r"(\.md)?$", ".dark.md", out, count=1))
+            if dout:
+                with open(dout, "w", encoding="utf-8") as f:
+                    f.write(design_md_dark(a, dark, info, dinfo))
+                print("Wrote " + dout)
+            if dinfo["note"]:
+                print("Note: " + dinfo["note"])
+        rc = int(bad > 0)
         css = a.css or (None if out == "-" else os.path.join(os.path.dirname(out), "tokens.css"))
         if css:
             with open(css, "w", encoding="utf-8") as f:
-                f.write(tokens_css(a, colors))
+                f.write(tokens_css(a, colors, dark))
             print("Wrote " + css)
         for w in color_warnings(a, colors, info):
             print(w)
