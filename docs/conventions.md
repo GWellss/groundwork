@@ -23,6 +23,8 @@ State colors (default, hover, pressed) are semantic tokens that reference steps 
 
 The user gives only the base color. The agent that fills the theme builds the scale and applies this rule for each base color (`primary`, `danger`, `success`, `warning`). It is the solid-family case of the contrast pair rule below.
 
+This section and the next ones describe the light mode, which is the reference. The dark mode has its own derivation and its own direction of state changes (see Dark mode).
+
 | State | Rule |
 |---|---|
 | default | First step from `600` to `900` reaching WCAG AA 4.5:1 against both the content color (`on-*`) and `colors.surface` |
@@ -43,6 +45,8 @@ This rule applies to every pair declared in `components` by every component, pre
 
 Steps are those of a 10-step scale, `50` (lightest) to `900` (darkest). The families apply to every scale, the neutral scale included. `{colors.surface}` is a light background.
 
+This classification is that of the light mode. A background is light or dark according to the mode, never by its step number alone: in dark mode `{colors.surface}` is a dark background and the families are set again (see Dark mode).
+
 | Family | Background steps | Allowed content |
 |---|---|---|
 | `light` | `50`, `100`, `200` | Step `700`, `800`, or `900` of the same scale |
@@ -60,7 +64,7 @@ Every focus ring is `focus-ring`, with no exception. The script checks it at 3:1
 
 The background moves first, the content follows.
 
-1. Background. Each interactive state of a variant (`enabled`, `hover`, `pressed`) has its own background, distinct from the other states, each state darker than the previous one, and staying in its family.
+1. Background. Each interactive state of a variant (`enabled`, `hover`, `pressed`) has its own background, distinct from the other states, each state darker than the previous one (light mode; in dark mode each state is lighter, see Dark mode), and staying in its family.
 
 | Case | enabled | hover | pressed |
 |---|---|---|---|
@@ -96,7 +100,7 @@ Example (illustrative): `blue-600` text on a `blue-100` pressed background gives
 
 ### Dark background with light content
 
-A component with a dark background and light content (for example a tooltip) uses a `solid` step of a scale, usually the neutral scale, as its background, and an `on-*` content token: white by default, or step `50` of the same scale. The component token contract declares the background step, within `600` to `900`. The pair is checked like any other. Dark-background components with interactive states are not covered yet: a spec that needs them must extend this rule first.
+A component with a dark background and light content (for example a tooltip) uses a `solid` step of a scale, usually the neutral scale, as its background, and an `on-*` content token: white by default, or step `50` of the same scale. The component token contract declares the background step, within `600` to `900`. The pair is checked like any other. Dark-background components with interactive states are not covered yet: a spec that needs them must extend this rule first. This paragraph describes the light mode. In dark mode the tooltip is inverted (light background, dark content): see "Tooltip and scrim" in Dark mode.
 
 ### Automatic check
 
@@ -111,6 +115,7 @@ A component with a dark background and light content (for example a tooltip) use
 `on-surface-muted` (placeholder, helper text, counter, affixes, quiet icons) is quieter than `on-surface` but is only checked against `{colors.surface}`.
 
 - Use it on `{colors.surface}` only. Never use it on a grayed fill: `neutral-subtle-hover`, `neutral-subtle-pressed`, `disabled-container`, or any neutral step `100` and beyond. On those fills it falls below 4.5:1. A part that sits on a grayed fill (for example the affixes of a `read-only` text field) takes `on-surface`.
+- In dark mode the rule holds with the surface levels: it is allowed on any surface level and is checked against the most unfavorable one (see Dark mode).
 - It must not resolve to the same color as `on-surface`. `theme/theme.py` stops with an explicit error (exit code 2, nothing written) when both fall on the same neutral step, instead of silently accepting a muted text that is not quieter.
 
 ### Known limit
@@ -130,7 +135,104 @@ If such exceptions multiply, stop adding rules. Check every content color agains
 - The kit never adds non-standard properties to `components`. It only declares standard `backgroundColor` and `textColor` entries, one per variant and active state, so the DESIGN.md lint checks contrast.
 - Non-text contrast (WCAG 1.4.11, 3:1) cannot be declared in `components`: a pair would be checked at 4.5:1, and a border property would be non-standard. The one such pair of the kit, `colors.outline` against `colors.surface` (see `components/text-field.md`), is checked by `theme/theme.py` and listed in its report; without the script, compute it by hand. It covers every part drawn in `outline`: the field border, the border of a clickable outlined card, the border of an unselected checkbox, radio button, and switch (and the off thumb), the slider track, the border and dividers of the segmented control, and the dividers of the accordion.
 - Disabled-state pairs are never declared in `components`, because WCAG 1.4.3 exempts inactive components and the lint would otherwise flag them. The disabled token mapping stays described in the component spec, and the `on-disabled` and `disabled-container` tokens stay in the colors token contract.
-- Theme validation criterion: 0 errors and 0 `contrast-ratio` warnings. `orphaned-tokens` warnings on unused primitive palette steps are expected and tolerated; no other warning is.
+- Theme validation criterion: 0 errors and 0 `contrast-ratio` warnings. `orphaned-tokens` warnings on unused primitive palette steps are expected and tolerated; no other warning is. When the theme has a dark mode, the criterion applies to each of the two theme files, validated separately (see Dark mode).
+
+## Dark mode
+
+The dark mode is an option of the questionnaire, never a default. The light mode stays the reference: every rule of this file that does not mention the dark mode is a light mode rule. A theme without the option has one theme file and no dark rule applies.
+
+Rules marked "to confirm by the trial of lot D4" are proposals, not measured results: the exact steps are fixed only once the trial has been run on real palettes.
+
+### Activation
+
+- The kit does not switch modes. It provides two sets of values and one documented activation point: the dark mode applies under the attribute `data-theme="dark"`.
+- The consuming application decides when to set the attribute (system preference, user setting, or anything else) and on which element (the root element for the whole page, or any ancestor to scope it). Without the attribute, the light values apply.
+- Component code does not change between modes: it reads the same variables, and only their values differ (see `docs/implementation.md`).
+
+### Two theme files
+
+- The light theme is the existing DESIGN.md. The dark theme is a second file in the DESIGN.md format, specific to the project, named `DESIGN.dark.md`.
+- Both files use the same role names, with different values. A role exists in both, or in neither.
+- Each file is validated separately by the lint, with the criterion of "Lint and contrast". The dark file declares its own `components` entries, because the lint checks only these entries.
+- The dark file carries what depends on the mode: `colors`, the `components` pairs, and `## Elevation & Depth`. Spacing, rounded, typography and `## Icons` stay in the light file. To confirm in lot D2: the dark file must remain valid on its own, so it may only reference tokens it defines.
+- The Google DESIGN.md spec is never modified. If DESIGN.md adds `modes` (see issue 13 of `google-labs-code/design.md`), the two files are merged into one; the roles and values do not change.
+
+### Color derivation
+
+- Dark colors are derived by role correspondence, each role taking the step that suits the dark mode (the Material 3 and Radix models). They are never derived by arithmetic inversion of the light steps (step `600` becoming `300`).
+- A scale keeps its direction, `50` the lightest to `900` the darkest, in both modes. What changes is the step each role takes.
+- Whether a background is light or dark depends on the mode, not on its step number. The families below replace those of "Background families" in dark mode.
+
+### Families in dark mode
+
+Provisional, to confirm by the trial of lot D4.
+
+| Family | Background | Allowed content |
+|---|---|---|
+| `dark` | The surface roles (see below), and steps `800` and `900` of a scale | Step `50`, `100`, or `200` of the same scale, or `on-surface` |
+| `bright` | The accent fills of the State colors rule in dark mode | An `on-*` token: step `900` of the same scale by default |
+| `intermediate` | The steps between the two families above | none: never a background behind text or icons |
+
+The ban on an `intermediate` background and on content on it holds in both modes.
+
+### State changes in dark mode
+
+- Each state is lighter than the previous one: the background moves first and the content follows, as in "State changes". The four forbidden cases of that section hold, with the direction reversed: two states with the same background, darkening a background or moving it back to an earlier step to pass contrast, lowering the 4.5:1 threshold, content on an `intermediate` background.
+- State colors: default is the first step, searched from the lightest side of the accent range, reaching 4.5:1 against its content color and against the most unfavorable surface (see below). Hover is default minus 2 steps and pressed default minus 4 steps, stopping at step `50` if the scale starts there. Distinct states still hold: if two states land on the same step, the color is unusable and is reported. The search range and the offsets are to confirm by the trial of lot D4.
+- Fill-less components keep their surface as the background of every state, and their content color lightens from one state to the next.
+- Content step search: test the content steps from the darkest to the lightest of the allowed set (`200`, then `100`, then `50`), keep the first reaching 4.5:1 against every background of the set. The lightest background of the set decides. At the scale end there is no further step: the pair fails and is reported, as in "Content step search".
+
+### Brand color
+
+The brand color is never modified without the user's agreement.
+
+1. If the brand color reaches the contrast required in dark mode on `{colors.surface-level-5}`, it is kept as is.
+2. Otherwise the kit proposes the nearest step of the brand palette that passes, with its measured ratio.
+3. The user accepts or refuses. On refusal, the pair is reported as failing (see "When a color cannot reach AA" in `theme/questionnaire.md`). The kit never substitutes silently.
+
+### Surfaces and elevation
+
+In dark mode there is no shadow. Each elevation level has its own surface, a notch lighter than the previous level.
+
+| Level | Surface role |
+|---|---|
+| `level-0` | `{colors.surface}` |
+| `level-1` | `{colors.surface-level-1}` |
+| `level-2` | `{colors.surface-level-2}` |
+| `level-3` | `{colors.surface-level-3}` |
+| `level-4` | `{colors.surface-level-4}` |
+| `level-5` | `{colors.surface-level-5}` |
+
+- Each surface is strictly lighter than the previous one, from `{colors.surface}` to `{colors.surface-level-5}`.
+- Tint option, asked by the questionnaire:
+  - `slightly tinted` (default): gray with a weak tint of the theme color. The tint is constant at every level, and never grows with the elevation (the Material 3 approach that was dropped).
+  - `neutral`: pure gray, as in Carbon and Atlassian.
+- A component at `level-n` takes the surface role of its level as fill in dark mode, in place of the `{colors.surface}` that its spec names for the light mode. The specs keep naming `{colors.surface}` and the level; the correspondence is stated once, here. To confirm in lot D5: the Token mapping of the specs may be aligned later.
+- Contrast on a surface is checked on the lightest level, `{colors.surface-level-5}`, the most unfavorable one for light text. A pair that passes there passes on every lower level. This applies to text, to the accent colors listed with the surface in "Background families", to `on-surface-muted`, to the 3:1 non-text pairs (`colors.outline`) and to the focus ring.
+- Elevation never carries state feedback alone, as in light mode. Hover and pressed keep their color tokens.
+
+### Tooltip and scrim
+
+- The tooltip is inverted in dark mode: a light background and a dark content. It is the one component that reverses with the mode: `{colors.inverse-surface}` resolves to a light step in the dark file, and its content token to a dark step of the same scale. The pair is checked at 4.5:1 like any other.
+- The scrim of the dialog is its own role, `{colors.scrim}`, in both files, so that it no longer depends on the tooltip. Its opacity remains a behavior constant of the dialog spec. Its dark mode value is to confirm by the trial of lot D4.
+
+### Floating surface and overlay panel
+
+- The menu, the select list and the popover, and the dialog and the toast, take the surface role of their level (`level-2` for the first three, `level-3` for the other two) as fill, with the border of their common look and no shadow. The border and the surface step carry the depth.
+- The toast follows the active mode, as in "Overlay panel".
+
+### New color roles
+
+| Role | Mode | Use |
+|---|---|---|
+| `surface-level-1` to `surface-level-5` | Dark; light value to confirm in lot D2 | Fill of a component at that elevation level. `level-0` keeps `{colors.surface}` |
+| `scrim` | Both | Color of the veil behind the dialog |
+
+Open for lot D2: in the light file, `surface-level-1` to `surface-level-5` may resolve to `{colors.surface}` so that both files hold the same roles, or exist only in the dark file. The choice depends on the `orphaned-tokens` tolerance of the lint, which covers primitive palette steps only. `inverse-surface` and its content token keep their names and exist in both files.
+
+### Automatic check
+
+The theme script checks the dark file the same way as the light file, with the dark families and directions above: every `components` pair at 4.5:1, the distinct and lighter states, the families, the `outline` and focus ring pairs at 3:1, and the strict order of the surface roles. This is the work of lot D2.
 
 ## Motion
 
@@ -157,10 +259,10 @@ The scale follows the Material 3 model: six levels, named after their relative d
 
 - Resting state: a component at rest (no user interaction, for example `enabled`, `open`, `disabled`, `loading`) uses `level-0` to `level-3`.
 - Interaction states: `level-4` and `level-5` are reserved for user interaction states, such as hover and drag. A spec states which state uses which level; a state may also keep its resting level.
-- Each level reads as higher than the previous one. Only `level-0` has no shadow.
+- Each level reads as higher than the previous one. In light mode only `level-0` has no shadow. In dark mode no level has a shadow and each level reads higher by its surface (see Dark mode).
 - A level is a visual depth cue, not a stacking order. Which element is drawn on top (for example a tooltip over a floating button) belongs to the page layout.
 - Elevation never carries state feedback alone. Hover and pressed keep their color tokens, so a component stays fully usable without its shadow.
-- Future rule (dark mode is out of scope): in dark mode there is no shadow; depth is carried another way, for example by the surface tint.
+- Dark mode: there is no shadow. Depth is carried by the surface: each level has its own surface color, a notch lighter than the previous level (see Dark mode, "Surfaces and elevation"). The level names and their uses do not change.
 
 ### Table in `## Elevation & Depth`
 
@@ -176,6 +278,7 @@ The section may open with one short sentence, followed by exactly this table. Th
 - The `level-0` row is always `none`.
 - One cell holds one complete value: no token reference, no partial value, no "same as above".
 - A retouched value still follows the rules above: each level reads as higher than the previous one.
+- In the dark theme file the table keeps the same six rows, and every `Shadow` cell is `none`: the depth is carried by the surface roles, not by this table.
 - The default values are given by `theme/questionnaire.md`, never by this file or by a component spec. No question is asked about shadows.
 
 ### Forbidden
@@ -199,10 +302,10 @@ A floating surface is a panel that opens next to a trigger and floats above the 
 
 | Aspect | Rule |
 |---|---|
-| Fill | `{colors.surface}`; the tooltip alone is dark (`{colors.inverse-surface}`, see `components/tooltip.md`) |
+| Fill | `{colors.surface}`; the tooltip alone is inverted (`{colors.inverse-surface}`, dark in light mode and light in dark mode, see `components/tooltip.md`). In dark mode the fill is the surface role of the elevation level below |
 | Border | `{spacing.border-width}` in `{colors.neutral-subtle-pressed}`; the tooltip has none |
 | Radius | `{rounded.overlay}` |
-| Elevation | `level-2` while open; never `level-4` or `level-5` (the surface itself is never an interaction state) |
+| Elevation | `level-2` while open; never `level-4` or `level-5` (the surface itself is never an interaction state). In dark mode: no shadow, the depth is the surface of `level-2` plus the border |
 | Offset | `{spacing.xs}` between the trigger and the surface; with an arrow, to the tip of the arrow |
 | Viewport padding | `{spacing.sm}`, the minimum distance kept to the edge of the viewport |
 
@@ -234,14 +337,14 @@ An overlay panel is a panel that floats above the page and is not tied to a trig
 
 | Aspect | Rule |
 |---|---|
-| Fill | `{colors.surface}`: the toast follows the active theme mode (light surface in light mode, dark surface in a dark mode when the kit has one) |
+| Fill | `{colors.surface}`: the toast follows the active theme mode (light surface in light mode, dark surface in dark mode). In dark mode the fill is the surface role of the elevation level below |
 | Border | `{spacing.border-width}` in `{colors.neutral-subtle-pressed}` |
 | Radius | `{rounded.overlay}` |
-| Elevation | `level-3` while open: it floats above the content, higher than a surface tied to a trigger (`level-2`); never `level-4` or `level-5` |
+| Elevation | `level-3` while open: it floats above the content, higher than a surface tied to a trigger (`level-2`); never `level-4` or `level-5`. In dark mode: no shadow, the depth is the surface of `level-3` plus the border |
 | Placement | By the spec (centered for the dialog, an edge for the toast), never by a trigger: no offset, no flipping |
 
 - Text on the surface follows the same rules as for a floating surface: `on-surface-muted` is allowed (the toast does not use it), contrast is checked against the surface, and the border and the shadow need no 3:1 check since no information depends on them.
-- The page behind a dialog is inert and veiled by the scrim, which is `{colors.inverse-surface}` at a fixed opacity (a behavior constant of the dialog spec, not a theme token). A toast does not veil or block anything.
+- The page behind a dialog is inert and veiled by the scrim, which is `{colors.scrim}` at a fixed opacity (a behavior constant of the dialog spec, not a theme token). `scrim` is its own role: it does not depend on the tooltip color (see Dark mode, "Tooltip and scrim"). A toast does not veil or block anything.
 - A toast waits while a dialog is open, because the page behind a dialog is inert and a message shown there would not be announced.
 
 ## Sizes
