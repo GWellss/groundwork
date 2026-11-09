@@ -53,7 +53,7 @@ The font family variable holds a fallback stack: the font entered by the user fi
 - Name these literals as local aliases with a comment that cites their source (for example `--target-size-min: 24px; /* WCAG 2.5.8 */`). The aliases hold no theme value.
 - Never a new variable that copies a token value. A local alias that points to a generated variable is allowed (for example a component-level variable set to `--color-primary`), as long as no value is duplicated.
 - Primitive scale steps (for example `--color-blue-600`) exist in `tokens.css` but component code uses semantic tokens only, as the Token mapping of each spec does.
-- Framework: use the same CSS variables. If the technology cannot read CSS variables (for example a native or canvas renderer), generate a token object from `tokens.css` with a 1:1 mapping (one entry per variable, same name, same value) and document the mapping in the project. Never retype values by hand.
+- Framework: use the same CSS variables. If the technology cannot read CSS variables (for example a native or canvas renderer), generate a token object from `tokens.css` with a 1:1 mapping (one entry per variable, same name, same value) and document the mapping in the project. Never retype values by hand. The theme script does not yet output native formats; see the Roadmap in `README.md`.
 
 ## Dark mode
 

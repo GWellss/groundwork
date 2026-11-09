@@ -39,10 +39,21 @@ theme/        questionnaire, theme script (DESIGN.md and tokens.css), palettes
 components/   one spec per component (24): button, chip, tooltip, divider, link, badge, avatar, progress, text-field, search-field, checkbox, radio, switch, slider, segmented-control, tabs, accordion, menu, select, popover, dialog, alert, toast, card
 docs/         glossary, conventions, implementation
 docs/rationale/  explanations of the decisions, for human contributors; not needed by agents
-examples/     generated themes and code samples
+examples/     generated example themes (DESIGN.md and tokens.css)
 ```
 
-A web interface to set the theme may come later.
+## Scope
+
+For now, the kit targets the web only. The theme script produces `tokens.css` (CSS custom properties), and the agent writes component code that reads those variables. Other technologies are not yet supported by the script; opening the kit to them is a planned evolution (see Roadmap).
+
+## Roadmap
+
+Planned, not yet available:
+
+- Multi-format output: the theme script computes the theme once, then writes it in several formats. For example `tokens.css` for the web, a Swift file plus a light/dark `.xcassets` asset catalog for iOS, and Android later.
+- Target technologies in the questionnaire: it will ask at the start which technology or technologies are targeted (several choices allowed).
+- Component code stays written by the agent from the specs, whatever the target.
+- A web interface to set the theme may come later.
 
 ## License
 
