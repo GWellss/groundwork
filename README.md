@@ -31,23 +31,45 @@ This kit complements [Google's DESIGN.md](https://github.com/google-labs-code/de
 
 ## Quick start
 
-Run these commands from the repository root.
+### With an AI agent
+
+The kit is designed to be used by an agent. Give it the repository: the URL `https://github.com/GWellss/groundwork`, or a cloned folder that the agent can read. Then send it a prompt such as:
 
 ```
-# Generate a light theme (DESIGN.md and tokens.css)
-python3 theme/theme.py --out examples/default/DESIGN.md
-
-# Generate a theme with dark mode (adds DESIGN.dark.md and a [data-theme="dark"] block in tokens.css)
-python3 theme/theme.py --dark --dark-brand accept --out examples/default-dark/DESIGN.md
-
-# Check the script itself
-python3 theme/theme.py --selftest
-
-# Optional: lint a generated theme
-npx @google/design.md@0.4.0 lint examples/default/DESIGN.md
+Read theme/questionnaire.md in this repository and follow it to create the theme of my design system.
+Then write the component code from the specs in components/ and docs/implementation.md, for the web.
 ```
 
-The theme choices (colors, radius, typography, icon style) come from the questionnaire; the script options that apply them are described in [theme/questionnaire.md](theme/questionnaire.md).
+The agent then:
+
+1. Asks you a few questions (name, brand color, corners, density, font, icons, optional dark mode), each with a default you can accept.
+2. Generates the theme and checks the color contrast.
+3. Writes the component code in your stack, reading every value from `tokens.css`.
+
+You get a `DESIGN.md` theme, a `tokens.css` file (plus `DESIGN.dark.md` if you asked for dark mode), and the component code. The steps are detailed in "How an agent uses the kit" below.
+
+What the agent can do depends on its tools. With a terminal it runs the theme script and the lint; with code execution only, it runs the script without the lint; with no tools, it copies precomputed colors from [theme/palettes.md](theme/palettes.md) and you check the contrast yourself. See the three levels in [theme/questionnaire.md](theme/questionnaire.md).
+
+### Without an agent
+
+You can generate a theme yourself with the script (Python 3, no package to install):
+
+```
+git clone https://github.com/GWellss/groundwork.git
+cd groundwork
+python3 theme/theme.py --help
+```
+
+Then generate your theme in a folder of your own. For example, a violet theme with rounded corners and a dark mode:
+
+```
+mkdir -p my-theme
+python3 theme/theme.py --name Acme --brand "#7C3AED" --corners rounded --dark --dark-brand accept --out my-theme/DESIGN.md
+```
+
+The script does not create the output folder, hence the `mkdir`. It prints the contrast report, and writes `my-theme/DESIGN.md`, `my-theme/tokens.css` and, because of `--dark`, `my-theme/DESIGN.dark.md`. `--dark-brand accept` accepts the nearest palette step if your brand color is too dark for a dark background (usual brand colors are); use `keep` to refuse it and have the failing pairs reported. Writing the component code is up to you, from the specs in `components/`.
+
+The options that apply the questionnaire choices are described in [theme/questionnaire.md](theme/questionnaire.md). To regenerate the examples of this repository, see [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## How an agent uses the kit
 
