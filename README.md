@@ -2,7 +2,7 @@
 
 A reference kit that lets an AI agent bootstrap a design system without starting from scratch.
 
-Status: early work in progress. Nothing here is stable yet.
+Status: version 0.1.0 (see [CHANGELOG.md](CHANGELOG.md)). The kit is usable, but the specs and the format may still change before 1.0.
 
 ## What and why
 
@@ -24,6 +24,31 @@ This kit complements [Google's DESIGN.md](https://github.com/google-labs-code/de
 - Optional dark mode: a second theme file, `DESIGN.dark.md`, and a `[data-theme="dark"]` block in `tokens.css`; the application decides when to apply it (see "Dark mode" in `docs/conventions.md`).
 - Theme validation: 0 errors and 0 `contrast-ratio` warnings; `orphaned-tokens` warnings on unused palette steps are tolerated.
 
+## Requirements
+
+- Python 3, standard library only (no package to install), to run the theme script.
+- Node.js only for the optional DESIGN.md lint (`npx @google/design.md@0.4.0 lint <file>`).
+
+## Quick start
+
+Run these commands from the repository root.
+
+```
+# Generate a light theme (DESIGN.md and tokens.css)
+python3 theme/theme.py --out examples/default/DESIGN.md
+
+# Generate a theme with dark mode (adds DESIGN.dark.md and a [data-theme="dark"] block in tokens.css)
+python3 theme/theme.py --dark --dark-brand accept --out examples/default-dark/DESIGN.md
+
+# Check the script itself
+python3 theme/theme.py --selftest
+
+# Optional: lint a generated theme
+npx @google/design.md@0.4.0 lint examples/default/DESIGN.md
+```
+
+The theme choices (colors, radius, typography, icon style) come from the questionnaire; the script options that apply them are described in [theme/questionnaire.md](theme/questionnaire.md).
+
 ## How an agent uses the kit
 
 1. Ask the user the questionnaire to collect theme choices. The questionnaire first asks the agent to identify its level (terminal, code execution, or no tools), which decides how colors are derived and checked.
@@ -39,8 +64,21 @@ theme/        questionnaire, theme script (DESIGN.md and tokens.css), palettes
 components/   one spec per component (24): button, chip, tooltip, divider, link, badge, avatar, progress, text-field, search-field, checkbox, radio, switch, slider, segmented-control, tabs, accordion, menu, select, popover, dialog, alert, toast, card
 docs/         glossary, conventions, implementation
 docs/rationale/  explanations of the decisions, for human contributors; not needed by agents
-examples/     generated example themes (DESIGN.md and tokens.css)
+examples/     generated example themes
+  default/        light theme: DESIGN.md, tokens.css
+  default-dark/   light and dark theme: DESIGN.md, DESIGN.dark.md, tokens.css
 ```
+
+Other files at the root: [LICENSE](LICENSE), [CREDITS.md](CREDITS.md), [CONTRIBUTING.md](CONTRIBUTING.md), [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md), [SECURITY.md](SECURITY.md), [CHANGELOG.md](CHANGELOG.md). Continuous integration is in `.github/`: it runs the script self-test and checks that the examples are up to date (both blocking), and runs the DESIGN.md lint (not blocking).
+
+## What's ready and what's planned
+
+| Ready (0.1.0) | Planned |
+|---|---|
+| 24 component specs | Other technologies than the web |
+| Questionnaire and theme script (DESIGN.md, `tokens.css`) | Target technologies asked in the questionnaire |
+| Optional dark mode | Multi-format output (iOS, Android) |
+| Example themes, CI | A web interface to set the theme |
 
 ## Scope
 
@@ -57,4 +95,8 @@ Planned, not yet available:
 
 ## License
 
-To be decided. The repository is private for now and is intended to become open source.
+MIT, see [LICENSE](LICENSE). Third-party credits are in [CREDITS.md](CREDITS.md).
+
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md). Please follow the [Code of Conduct](CODE_OF_CONDUCT.md). To report a vulnerability, see [SECURITY.md](SECURITY.md).
