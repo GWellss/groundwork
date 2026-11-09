@@ -31,6 +31,8 @@ import os
 import re
 import sys
 
+__version__ = "0.1.0"
+
 STEPS = (50, 100, 200, 300, 400, 500, 600, 700, 800, 900)
 LIGHT = (0.97, 0.93, 0.87, 0.79, 0.70, 0.62, 0.54, 0.46, 0.38, 0.30)
 SHARE = (0.15, 0.30, 0.50, 0.75, 0.90, 1.0, 1.0, 1.0, 0.90, 0.75)
@@ -892,6 +894,7 @@ def selftest():
 def parser():
     p = argparse.ArgumentParser(description="Generate a DESIGN.md theme and tokens.css from the 10 questionnaire answers.",
                                 formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    p.add_argument("--version", action="version", version="%(prog)s " + __version__)
     p.add_argument("--name", default="Design System", help="theme name")
     p.add_argument("--brand", default="#2563EB", help="hex #RRGGBB")
     p.add_argument("--danger", default="#DC2626", help="hex #RRGGBB")
