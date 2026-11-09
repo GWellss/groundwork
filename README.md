@@ -1,4 +1,4 @@
-# design-system-conf
+# Groundwork
 
 A reference kit that lets an AI agent bootstrap a design system without starting from scratch.
 
